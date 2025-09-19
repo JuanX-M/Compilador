@@ -36,7 +36,8 @@ public class MatrizTransicion {
             case '}' : return 23;
             case '_' : return 24;
             case ';' : return 25;
-            default : return 26;
+            case ',' : return 26;
+            default : return 27;
         }
     }
 
