@@ -1,0 +1,18 @@
+Palabras reservadas
+
+
+if
+else
+endif
+print
+return
+int
+float
+var
+for
+from
+to
+cr
+se
+le
+toi
