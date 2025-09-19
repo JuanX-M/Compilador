@@ -1,10 +1,15 @@
 package Lexico;
+import Tools.Pair;
+import Lexico.AccionesSemanticas.AccionSemantica;
 
 public class MatrizTransicion {
 
 
 
+    private final Pair<Integer, AccionSemantica>[][] matriz = new Pair[17][28];
 
+    public MatrizTransicion() {
+    }
 
     public Integer convertir(char c){
         switch (c) {
@@ -41,15 +46,42 @@ public class MatrizTransicion {
         }
     }
 
+    public void addTransicion(int estado, int simbolo, int newEstado, AccionSemantica a) {
+        matriz[estado][simbolo] = new Pair<>(newEstado, a);
+    };
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Lista de Transiciones Definidas:\n");
+        sb.append("---------------------------------\n");
 
+        // Recorremos toda la matriz
+        for (int i = 0; i < matriz.length; i++) { // 'i' es el Estado
+            for (int j = 0; j < matriz[i].length; j++) { // 'j' es el Símbolo/Columna
 
+                Pair<Integer, AccionSemantica> cell = matriz[i][j];
 
+                // Solo actuamos si la celda tiene contenido (no es nula)
+                if (cell != null) {
 
+                    // Formateamos el contenido de la celda como antes
+                    Integer nextState = cell.getFirst();
+                    AccionSemantica action = cell.getSecond();
+                    String cellStr;
+                    String stateStr = String.valueOf(nextState);
 
+                    if (action == null) {
+                        cellStr = stateStr;
+                    } else {
+                        cellStr = stateStr + "/" + action.getClass().getSimpleName();
+                    }
 
+                    // Creamos la línea con el formato [Estado, Simbolo] -> Contenido
+                    sb.append(String.format("[%d, %d] -> %s\n", i, j, cellStr));
+                }
+            }
+        }
+        return sb.toString();
+    }
+    }
 
-
-
-
-
-}

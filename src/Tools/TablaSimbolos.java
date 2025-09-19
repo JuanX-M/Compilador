@@ -8,14 +8,14 @@ import java.util.Map;
 public class TablaSimbolos {
 
     //TODO: Consultar si les parece bien planteada la Tabla
-    private Map<String, Info> Tabla;
+    private HashMap<String, Info> Tabla;
 
     public TablaSimbolos() {
         this.Tabla = new HashMap<>();
     }
 
     public void addSimboloTabla(String lexema, Info i) {
-        table.putIfAbsent(lexema, i);
+        Tabla.putIfAbsent(lexema, i);
     }
 
 
