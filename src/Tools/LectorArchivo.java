@@ -5,7 +5,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class BinaryFileReader {
+public class LectorArchivo {
 
     public static ArrayList<ArrayList<Character>> read(String fileName, String pathFile) {
         if (fileName.length() <= 1) {

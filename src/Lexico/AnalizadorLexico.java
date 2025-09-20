@@ -3,9 +3,9 @@ import java.util.ArrayList;
 
 import Lexico.AccionesSemanticas.AS1;
 import Lexico.AccionesSemanticas.AccionSemantica;
-import Tools.BinaryFileReader;
+import Tools.LectorArchivo;
 //import Tools.Logger;
-import Tools.ProgramReader;
+import Tools.Cursor;
 import java.util.stream.Collectors;
 
 public class AnalizadorLexico {
@@ -26,7 +26,7 @@ public class AnalizadorLexico {
     public void cargarMatriz() {
         this.matrizTransicion = new MatrizTransicion();
 
-        ArrayList<ArrayList<Character>> data = BinaryFileReader.read("MatrizTransiciones.txt", "data");
+        ArrayList<ArrayList<Character>> data = LectorArchivo.read("MatrizTransiciones.txt", "data");
         int e0 = -1;
         int e1 = -1;
         int e2 = -1;

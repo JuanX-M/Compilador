@@ -2,13 +2,13 @@ package Tools;
 
 import java.util.ArrayList;
 
-public class ProgramReader {
+public class Cursor {
     private ArrayList<ArrayList<Character>> program;
     private int currentLine;
     private int currentColumn;
 
-    public ProgramReader(String p) {
-        this.program = BinaryFileReader.read(p, "sample_programs");
+    public Cursor(String p) {
+        this.program = LectorArchivo.read(p, "sample_programs");
         this.currentLine = 0;
         this.currentColumn = 0;
     }

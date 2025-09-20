@@ -1,9 +1,14 @@
 package Lexico.AccionesSemanticas;
 
 import Tools.Pair;
-import Tools.ProgramReader;
+import Tools.Cursor;
+import Tools.Buffer;
+public abstract class AccionSemantica {
 
-public interface AccionSemantica {
+    public static final Buffer buffer = new Buffer();
 
-    public Pair<String, Integer> run(char simbolo, ProgramReader reader);
+    public AccionSemantica() {
+    }
+
+    public abstract Pair<String, Integer> run(Character simbolo,Cursor cursor);
 }
