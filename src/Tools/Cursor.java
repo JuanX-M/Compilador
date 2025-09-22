@@ -13,7 +13,7 @@ public class Cursor {
         this.currentColumn = 0;
     }
 
-    public Character character() {
+    public Character getCharacter() {
         return program.get(currentLine).get(currentColumn);
 
     }
@@ -63,7 +63,7 @@ public class Cursor {
         this.currentColumn++;
     }
 
-    public void returnCharacter() {
+    public void gobackCharacter() {
         currentColumn = currentColumn - 1;
     }
 
