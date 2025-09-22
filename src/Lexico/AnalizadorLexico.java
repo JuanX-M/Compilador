@@ -13,10 +13,8 @@ public class AnalizadorLexico {
     private final int ESTADOS = 17; //filas
     private final int SIMBOLOS = 27; //columnas
 
-
     public static int estado_error = 0;
     MatrizTransicion matrizTransicion;
-
 
     public AnalizadorLexico() {
         cargarMatriz();

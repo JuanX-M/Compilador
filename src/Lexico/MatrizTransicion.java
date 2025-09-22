@@ -4,8 +4,6 @@ import Lexico.AccionesSemanticas.AccionSemantica;
 
 public class MatrizTransicion {
 
-
-
     private final Pair<Integer, AccionSemantica>[][] matriz = new Pair[17][28];
 
     public MatrizTransicion() {

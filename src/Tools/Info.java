@@ -8,7 +8,6 @@ class Info {
 
     //TODO: Verificar atributos privados de Info
     private String tokenType; // ej: "ID", "CTE_INT"
-
     private int nroLinea;
 
     public Info(String tokenType, int nroLinea) {

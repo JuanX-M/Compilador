@@ -1,26 +1,32 @@
 package Lexico.AccionesSemanticas;
 
+import Tools.Pair;
+
+import static Tools.TablaSimbolos.tablaSimbolos;
+
 public class ASEntregarEntero extends AccionSemantica {
-    public ASEntregarEntero() {
+
+    private String nombre ="AS3";
+
+    public String getNombre() {
+        return nombre;
     }
 
     @Override
     public Pair<String, Integer> run(Character simbolo, Tools.Cursor cursor) {
-        String lexema = "";
-        int valor = 0;
-        if (!buffer.isEmpty()) {
-            lexema = "";
-            for (int i = 0; i < buffer.getSize(); i++) {
-                lexema += buffer.getCharacter(i);
-            }
-            try {
-                valor = Integer.parseInt(lexema);
-            } catch (NumberFormatException e) {
-                //Logger.log("Error: El número es demasiado grande para un entero.");
-                valor = Integer.MAX_VALUE; // O cualquier otro valor que indique un error
-            }
+        String aux = buffer.toString();
+        try {
+            int numero = Integer.parseInt(aux);
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
         }
-        buffer.clear();
-        return new Pair<>(lexema, valor);
+        buffer.append(simbolo);
+        if(tablaSimbolos.containsKey(aux)) {
+            return new Pair<String,Integer>(aux,null); //TODO: corregir
+        }
+        tablaSimbolos.put(aux,null);
+        buffer.setLength(0);
+        return new Pair<>(aux,null); // TODO: retornar TOKEN
     }
+
 }
