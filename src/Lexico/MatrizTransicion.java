@@ -83,5 +83,16 @@ public class MatrizTransicion {
         }
         return sb.toString();
     }
+
+
+    //TODO: Agregar nextEstado() Método para obtener la transición dada un estado y un símbolo
+    /*
+    public Pair<Integer, AccionSemantica> nextEstado(int estado, char simbolo) {
+        int col = convertir(simbolo);
+        if (col < 0 || col >= matriz[0].length || estado < 0 || estado >= matriz.length) {
+            return null; // o lanzar una excepción
+        }
+        return matriz[estado][col];
+        */
     }
 

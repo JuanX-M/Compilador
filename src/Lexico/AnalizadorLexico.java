@@ -66,4 +66,21 @@ public class AnalizadorLexico {
 
     }
 
+    //TODO: Definir funcion yylex()
+    /*
+        yylex() debe retornar el siguiente token del programa fuente y devolverlo al sintactico
+        por lo tanto para mi hay que hacer lo siguiente:
+            - leer caracter con el Cursor cursor.character()
+            - buscar en la matriz de transicion el estado siguiente con matrizTransicion.nextEstado(estadoActual, caracter)
+            - si el estado siguiente es un estado final
+                - ejecutar la accion semantica asociada a la transicion
+                - devolver el token al sintactico, puntero del lexema a la tabla de simbolos con yylval
+                - reiniciar el estado actual al estado inicial
+            - si el estado siguiente es un estado de error
+                - manejar el error (imprimir mensaje, etc)??
+            - si el estado siguiente es un estado intermedio
+                - seguir leyendo caracteres
+
+    */
+
 }
