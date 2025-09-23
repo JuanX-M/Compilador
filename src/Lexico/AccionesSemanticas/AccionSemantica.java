@@ -2,11 +2,19 @@ package Lexico.AccionesSemanticas;
 
 import Tools.Pair;
 import Tools.Cursor;
-import Tools.Buffer;
 
 public abstract class AccionSemantica {
+    private int nombre;
 
-    public static final StringBuilder buffer = new StringBuilder();
+    public int getNumeroAccionSemantica() {
+        return nombre;
+    }
+
+    public AccionSemantica(int nombre) {
+        this.nombre = nombre;
+    }
+
+    public static final StringBuilder BUFFER = new StringBuilder();
 
     public AccionSemantica() {
     }

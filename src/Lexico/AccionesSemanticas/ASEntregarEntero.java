@@ -2,30 +2,26 @@ package Lexico.AccionesSemanticas;
 
 import Tools.Pair;
 
-import static Tools.TablaSimbolos.tablaSimbolos;
+import static Tools.TablaSimbolos.TABLA_SIMBOLOS;
 
 public class ASEntregarEntero extends AccionSemantica {
-
-    private String nombre ="AS3";
-
-    public String getNombre() {
-        return nombre;
+    public ASEntregarEntero(){
+        super(11);
     }
-
     @Override
     public Pair<String, Integer> run(Character simbolo, Tools.Cursor cursor) {
-        String aux = buffer.toString();
+        String aux = BUFFER.toString();
         try {
             int numero = Integer.parseInt(aux);
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
-        buffer.append(simbolo);
-        if(tablaSimbolos.containsKey(aux)) {
+        BUFFER.append(simbolo);
+        if(TABLA_SIMBOLOS.containsKey(aux)) {
             return new Pair<String,Integer>(aux,null); //TODO: corregir
         }
-        tablaSimbolos.put(aux,null);
-        buffer.setLength(0);
+        TABLA_SIMBOLOS.put(aux,null);
+        BUFFER.setLength(0);
         return new Pair<>(aux,null); // TODO: retornar TOKEN
     }
 

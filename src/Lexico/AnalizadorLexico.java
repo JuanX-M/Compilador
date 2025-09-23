@@ -1,7 +1,7 @@
 package Lexico;
 import java.util.ArrayList;
 
-import Lexico.AccionesSemanticas.AS1;
+import Lexico.AccionesSemanticas.ASBorrarComentariosML;
 import Lexico.AccionesSemanticas.AccionSemantica;
 import Tools.LectorArchivo;
 //import Tools.Logger;
@@ -42,26 +42,24 @@ public class AnalizadorLexico {
             } catch (NumberFormatException e) {
             }
 
-            this.matrizTransicion.addTransicion(e0,e1,e2,toAccionSemantica(acc));
+            this.matrizTransicion.addTransicion(e0, e1, e2, toAccionSemantica(acc));
         }
 
     }
-    private AccionSemantica toAccionSemantica(String acc) {
-        acc = acc.trim();
+    private AccionSemantica toAccionSemantica(Integer acc) {
         if (acc.equals("null") || acc.equals("-1")) {
             return null;
         }
 
         // Obtener la clase a partir del nombre
-        AS1 as1 = new AS1(acc);
+        AccionSemantica as1 = new ASBorrarComentariosML();
 
         // Crear una instancia de la clase
         return as1;
         /*} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException
                  | InvocationTargetException e) {
             e.printStackTrace();
-        }*/
-
+        }
     }
 
     //TODO: Definir funcion yylex()

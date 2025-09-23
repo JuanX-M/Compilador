@@ -4,7 +4,7 @@ import Lexico.AccionesSemanticas.AccionSemantica;
 
 public class MatrizTransicion {
 
-    private final Pair<Integer, AccionSemantica>[][] matriz = new Pair[17][28];
+    private final Pair<Integer, AccionSemantica>[][] MATRIZ = new Pair[17][28];
 
     public MatrizTransicion() {
     }
@@ -45,7 +45,7 @@ public class MatrizTransicion {
     }
 
     public void addTransicion(int estado, int simbolo, int newEstado, AccionSemantica a) {
-        matriz[estado][simbolo] = new Pair<>(newEstado, a);
+        MATRIZ[estado][simbolo] = new Pair<>(newEstado, a);
     };
     @Override
     public String toString() {
@@ -54,10 +54,10 @@ public class MatrizTransicion {
         sb.append("---------------------------------\n");
 
         // Recorremos toda la matriz
-        for (int i = 0; i < matriz.length; i++) { // 'i' es el Estado
-            for (int j = 0; j < matriz[i].length; j++) { // 'j' es el Símbolo/Columna
+        for (int i = 0; i < MATRIZ.length; i++) { // 'i' es el Estado
+            for (int j = 0; j < MATRIZ[i].length; j++) { // 'j' es el Símbolo/Columna
 
-                Pair<Integer, AccionSemantica> cell = matriz[i][j];
+                Pair<Integer, AccionSemantica> cell = MATRIZ[i][j];
 
                 // Solo actuamos si la celda tiene contenido (no es nula)
                 if (cell != null) {

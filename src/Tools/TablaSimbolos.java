@@ -8,23 +8,23 @@ import java.util.Map;
 public class TablaSimbolos {
 
     //TODO: Consultar si les parece bien planteada la Tabla
-    public static final HashMap<String, Info> tablaSimbolos = null;
+    public static final HashMap<String, Info> TABLA_SIMBOLOS = null;
 
     public void addSimboloTabla(String lexema, Info i) {
-        tablaSimbolos.putIfAbsent(lexema, i);
+        TABLA_SIMBOLOS.putIfAbsent(lexema, i);
     }
 
     public Info getSimbolo(String lexema) {
-        return tablaSimbolos.get(lexema);
+        return TABLA_SIMBOLOS.get(lexema);
     }
 
     public boolean containsSymbol(String lexema) {
-        return tablaSimbolos.containsKey(lexema);
+        return TABLA_SIMBOLOS.containsKey(lexema);
     }
 
     public void printTabla() {
         System.out.println("------ Contenido de la Tabla de Símbolos ------");
-        for (Map.Entry<String, Info> entry : tablaSimbolos.entrySet()) {
+        for (Map.Entry<String, Info> entry : TABLA_SIMBOLOS.entrySet()) {
             System.out.println("Lexema: '" + entry.getKey() + "' -> " + entry.getValue().toString());
         }
         System.out.println("---------------------------------------------");
