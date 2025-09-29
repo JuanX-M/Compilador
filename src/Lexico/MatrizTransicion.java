@@ -40,7 +40,8 @@ public class MatrizTransicion {
             case '_' : return 24;
             case ';' : return 25;
             case ',' : return 26;
-            default : return 27;
+            case '.' : return 27;
+            default : return 28;
         }
     }
 
