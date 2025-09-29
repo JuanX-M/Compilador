@@ -6,14 +6,14 @@ import Tools.LectorArchivo;
 import java.util.ArrayList;
 
 public class ASEntregarPalabras extends AccionSemantica{
-    public ASEntregarPalabras(ArrayList<ArrayList<Character>> palabrasReservadas) {
+
+    private ArrayList<String> palabrasReservadas;
+
+    public ASEntregarPalabras() {
         super(12);
-        this.palabrasReservadas = palabrasReservadas;
+        this.palabrasReservadas = transformarArraylist();
+
     }
-
-    private ArrayList<ArrayList<Character>> palabrasReservadas = LectorArchivo.read("palabrasReservadas.txt", "data");
-
-
 
     @Override
     public Pair<String, Integer> run(Character simbolo, Cursor cursor) {
@@ -36,9 +36,10 @@ public class ASEntregarPalabras extends AccionSemantica{
 
     private ArrayList<String> transformarArraylist(){ //convierte el doble array list de caracter a un array list de String
         ArrayList<String> salida = new ArrayList<>();
-        for (int i=0;i<=palabrasReservadas.size();i++){
+        ArrayList<ArrayList<Character>> palabrasReservadasAux = LectorArchivo.read("palabrasReservadas.txt", "data");
+        for (int i=0;i<=palabrasReservadasAux.size();i++){
             StringBuilder stringAux = new StringBuilder();
-            for (Character c : palabrasReservadas.get(i)){
+            for (Character c : palabrasReservadasAux.get(i)){
                 stringAux.append(c);
             }
             salida.add(stringAux.toString());

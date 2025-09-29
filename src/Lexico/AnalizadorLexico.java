@@ -1,34 +1,35 @@
 package Lexico;
 import java.util.ArrayList;
 
-import Lexico.AccionesSemanticas.ASBorrarComentariosML;
-import Lexico.AccionesSemanticas.AccionSemantica;
+import Lexico.AccionesSemanticas.*;
 import Tools.LectorArchivo;
-//import Tools.Logger;
 import Tools.Cursor;
 import java.util.stream.Collectors;
 
 public class AnalizadorLexico {
 
     private final int ESTADOS = 17; //filas
-    private final int SIMBOLOS = 27; //columnas
+    private final int SIMBOLOS = 28; //columnas
 
     public static int estado_error = 0;
-    MatrizTransicion matrizTransicion;
+    private MatrizTransicion matrizTransicion;
+    private Cursor cursor;
 
     public AnalizadorLexico() {
         cargarMatriz();
-        System.out.println(this.matrizTransicion.toString());
+        cursor = new Cursor();
     }
+
+    public static final LectorArchivo //TODO: crear un objeto para el programa fuente, va a haber otro para la matriz. es static porque se tiene que poder usar el read en el cursor
 
     public void cargarMatriz() {
         this.matrizTransicion = new MatrizTransicion();
-
-        ArrayList<ArrayList<Character>> data = LectorArchivo.read("MatrizTransiciones.txt", "data");
-        int e0 = -1;
-        int e1 = -1;
-        int e2 = -1;
-        String acc = null;
+        LectorArchivo lectorArchivo = new LectorArchivo("MatrizTransiciones.txt", "data");
+        ArrayList<ArrayList<Character>> data = lectorArchivo.read();
+        int e0 = -1; // estado actual
+        int e1 = -1; // simbolo
+        int e2 = -1; //siguiente estado
+        int acc = -1; //numero de accion semantica
 
         for (ArrayList<Character> l : data) {
             String linea[] = l.stream().map(Object::toString).collect(Collectors.joining("")).split("\\s*;\\s*");
@@ -37,46 +38,29 @@ public class AnalizadorLexico {
                 e0 = Integer.parseInt(linea[0]);
                 e1 = Integer.parseInt(linea[1]);
                 e2 = Integer.parseInt(linea[2]);
-                acc = linea[3];
+                acc = Integer.parseInt(linea[3]);
 
             } catch (NumberFormatException e) {
+                System.out.println(e.getMessage()); //TODO:Salida por error de formato
             }
-
             this.matrizTransicion.addTransicion(e0, e1, e2, toAccionSemantica(acc));
         }
-
     }
+
     private AccionSemantica toAccionSemantica(Integer acc) {
-        if (acc.equals("null") || acc.equals("-1")) {
-            return null;
-        }
-
-        // Obtener la clase a partir del nombre
-        AccionSemantica as1 = new ASBorrarComentariosML();
-
-        // Crear una instancia de la clase
-        return as1;
-        /*} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException
-                 | InvocationTargetException e) {
-            e.printStackTrace();
+        switch (acc) { //crea la instancia de clase de accion semantica
+            case 1 : return new ASConcatenarBuffer();
+            case 3 : return new ASEntregarEntero();
+            case 4 : return new ASEntregarFlotante();
+            case 5 : return new ASEntregarID();
+            case 6 : return new ASEntregarLiterales();
+            case 7 : return new ASEntregarCad1Linea();
+            case 8 : return new ASEntregarComparadores();
+            case 10 : return new ASBorrarComentariosML();
+            case 11 : return new ASEntregarAsignacion();
+            case 12 : return new ASEntregarPalabras();
+            default : return null;
         }
     }
-
-    //TODO: Definir funcion yylex()
-    /*
-        yylex() debe retornar el siguiente token del programa fuente y devolverlo al sintactico
-        por lo tanto para mi hay que hacer lo siguiente:
-            - leer caracter con el Cursor cursor.character()
-            - buscar en la matriz de transicion el estado siguiente con matrizTransicion.nextEstado(estadoActual, caracter)
-            - si el estado siguiente es un estado final
-                - ejecutar la accion semantica asociada a la transicion
-                - devolver el token al sintactico, puntero del lexema a la tabla de simbolos con yylval
-                - reiniciar el estado actual al estado inicial
-            - si el estado siguiente es un estado de error
-                - manejar el error (imprimir mensaje, etc)??
-            - si el estado siguiente es un estado intermedio
-                - seguir leyendo caracteres
-
-    */
 
 }

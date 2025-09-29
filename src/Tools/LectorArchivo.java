@@ -6,23 +6,26 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class LectorArchivo {
+    private final String FILE_NAME;
+    private final String PATH_FILE;
 
-    public static ArrayList<ArrayList<Character>> read(String fileName, String pathFile) {
-        if (fileName.length() <= 1) {
+    public LectorArchivo(String FILE_NAME, String PATH_FILE){
+        this.FILE_NAME = FILE_NAME;
+        this.PATH_FILE = PATH_FILE;
+    }
+
+    public ArrayList<ArrayList<Character>> read() {
+        if (FILE_NAME.length() <= 1) {
             System.out.println("No ingreso el nombre del archivo correctamente.");
             return null;
         }
-
         String path = System.getProperty("user.dir");
-
         try {
-            File file = new File(path + File.separator + pathFile + File.separator + fileName);
-
+            File file = new File(path + File.separator + PATH_FILE + File.separator + FILE_NAME);
             if (!file.exists()) {
                 System.out.println("El archivo no existe.");
                 return null;
             }
-
             // Variables
             FileReader fileReader = new FileReader(file);
             int character;
