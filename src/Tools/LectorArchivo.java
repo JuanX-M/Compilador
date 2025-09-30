@@ -32,7 +32,6 @@ public class LectorArchivo {
             int line = 1;
             ArrayList<ArrayList<Character>> out = new ArrayList<>();
             out.add(new ArrayList<>());
-
             while ((character = fileReader.read()) != -1) {
                 if ((char) character == '\n') {
                     if (out.get(line - 1).isEmpty()) {

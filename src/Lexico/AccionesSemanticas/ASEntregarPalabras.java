@@ -3,8 +3,6 @@ package Lexico.AccionesSemanticas;
 import Tools.Cursor;
 import Tools.Pair;
 import Tools.LectorArchivo;
-
-
 import java.util.ArrayList;
 
 public class ASEntregarPalabras extends AccionSemantica{
@@ -28,7 +26,7 @@ public class ASEntregarPalabras extends AccionSemantica{
             if (auxPalabrasReservadas.contains(aux)) {
                 switch (aux) {
                     case "if":
-                        return new Pair<>("if", Parser. if);
+                        return new Pair<>("if", Parser.if);
                     case "else":
                         return new Pair<>("else", Parser.else);
                     case "endif":
@@ -36,11 +34,11 @@ public class ASEntregarPalabras extends AccionSemantica{
                     case "print":
                         return new Pair<>("print", Parser.print);
                     case "return":
-                        return new Pair<>("return", Parser. return);
+                        return new Pair<>("return", Parser.return);
                     case "var":
                         return new Pair<>("var", Parser.var);
                     case "for":
-                        return new Pair<>("for", Parser. for);
+                        return new Pair<>("for", Parser.for);
                     case "from":
                         return new Pair<>("from", Parser.from);
                     case "to":
@@ -70,7 +68,8 @@ public class ASEntregarPalabras extends AccionSemantica{
 
     private ArrayList<String> transformarArraylist(){ //convierte el doble array list de caracter a un array list de String
         ArrayList<String> salida = new ArrayList<>();
-        ArrayList<ArrayList<Character>> palabrasReservadasAux = LectorArchivo.read("palabrasReservadas.txt", "data");
+        LectorArchivo lectorArchivoAux = new LectorArchivo("palabrasReservadas.txt", "data");
+        ArrayList<ArrayList<Character>> palabrasReservadasAux = lectorArchivoAux.read();
         for (int i=0;i<=palabrasReservadasAux.size();i++){
             StringBuilder stringAux = new StringBuilder();
             for (Character c : palabrasReservadasAux.get(i)){

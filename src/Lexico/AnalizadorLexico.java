@@ -17,9 +17,9 @@ public class AnalizadorLexico {
     private MatrizTransicion matrizTransicion;
     private Cursor cursor;
 
-    public AnalizadorLexico() {
+    public AnalizadorLexico(String programa) {
         cargarMatriz();
-        cursor = new Cursor();
+        cursor = new Cursor(programa);
     }
 
     public void cargarMatriz() {
