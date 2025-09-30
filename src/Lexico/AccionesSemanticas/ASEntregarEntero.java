@@ -1,6 +1,7 @@
 package Lexico.AccionesSemanticas;
 
 import Tools.Pair;
+import Sintactico.Parser
 
 import static Tools.TablaSimbolos.TABLA_SIMBOLOS;
 
@@ -18,7 +19,7 @@ public class ASEntregarEntero extends AccionSemantica {
         }
         BUFFER.append(simbolo);
         if(TABLA_SIMBOLOS.containsKey(aux)) {
-            return new Pair<String,Integer>(aux,null); //TODO: corregir
+            return new Pair<String,Integer>(aux,Parser.int); //TODO: corregir
         }
         TABLA_SIMBOLOS.put(aux,null);
         BUFFER.setLength(0);

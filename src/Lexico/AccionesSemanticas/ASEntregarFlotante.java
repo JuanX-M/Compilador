@@ -47,6 +47,7 @@ public class ASEntregarFlotante extends AccionSemantica{
         }
     BUFFER.setLength(0);
     cursor.gobackCharacter();
-    return new Pair<String, Integer>(aDevolver, -1); //TODO: Corregir
+    // retornamons el numero y el token float
+    return new Pair<String, Integer>(aDevolver, Parser.float);
     }
 }

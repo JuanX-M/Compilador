@@ -2,7 +2,7 @@ package Lexico;
 import Tools.Pair;
 import Lexico.AccionesSemanticas.AccionSemantica;
 
-public class MatrizTransicion {
+public final class MatrizTransicion {
 
     private final Pair<Integer, AccionSemantica>[][] MATRIZ = new Pair[17][28];
 
@@ -82,7 +82,6 @@ public class MatrizTransicion {
         }
         return sb.toString();
     }
-
 
     //TODO: Agregar nextEstado() Método para obtener la transición dada un estado y un símbolo
     /*

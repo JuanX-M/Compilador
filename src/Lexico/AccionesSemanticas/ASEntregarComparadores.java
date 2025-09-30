@@ -13,7 +13,7 @@ public class ASEntregarComparadores extends AccionSemantica{
             BUFFER.append(simbolo);
             String salida = BUFFER.toString();
             BUFFER.setLength(0);
-            return new Pair<>(salida, -1); //TODO: Corregir
+            return new Pair<>(salida, ; //TODO: Corregir
         } else {
             String salida = BUFFER.toString();
             BUFFER.setLength(0);

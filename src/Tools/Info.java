@@ -4,7 +4,7 @@ package Tools;
  * Representa una entrada en la Tabla de Símbolos.
  * Almacena los atributos asociados de un lexema, como su tipo de token y nroLinea.
  */
-class Info {
+public class Info {
 
     //TODO: Verificar atributos privados de Info
     private String tokenType; // ej: "ID", "CTE_INT"

@@ -3,6 +3,8 @@ package Lexico.AccionesSemanticas;
 import Tools.Cursor;
 import Tools.Pair;
 import Tools.LectorArchivo;
+
+
 import java.util.ArrayList;
 
 public class ASEntregarPalabras extends AccionSemantica{
@@ -24,7 +26,39 @@ public class ASEntregarPalabras extends AccionSemantica{
         ArrayList<String> auxPalabrasReservadas = new ArrayList<>(transformarArraylist());
         try {
             if (auxPalabrasReservadas.contains(aux))
-                return new Pair<String, Integer>(aux, -1); //TODO:Corregir salida
+                switch (aux) {
+                    case "if":
+                        return new Pair<>("if", Parser.if);
+                    case "else":
+                        return new Pair<>("else", Parser.else);
+                    case "endif":
+                        return new Pair<>("endif", Parser.endif);
+                    case "print":
+                        return new Pair<>("print", Parser.print);
+                    case "return":
+                        return new Pair<>("return", Parser.return);
+                    case "var":
+                        return new Pair<>("var", Parser.var);
+                    case "for":
+                        return new Pair<>("for", Parser.for);
+                    case "from":
+                        return new Pair<>("from", Parser.from);
+                    case "to":
+                        return new Pair<>("to", Parser.to);
+                    case "cr":
+                        return new Pair<>("cr", Parser.cr);
+                    case "se":
+                        return new Pair<>("se", Parser.se);
+                    case "le":
+                        return new Pair<>("le", Parser.le);
+                    case "toi":
+                        return new Pair<>("toi", Parser.toi);
+                    default:
+                        // Manejar el caso en que el token no coincide con ninguno de los casos
+                        System.out.println("Token no reconocido: " + aux);
+                        return new Pair<>("TOKEN_DESCONOCIDO", -1);
+                //Parser.token(aux)
+                //return new Pair<String, Integer>(aux, Parser.aux); //TODO:Corregir salida
             else
                 throw new IllegalArgumentException("Palabra no existe");
         }
