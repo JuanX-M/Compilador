@@ -1,5 +1,6 @@
 package Lexico.AccionesSemanticas;
 
+import Sintactico.Parser;
 import Tools.Cursor;
 import Tools.Pair;
 
@@ -12,6 +13,6 @@ public class ASEntregarCad1Linea extends AccionSemantica{
         BUFFER.append(simbolo);
         String aux = BUFFER.toString();
         BUFFER.setLength(0);
-        return new Pair<>(aux, -1); //TODO:Corregir
+        return new Pair<>(aux, Parser.STRING);
     }
 }

@@ -14,7 +14,6 @@ public class ASEntregarPalabras extends AccionSemantica{
     public ASEntregarPalabras() {
         super(12);
         this.palabrasReservadas = transformarArraylist();
-
     }
 
     @Override
@@ -24,11 +23,12 @@ public class ASEntregarPalabras extends AccionSemantica{
         cursor.gobackCharacter();
         BUFFER.setLength(0);
         ArrayList<String> auxPalabrasReservadas = new ArrayList<>(transformarArraylist());
+
         try {
-            if (auxPalabrasReservadas.contains(aux))
+            if (auxPalabrasReservadas.contains(aux)) {
                 switch (aux) {
                     case "if":
-                        return new Pair<>("if", Parser.if);
+                        return new Pair<>("if", Parser. if);
                     case "else":
                         return new Pair<>("else", Parser.else);
                     case "endif":
@@ -36,11 +36,11 @@ public class ASEntregarPalabras extends AccionSemantica{
                     case "print":
                         return new Pair<>("print", Parser.print);
                     case "return":
-                        return new Pair<>("return", Parser.return);
+                        return new Pair<>("return", Parser. return);
                     case "var":
                         return new Pair<>("var", Parser.var);
                     case "for":
-                        return new Pair<>("for", Parser.for);
+                        return new Pair<>("for", Parser. for);
                     case "from":
                         return new Pair<>("from", Parser.from);
                     case "to":
@@ -55,10 +55,10 @@ public class ASEntregarPalabras extends AccionSemantica{
                         return new Pair<>("toi", Parser.toi);
                     default:
                         // Manejar el caso en que el token no coincide con ninguno de los casos
-                        System.out.println("Token no reconocido: " + aux);
-                        return new Pair<>("TOKEN_DESCONOCIDO", -1);
-                //Parser.token(aux)
-                //return new Pair<String, Integer>(aux, Parser.aux); //TODO:Corregir salida
+                        System.out.println("Token no reconocido: " + aux); //TODO:Logger
+                        return null;
+                }
+            }
             else
                 throw new IllegalArgumentException("Palabra no existe");
         }

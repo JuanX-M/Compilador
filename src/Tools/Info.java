@@ -12,7 +12,7 @@ public class Info {
 
     public Info(String tokenType, int nroLinea) {
         this.tokenType = tokenType;
-        this.nroLinea=nroLinea; // creo que se calcula por lexico, cambiar esto
+        this.nroLinea = nroLinea; // creo que se calcula por lexico, cambiar esto
     }
 
     public String getTokenType() {

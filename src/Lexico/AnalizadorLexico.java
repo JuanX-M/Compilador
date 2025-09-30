@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import Lexico.AccionesSemanticas.*;
 import Tools.LectorArchivo;
 import Tools.Cursor;
+import Tools.Pair;
+
 import java.util.stream.Collectors;
 
 public class AnalizadorLexico {
@@ -19,8 +21,6 @@ public class AnalizadorLexico {
         cargarMatriz();
         cursor = new Cursor();
     }
-
-    public static final LectorArchivo //TODO: crear un objeto para el programa fuente, va a haber otro para la matriz. es static porque se tiene que poder usar el read en el cursor
 
     public void cargarMatriz() {
         this.matrizTransicion = new MatrizTransicion();
@@ -62,5 +62,32 @@ public class AnalizadorLexico {
             default : return null;
         }
     }
+
+    public Pair<String, Integer> generarToken(){
+        int estado=0;
+        AccionSemantica as = null;
+        Pair<String, Integer> token = null;
+        while (!cursor.hasFinished() || matrizTransicion.isEstadoFinal(estado)){
+            char caracter = cursor.getCharacter();
+            as = matrizTransicion.getAccionSemantica(estado, caracter);
+            estado = matrizTransicion.getEstado(estado, caracter);
+            if (estado == -1){ //va aca? (Solucionar errores con warning. Marcela
+                estado = 0;
+                //TODO:Logger error de estado
+            }
+            if (as != null){ //siempre que as == null es porque hubo un error
+                token = as.run(caracter, cursor);
+                if (token == null)
+                    System.out.println("Error en linea: "+ cursor.getCurrentLine()); //TODO:Logger
+            }
+            cursor.next();
+        }
+        if (cursor.hasFinished())
+            return new Pair<>("Fin de programa", 0);
+        return token;
+    }
+
+
+
 
 }

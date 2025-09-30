@@ -4,9 +4,6 @@ import Tools.Cursor;
 import Tools.Pair;
 public class ASConcatenarBuffer extends AccionSemantica {
 
-    // TODO: fijarse la diferencia con AS2
-
-
     public ASConcatenarBuffer() {
         super(1);
     }
@@ -14,7 +11,7 @@ public class ASConcatenarBuffer extends AccionSemantica {
     @Override
     public Pair<String, Integer> run(Character simbolo,Cursor cursor) {
         BUFFER.append(simbolo);
-        return null;
+        return new Pair<>(null, null); //no es simplemente null porque si fuera null es porque hay un error
     }
 
 }

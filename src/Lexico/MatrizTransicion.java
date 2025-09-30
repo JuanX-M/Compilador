@@ -48,6 +48,21 @@ public final class MatrizTransicion {
     public void addTransicion(int estado, int simbolo, int newEstado, AccionSemantica a) {
         MATRIZ[estado][simbolo] = new Pair<>(newEstado, a);
     };
+
+    public boolean isEstadoFinal(int estado){
+        return (estado == 17); //si el estado es 17, es el estado final
+    }
+
+    public int getEstado(int estado, char simbolo){
+        int aux=convertir(simbolo);
+        return MATRIZ[estado][aux].getFirst();
+    }
+
+    public AccionSemantica getAccionSemantica(int estado, char simbolo){
+        int aux=convertir(simbolo);
+        return MATRIZ[estado][aux].getSecond();
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

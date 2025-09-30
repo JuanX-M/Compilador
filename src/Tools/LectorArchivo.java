@@ -45,7 +45,6 @@ public class LectorArchivo {
                 }
             }
             out.get(line - 1).add('\n');
-
             fileReader.close();
             return out;
         } catch (IOException e) {

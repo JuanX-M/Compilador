@@ -31,23 +31,23 @@ public class ASEntregarFlotante extends AccionSemantica{
             BigDecimal result = BigDecimal.valueOf(base).multiply(BigDecimal.TEN.pow(exponente));
             //compareTo devuelve 0,1,-1 si es igual, mayor o menor
             if (result.compareTo(BigDecimal.valueOf(MIN_VALUE_POS)) < 0 || result.compareTo(BigDecimal.valueOf(MAX_VALUE_NEG)) > 0) {
-                System.out.println("Error: El número flotante es demasiado pequeño");
-                return new Pair<>(null, -1); //TODO:Corregir
+                System.out.println("Error: El número flotante es demasiado pequeño"); //TODO: Logger
+                return null;
             }
             if (result.compareTo(BigDecimal.valueOf(MAX_VALUE_POS)) > 0 || result.compareTo(BigDecimal.valueOf(MIN_VALUE_NEG)) < 0) {
                 System.out.println("Error: El número flotante es demasiado grande");
-                return new Pair<>(null, -1); //TODO:Corregir
+                return null; //TODO:Logger
             }
             aux.replace('F', 'E'); //Formateamos para meter en variable
         }
         try {
                 float numero = Float.parseFloat(aux);
-            } catch (NumberFormatException e) {
+            } catch (NumberFormatException e) { //TODO:Logger
                 System.out.println("Excede cantidad de bits");
         }
     BUFFER.setLength(0);
     cursor.gobackCharacter();
     // retornamons el numero y el token float
-    return new Pair<String, Integer>(aDevolver, Parser.float);
+    return new Pair<String, Integer>(aDevolver, Parser.CTE_FLOAT);
     }
 }

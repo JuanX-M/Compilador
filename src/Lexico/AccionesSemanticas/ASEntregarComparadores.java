@@ -1,5 +1,6 @@
 package Lexico.AccionesSemanticas;
 
+import Sintactico.Parser;
 import Tools.Cursor;
 import Tools.Pair;
 
@@ -9,16 +10,34 @@ public class ASEntregarComparadores extends AccionSemantica{
     }
     @Override
     public Pair<String, Integer> run(Character simbolo, Cursor cursor) {
-        if (simbolo == '=' || simbolo == '!') {
+        if ((simbolo == '=') || (simbolo == '!')) {
             BUFFER.append(simbolo);
             String salida = BUFFER.toString();
             BUFFER.setLength(0);
-            return new Pair<>(salida, ; //TODO: Corregir
+            switch (salida) {
+                case ">=":
+                    return new Pair<>(salida, Parser.GREATER_OR_EQUAL);
+                case "<=":
+                    return new Pair<>(salida, Parser.LESS_OR_EQUAL);
+                case "==":
+                    return new Pair<>(salida, Parser.EQUAL);
+                case "=!":
+                    return new Pair<>(salida, Parser.NOT_EQUAL);
+                default:
+                    return null;
+            }
         } else {
             String salida = BUFFER.toString();
             BUFFER.setLength(0);
             cursor.gobackCharacter();
-            return new Pair<>(salida, -1); //TODO: Corregir
+            switch (salida) {
+                case ">":
+                    return new Pair<>(salida, (int) '>');
+                case "<":
+                    return new Pair<>(salida, (int) '<');
+                default:
+                    return null;
+            }
         }
     }
 }

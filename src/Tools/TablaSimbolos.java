@@ -7,7 +7,6 @@ import java.util.Map;
 // Clase que implementa la Tabla de Símbolos
 public class TablaSimbolos {
 
-    //TODO: Consultar si les parece bien planteada la Tabla
     public static final HashMap<String, Info> TABLA_SIMBOLOS = null;
 
     public void addSimboloTabla(String lexema, Info i) {
