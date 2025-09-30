@@ -1,6 +1,7 @@
 Palabras reservadas
 
-
+id
+cte
 if
 else
 endif
