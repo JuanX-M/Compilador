@@ -1,4 +1,5 @@
 package Lexico.AccionesSemanticas;
+import Sintactico.Parser;
 import Tools.Pair;
 
 import java.math.BigDecimal;

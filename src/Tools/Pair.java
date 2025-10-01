@@ -26,5 +26,8 @@ public class Pair<T, U> {
         this.second = second;
     }
 
-
+    @Override
+    public String toString() {
+        return "[ " + first + " , " + second + " ]";
+    }
 }

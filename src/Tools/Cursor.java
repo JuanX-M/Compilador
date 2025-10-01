@@ -8,9 +8,9 @@ public class Cursor {
     private int currentColumn;
 
     public Cursor(String programa) {
-        LectorArchivo lectorArchivoAux = new LectorArchivo(programa, "sample_programs");
+        LectorArchivo lectorArchivoAux = new LectorArchivo(programa, "data");
         this.PROGRAM = lectorArchivoAux.read();
-        this.currentLine = 1; //numero de linea arranca en 1 TODO:Preguntar a Marcela
+        this.currentLine = 0; //numero de linea arranca en 1 TODO:Preguntar a Marcela
         this.currentColumn = 0;
     }
 

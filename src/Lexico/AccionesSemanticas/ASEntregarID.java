@@ -20,13 +20,13 @@ public class ASEntregarID extends AccionSemantica {
         }
         String aux = BUFFER.toString();
         if(TABLA_SIMBOLOS.containsKey(aux)){
-            return new Pair<String, Integer>(aux, Parser.id);
+            return new Pair<String, Integer>(aux, Parser.ID);
             // Se agregar a la tabla de simbolos lexema y su token correspondiente
         }
-        TABLA_SIMBOLOS.put(aux,new Info(aux,Parser.id)); //añadir identificador a la tabla
+        TABLA_SIMBOLOS.put(aux,new Info(aux,Parser.ID)); //añadir identificador a la tabla
         cursor.gobackCharacter();
         BUFFER.setLength(0); //vacio el buffer
-        return new Pair<String, Integer>(aux,Parser.id);
+        return new Pair<String, Integer>(aux,Parser.ID);
 
 
     }

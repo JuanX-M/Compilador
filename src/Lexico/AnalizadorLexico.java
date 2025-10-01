@@ -20,6 +20,7 @@ public class AnalizadorLexico {
     public AnalizadorLexico(String programa) {
         cargarMatriz();
         cursor = new Cursor(programa);
+        System.out.println("aca");
     }
 
     public void cargarMatriz() {
@@ -30,6 +31,7 @@ public class AnalizadorLexico {
         int e1 = -1; // simbolo
         int e2 = -1; //siguiente estado
         int acc = -1; //numero de accion semantica
+
 
         for (ArrayList<Character> l : data) {
             String linea[] = l.stream().map(Object::toString).collect(Collectors.joining("")).split("\\s*;\\s*");
@@ -65,7 +67,7 @@ public class AnalizadorLexico {
 
     public Pair<String, Integer> generarToken(){
         int estado=0;
-        AccionSemantica as = null;
+        AccionSemantica as;
         Pair<String, Integer> token = null;
         while (!cursor.hasFinished() || matrizTransicion.isEstadoFinal(estado)){
             char caracter = cursor.getCharacter();
@@ -82,8 +84,8 @@ public class AnalizadorLexico {
             }
             cursor.next();
         }
-        if (cursor.hasFinished())
-            return new Pair<>("Fin de programa", 0);
+        //if (cursor.hasFinished())
+        //    return new Pair<>("Fin de programa", 0);
         return token;
     }
 
