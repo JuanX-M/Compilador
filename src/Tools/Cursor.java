@@ -40,10 +40,12 @@ public class Cursor {
         return PROGRAM.get(linea).size();
     }
 
-    public boolean hasFinished() {
-        return currentLine == PROGRAM.size(); // si estoy en la ultima linea de codigo
-    }
 
+    public boolean hasFinished() {
+        // Si el número de línea actual es igual o mayor que el total de líneas,
+        // significa que ya hemos procesado la última línea y hemos terminado.
+        return currentLine >= PROGRAM.size();
+    }
     public int getCurrentLine() {
         return currentLine;
     }

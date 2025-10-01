@@ -10,6 +10,7 @@ public final class MatrizTransicion {
     }
 
     public Integer convertir(char c) {
+        System.out.println("Caracter: '" + c + "'");
         switch (c) {
             case ' ':
                 return 0;
@@ -17,10 +18,10 @@ public final class MatrizTransicion {
                 return 1;
             case '\n':
                 return 2;
-            case 'a', 'b', 'c', 'e', 'f', 'g', 'h', 'j', 'k', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x',
+            case 'a','b', 'c','d','e', 'f', 'g', 'h','i','j', 'k', 'm', 'n','l','ñ','o', 'p', 'q', 'r', 's','t','u','v', 'w', 'x',
                  'y', 'z':
                 return 3;
-            case 'A', 'B', 'C', 'E', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S',
+            case 'A','B','C','D','E','G','H','J','K','L', 'M', 'N','O','P', 'Q', 'R', 'S',
                  'T', 'U', 'V', 'W', 'X', 'Y', 'Z':
                 return 4;
             case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
@@ -90,6 +91,7 @@ public final class MatrizTransicion {
     }
 
     public AccionSemantica getAccionSemantica(int estado, char simbolo) {
+        System.out.println("Estado: " + estado + ", Simbolo: '" + simbolo + "'");
         int aux = convertir(simbolo);
         return MATRIZ[estado][aux].getSecond();
     }
