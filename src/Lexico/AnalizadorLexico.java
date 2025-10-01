@@ -20,7 +20,6 @@ public class AnalizadorLexico {
     public AnalizadorLexico(String programa) {
         cargarMatriz();
         cursor = new Cursor(programa);
-        System.out.println("aca");
     }
 
     public void cargarMatriz() {
@@ -43,6 +42,7 @@ public class AnalizadorLexico {
                 acc = Integer.parseInt(linea[3]);
 
             } catch (NumberFormatException e) {
+                System.out.println("entra");
                 System.out.println(e.getMessage()); //TODO:Salida por error de formato
             }
             this.matrizTransicion.addTransicion(e0, e1, e2, toAccionSemantica(acc));
@@ -65,11 +65,13 @@ public class AnalizadorLexico {
         }
     }
 
+
+
     public Pair<String, Integer> generarToken(){
         int estado=0;
         AccionSemantica as;
         Pair<String, Integer> token = null;
-        while (!cursor.hasFinished() || matrizTransicion.isEstadoFinal(estado)){
+        while (!cursor.hasFinished() ||  matrizTransicion.isEstadoFinal(estado)){
             char caracter = cursor.getCharacter();
             as = matrizTransicion.getAccionSemantica(estado, caracter);
             estado = matrizTransicion.getEstado(estado, caracter);
@@ -84,8 +86,9 @@ public class AnalizadorLexico {
             }
             cursor.next();
         }
-        //if (cursor.hasFinished())
-        //    return new Pair<>("Fin de programa", 0);
+        if (cursor.hasFinished())
+            return new Pair<>("Fin de programa", 0);
+        System.out.println(token);
         return token;
     }
 
