@@ -76,6 +76,7 @@ public final class MatrizTransicion {
 
     public void addTransicion(int estado, int simbolo, int newEstado, AccionSemantica a) {
         MATRIZ[estado][simbolo] = new Pair<>(newEstado, a);
+        System.out.println('5');
     }
 
     ;

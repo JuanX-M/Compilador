@@ -34,16 +34,22 @@ public class AnalizadorLexico {
 
         for (ArrayList<Character> l : data) {
             String linea[] = l.stream().map(Object::toString).collect(Collectors.joining("")).split("\\s*;\\s*");
+            System.out.println("Linea[] es " + linea.length);
+            System.out.println("Linea 3 es " + linea[3]);
 
             try {
                 e0 = Integer.parseInt(linea[0]);
                 e1 = Integer.parseInt(linea[1]);
                 e2 = Integer.parseInt(linea[2]);
+                System.out.println("Linea 3 tiene: " + linea[3]);
+                int aux = Integer.parseInt("-1");
+                System.out.println(aux);
                 acc = Integer.parseInt(linea[3]);
+                System.out.println("acc tiene: " + acc);
 
             } catch (NumberFormatException e) {
-                System.out.println("entra");
-                System.out.println(e.getMessage()); //TODO:Salida por error de formato
+                System.out.println("catch error");
+                //System.out.println(e.getMessage()); //TODO:Salida por error de formato
             }
             this.matrizTransicion.addTransicion(e0, e1, e2, toAccionSemantica(acc));
         }
