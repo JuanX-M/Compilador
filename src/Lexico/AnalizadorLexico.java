@@ -83,7 +83,7 @@ public Pair<String, Integer> generarToken(){
                 //TODO:Logger error de Accion Semantica
                 return null;
             }
-            if (token.getSecond() != null && token.getFirst() != null && estado ==17){
+            if (token.getSecond() != null && estado ==17){ // MIRAR ACCIONES SEMNATICAS PARA ENTENDER EJEMPLOS DE RETURN DE LITERALES POR EJEMPLO
                 estado = 0;
                 return token;
             }

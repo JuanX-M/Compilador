@@ -28,12 +28,19 @@ public class Cursor {
     }
 
     public void gobackCharacter() {
-        if (currentColumn > 1)
-            currentColumn = currentColumn - 1;
-        else {
-            currentLine = getCurrentLine() - 1;
-            currentColumn = getUltimaPosicionLinea(getCurrentLine());
+        // Caso 1: Podemos retroceder dentro de la misma línea.
+        if (currentColumn > 0) {
+            currentColumn--; // Es lo mismo que currentColumn = currentColumn - 1;
         }
+        // Caso 2: Estamos en la primera columna (0), pero no en la primera línea.
+        else if (currentLine > 0) {
+            // Nos movemos a la línea anterior.
+            currentLine--;
+            // Y posicionamos el cursor en la última columna de esa nueva línea.
+            currentColumn = getUltimaPosicionLinea(currentLine);
+        }
+        // Caso 3 (implícito): Estamos en la primera línea y primera columna (currentLine = 0 y currentColumn = 0).
+        // En este caso, no hacemos nada, porque no se puede retroceder más.
     }
 
     private int getUltimaPosicionLinea(int linea){
