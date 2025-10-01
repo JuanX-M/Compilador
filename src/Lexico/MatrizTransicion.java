@@ -10,7 +10,7 @@ public final class MatrizTransicion {
     }
 
     public Integer convertir(char c) {
-        System.out.println("Caracter: '" + c + "'");
+
         switch (c) {
             case ' ':
                 return 0;
@@ -91,7 +91,7 @@ public final class MatrizTransicion {
     }
 
     public AccionSemantica getAccionSemantica(int estado, char simbolo) {
-        System.out.println("Estado: " + estado + ", Simbolo: '" + simbolo + "'");
+        //System.out.println("Estado: " + estado + ", Simbolo: '" + simbolo + "'");
         int aux = convertir(simbolo);
         return MATRIZ[estado][aux].getSecond();
     }

@@ -71,27 +71,35 @@ public Pair<String, Integer> generarToken(){
     int estado=0;
     AccionSemantica as;
     Pair<String, Integer> token = null;
-    while (!cursor.hasFinished() ||  matrizTransicion.isEstadoFinal(estado)){
+    while (!cursor.hasFinished() &&  !matrizTransicion.isEstadoFinal(estado)){
         char caracter = cursor.getCharacter();
         as = matrizTransicion.getAccionSemantica(estado, caracter);
         estado = matrizTransicion.getEstado(estado, caracter);
-        if (estado == -1){ //va aca? (Solucionar errores con warning. Marcela
-            estado = 0;
-            //TODO:Logger error de estado
-        }
-        if (as != null){ //siempre que as == null es porque hubo un error
-            token = as.run(caracter, cursor);
-            if (token == null)
-                System.out.println("Error en linea: "+ cursor.getCurrentLine()); //TODO:Logger
+        System.out.println("Accion Semantica: "+ as +" Estado: "+ estado);
+        if (as != null){ // si hay alguna accion semantica a ejecutar, la ejecuto
+
+            token=as.run(caracter, cursor);
+            if (token == null){
+                //TODO:Logger error de Accion Semantica
+                return null;
+            }
+            if (token.getSecond() != null && token.getFirst() != null && estado ==17){
+                estado = 0;
+                return token;
+            }
+            if (estado == -1){
+                //va aca? (Solucionar errores con warning. Marcela
+                estado = 0;
+                //TODO:Logger error de estado -1
+            }
+
         }
         cursor.next();
     }
     if (cursor.hasFinished())
         return new Pair<>("Fin de programa", 0);
-    System.out.println(token);
-    return token;
+
+    return null;
 }
-
-
 
 }
