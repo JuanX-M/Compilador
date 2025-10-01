@@ -19,6 +19,7 @@ public class ASEntregarID extends AccionSemantica {
             System.out.println("WARNING: identificador truncado"); //TODO: Logger
         }
         String aux = BUFFER.toString();
+        System.out.println(aux);
         if(TABLA_SIMBOLOS.containsKey(aux)){
             return new Pair<String, Integer>(aux, Parser.ID);
             // Se agregar a la tabla de simbolos lexema y su token correspondiente
