@@ -17,7 +17,7 @@ public class ASEntregarEntero extends AccionSemantica {
         try {
             int numero = Integer.parseInt(aux);
         } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
+            System.out.println("Error que no anda parser: " + e.getMessage());
         }
         BUFFER.append(simbolo);
         if(TABLA_SIMBOLOS.containsKey(aux)) {

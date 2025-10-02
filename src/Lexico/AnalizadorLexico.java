@@ -65,8 +65,6 @@ public class AnalizadorLexico {
         }
     }
 
-
-
 public Pair<String, Integer> generarToken(){
     int estado=0;
     AccionSemantica as;

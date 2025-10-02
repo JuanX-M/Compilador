@@ -91,8 +91,9 @@ public final class MatrizTransicion {
     }
 
     public AccionSemantica getAccionSemantica(int estado, char simbolo) {
-        //System.out.println("Estado: " + estado + ", Simbolo: '" + simbolo + "'");
+        System.out.println("Estado: " + estado + ", Simbolo: '" + simbolo + "'");
         int aux = convertir(simbolo);
+        System.out.println("Columna convertida: " + aux);
         return MATRIZ[estado][aux].getSecond();
     }
 
