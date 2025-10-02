@@ -24,7 +24,8 @@ public class ASEntregarPalabras extends AccionSemantica{
         ArrayList<String> auxPalabrasReservadas = new ArrayList<>(transformarArraylist());
 
         try {
-            if (auxPalabrasReservadas.contains(aux)) {
+            System.out.println(auxPalabrasReservadas.contains(aux));
+            //if (auxPalabrasReservadas.contains(aux)) {
                 switch (aux) {
                     case "if":
                         return new Pair<>("if", Parser.IF);
@@ -57,9 +58,9 @@ public class ASEntregarPalabras extends AccionSemantica{
                         System.out.println("Token no reconocido: " + aux); //TODO:Logger
                         return null;
                 }
-            }
-            else
-                throw new IllegalArgumentException("Palabra no existe");
+            //}
+            //else
+            //    throw new IllegalArgumentException("Palabra no existe");
         }
         catch (IllegalArgumentException e) {
             System.out.println("No existe la palabra reservada: " + e.getMessage()); //TODO: Logger

@@ -16,8 +16,9 @@ public class ASEntregarEntero extends AccionSemantica {
         String aux = BUFFER.toString();
         try {
             int numero = Integer.parseInt(aux);
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
+        } catch (NumberFormatException e) {
+            System.out.println("Excede la cantidad de bits");
+            return null;
         }
         BUFFER.append(simbolo);
         if(TABLA_SIMBOLOS.containsKey(aux)) {
