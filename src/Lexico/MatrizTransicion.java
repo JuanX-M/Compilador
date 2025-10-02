@@ -2,9 +2,11 @@ package Lexico;
 import Tools.Pair;
 import Lexico.AccionesSemanticas.AccionSemantica;
 
+import java.util.ArrayList;
+
 public final class MatrizTransicion {
 
-    private final Pair<Integer, AccionSemantica>[][] MATRIZ = new Pair[17][28];
+    private final Pair<Integer, AccionSemantica>[][] MATRIZ = new Pair[18][28];
 
     public MatrizTransicion() {
     }
@@ -71,7 +73,7 @@ public final class MatrizTransicion {
             case '.':
                 return 27;
             default:
-                return 28;
+                return 0;
         }
     }
 
@@ -79,22 +81,29 @@ public final class MatrizTransicion {
         MATRIZ[estado][simbolo] = new Pair<>(newEstado, a);
     }
 
-    ;
-
     public boolean isEstadoFinal(int estado) {
         return (estado == 17); //si el estado es 17, es el estado final
     }
 
     public int getEstado(int estado, char simbolo) {
         int aux = convertir(simbolo);
-        return MATRIZ[estado][aux].getFirst();
+        Pair<Integer, AccionSemantica> cell = MATRIZ[estado][aux];
+        if (cell == null) {
+            return -1; // estado inválido
+        }
+        return cell.getFirst();
     }
 
     public AccionSemantica getAccionSemantica(int estado, char simbolo) {
         System.out.println("Estado: " + estado + ", Simbolo: '" + simbolo + "'");
         int aux = convertir(simbolo);
         System.out.println("Columna convertida: " + aux);
-        return MATRIZ[estado][aux].getSecond();
+        Pair<Integer, AccionSemantica> cell = MATRIZ[estado][aux];
+        if (cell == null) {
+            // No hay transición definida
+            return null;
+        }
+        return cell.getSecond();
     }
 
     @Override

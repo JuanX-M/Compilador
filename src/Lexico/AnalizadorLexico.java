@@ -100,4 +100,13 @@ public Pair<String, Integer> generarToken(){
     return null;
 }
 
+    public ArrayList<Pair> getTodosLosTokes(){
+        ArrayList<Pair> salida = new ArrayList<Pair>();
+        while(!cursor.hasFinished()){
+            salida.add(generarToken());
+        }
+        return salida;
+    }
+
+
 }

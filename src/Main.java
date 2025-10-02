@@ -5,6 +5,8 @@ public class Main {
         String programa = "testing.txt";
         AnalizadorLexico analizadorLexico = new AnalizadorLexico(programa);
         System.out.println(analizadorLexico.generarToken());
+        //System.out.println(analizadorLexico.generarToken());
+        //System.out.println(analizadorLexico.getTodosLosTokes());
 
     }
 }
