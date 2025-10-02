@@ -98,13 +98,9 @@ public final class MatrizTransicion {
 
     public AccionSemantica getAccionSemantica(int estado, char simbolo) {
         //System.out.println("Estado: " + estado + ", Simbolo: '" + simbolo + "'");
-        int aux = convertir(simbolo);
         //System.out.println("Columna convertida: " + aux);
+        int aux = convertir(simbolo);
         Pair<Integer, AccionSemantica> cell = MATRIZ[estado][aux];
-        if (cell == null) {
-            // No hay transición definida
-            return null;
-        }
         return cell.getSecond();
     }
 

@@ -9,7 +9,7 @@ public class ASConcatenarBuffer extends AccionSemantica {
     }
 
     @Override
-    public Pair<String, Integer> run(Character simbolo,Cursor cursor) {
+    public Pair<String, Integer> run(Character simbolo, Cursor cursor) {
         BUFFER.append(simbolo);
         return new Pair<>(null, null); //no es simplemente null porque si fuera null es porque hay un error
     }

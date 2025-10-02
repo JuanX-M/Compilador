@@ -88,7 +88,6 @@ public Pair<String, Integer> generarToken(){
                 estado = 0;
                 //TODO:Logger error de estado -1
             }
-
         }
         cursor.next();
     }
