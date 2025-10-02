@@ -73,7 +73,7 @@ public final class MatrizTransicion {
             case '.':
                 return 27;
             default:
-                return 0;
+                return null;
         }
     }
 

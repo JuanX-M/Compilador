@@ -41,15 +41,10 @@ public class AnalizadorLexico {
                 e0 = Integer.parseInt(linea[0]);
                 e1 = Integer.parseInt(linea[1]);
                 e2 = Integer.parseInt(linea[2]);
-                System.out.println("Linea 3 tiene: " + linea[3]);
-                int aux = Integer.parseInt("-1");
-                System.out.println(aux);
-                acc = Integer.parseInt(linea[3]);
-                System.out.println("acc tiene: " + acc);
+                acc = Integer.parseInt(linea[3].trim());
 
             } catch (NumberFormatException e) {
-                System.out.println("catch error");
-                //System.out.println(e.getMessage()); //TODO:Salida por error de formato
+                System.out.println("Error en cargar matriz" + e.getMessage()); //TODO:Salida por error de formato
             }
             this.matrizTransicion.addTransicion(e0, e1, e2, toAccionSemantica(acc));
         }
