@@ -82,7 +82,7 @@ public Pair<String, Integer> generarToken(){
                 return null;
             }
             if (token.getSecond() != null && estado ==17){ // MIRAR ACCIONES SEMNATICAS PARA ENTENDER EJEMPLOS DE RETURN DE LITERALES POR EJEMPLO
-                estado = 0;
+                cursor.next();
                 return token;
             }
             if (estado == -1){
