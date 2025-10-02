@@ -12,11 +12,14 @@ public final class MatrizTransicion {
     }
 
     public Integer convertir(char c) {
+
         switch (c) {
             case ' ':
                 return 0;
             case '\t':
                 return 1;
+            case '\n':
+                return 2;
             case 'a','b', 'c','d','e', 'f', 'g', 'h','i','j', 'k', 'm', 'n','l','ñ','o', 'p', 'q', 'r', 's','t','u','v', 'w', 'x',
                  'y', 'z':
                 return 3;
@@ -70,15 +73,13 @@ public final class MatrizTransicion {
             case '.':
                 return 27;
             default:
-                char aux= '\n';
-                char aux1= '\r';
-                if (aux == c || aux1 == c ){ return 2;};
                 return null;
         }
     }
 
     public void addTransicion(int estado, int simbolo, int newEstado, AccionSemantica a) {
         MATRIZ[estado][simbolo] = new Pair<>(newEstado, a);
+        System.out.println('5');
     }
 
     public boolean isEstadoFinal(int estado) {
@@ -96,13 +97,9 @@ public final class MatrizTransicion {
 
     public AccionSemantica getAccionSemantica(int estado, char simbolo) {
         System.out.println("Estado: " + estado + ", Simbolo: '" + simbolo + "'");
-        //System.out.println("-----------"+ simbolo +"-----------");
         int aux = convertir(simbolo);
-        //System.out.println("Columna convertida: " + aux);
-        System.out.println("Celda[" + estado + "][" + aux + "]");
-
+        System.out.println("Columna convertida: " + aux);
         Pair<Integer, AccionSemantica> cell = MATRIZ[estado][aux];
-        System.out.println("Celda obtenida: " + cell);
         if (cell == null) {
             // No hay transición definida
             return null;
