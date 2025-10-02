@@ -12,15 +12,15 @@ public class ASEntregarLiterales extends AccionSemantica{
     public Pair<String, Integer> run(Character simbolo, Cursor cursor) {
         switch (simbolo) {
             // int 'literal' tranformas a codigo ASCII
-            case '+' : return new Pair<>(null, (int) '+');
-            case '/' : return new Pair<>(null, (int) '/');
-            case '(' : return new Pair<>(null, (int) '(');
-            case ')' : return new Pair<>(null, (int) ')');
-            case ':' : return new Pair<>(null, (int) ':');
-            case ';' : return new Pair<>(null, (int) ';');
-            case ',' : return new Pair<>(null, (int) ',');
-            case '{' : return new Pair<>(null, (int) '{');
-            case '}' : return new Pair<>(null, (int) '}');
+            case '+' : return new Pair<>("+", (int) '+');
+            case '/' : return new Pair<>("/", (int) '/');
+            case '(' : return new Pair<>("(", (int) '(');
+            case ')' : return new Pair<>(")", (int) ')');
+            case ':' : return new Pair<>(":", (int) ':');
+            case ';' : return new Pair<>(";", (int) ';');
+            case ',' : return new Pair<>(",", (int) ',');
+            case '{' : return new Pair<>("{", (int) '{');
+            case '}' : return new Pair<>("}", (int) '}');
             default : return null;
         }
     }
