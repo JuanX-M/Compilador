@@ -7,6 +7,5 @@ public class Main {
         //System.out.println(analizadorLexico.generarToken());
         //System.out.println(analizadorLexico.generarToken());
         System.out.println(analizadorLexico.getTodosLosTokens());
-
     }
 }

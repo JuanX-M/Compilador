@@ -24,7 +24,7 @@ public class ASEntregarPalabras extends AccionSemantica{
         ArrayList<String> auxPalabrasReservadas = new ArrayList<>(transformarArraylist());
 
         try {
-            System.out.println(auxPalabrasReservadas.contains(aux));
+            //System.out.println(auxPalabrasReservadas.contains(aux));
             //if (auxPalabrasReservadas.contains(aux)) {
                 switch (aux) {
                     case "if":

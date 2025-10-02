@@ -13,6 +13,10 @@ public class ASEntregarCad1Linea extends AccionSemantica{
         BUFFER.append(simbolo);
         String aux = BUFFER.toString();
         BUFFER.setLength(0);
+        /*if(aux.contains("\n")||aux.contains("\r")){
+            System.out.println("error salto de linea");
+            return null;
+        }*/
         return new Pair<>(aux, Parser.STRING);
     }
 }
