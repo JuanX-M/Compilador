@@ -1,10 +1,8 @@
 package Lexico.AccionesSemanticas;
 
-import Sintactico.Parser;
 import Tools.Cursor;
 import Tools.Pair;
-import Tools.LectorArchivo;
-import java.util.ArrayList;
+
 import static Tools.TablaPalabrasReservadas.TABLA_PALABRAS_RESERVADAS;
 
 public class ASEntregarPalabras extends AccionSemantica{

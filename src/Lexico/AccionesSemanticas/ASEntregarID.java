@@ -1,10 +1,8 @@
 package Lexico.AccionesSemanticas;
 
-import Sintactico.Parser;
 import Tools.Cursor;
 import Tools.Info;
 import Tools.Pair;
-import Tools.TablaSimbolos;
 
 import static Tools.TablaSimbolos.TABLA_SIMBOLOS;
 import static Tools.TablaPalabrasReservadas.TABLA_PALABRAS_RESERVADAS;

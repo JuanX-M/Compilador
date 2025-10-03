@@ -1,7 +1,6 @@
 package Lexico.AccionesSemanticas;
 
 import Tools.Pair;
-import Sintactico.Parser;
 
 import static Tools.TablaPalabrasReservadas.TABLA_PALABRAS_RESERVADAS;
 import static Tools.TablaSimbolos.TABLA_SIMBOLOS;

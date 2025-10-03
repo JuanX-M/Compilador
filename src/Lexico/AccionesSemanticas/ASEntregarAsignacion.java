@@ -2,7 +2,6 @@ package Lexico.AccionesSemanticas;
 
 import Tools.Cursor;
 import Tools.Pair;
-import Sintactico.Parser;
 
 import static Tools.TablaPalabrasReservadas.TABLA_PALABRAS_RESERVADAS;
 

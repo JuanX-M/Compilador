@@ -1,5 +1,6 @@
 import Lexico.AnalizadorLexico;
 import Tools.TablaPalabrasReservadas;
+import Tools.TablaSimbolos;
 
 public class Main {
     public static void main(String[] args) {
@@ -11,5 +12,6 @@ public class Main {
         //System.out.println(analizadorLexico.generarToken());
         //System.out.println(analizadorLexico.generarToken());
         System.out.println(analizadorLexico.getTodosLosTokens());
+
     }
 }
