@@ -78,6 +78,9 @@ condicion               :   expresion_aritmetica GREATER_OR_EQUAL expresion_arit
 lista_operandos         :   lista_operandos ',' expresion_aritmetica
                         |   expresion_aritmetica
                         ;
+lista_variables         :   lista_variables ',' ID
+                        |   ID
+                        ;
 
 operando                :   ID
                         |   CTE_INT
