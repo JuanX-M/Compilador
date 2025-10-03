@@ -31,6 +31,7 @@ sentencia_declarativa   :   sentencia_declarativa funcion
 sentencia_lambda        :    '(' tipo ID ')' '{' cuerpo '}' '(' ID ')'
                         |    '(' tipo ID ')' '{' cuerpo '}' '(' CTE_INT ')'
                         |    '(' tipo ID ')' '{' cuerpo '}' '(' CTE_FLOAT ')'
+                        ;
 
 sentencia_ejecucion     :   VAR ID TWO_POINTS_ASSIGNATION expresion_aritmetica
                         |   IF '(' condicion ')' '{' cuerpo '}' ELSE '{' cuerpo '}' ENDIF
@@ -74,7 +75,7 @@ condicion               :   expresion_aritmetica GREATER_OR_EQUAL expresion_arit
                         |   expresion_aritmetica '<' expresion_aritmetica
                         ;
 
-lista_operandos         :   lista_variables ',' expresion_aritmetica
+lista_operandos         :   lista_operandos ',' expresion_aritmetica
                         |   expresion_aritmetica
                         ;
 
