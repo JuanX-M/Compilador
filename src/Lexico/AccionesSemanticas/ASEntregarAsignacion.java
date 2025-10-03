@@ -4,6 +4,8 @@ import Tools.Cursor;
 import Tools.Pair;
 import Sintactico.Parser;
 
+import static Tools.TablaPalabrasReservadas.TABLA_PALABRAS_RESERVADAS;
+
 public class ASEntregarAsignacion extends AccionSemantica{
     public ASEntregarAsignacion(){
         super(11);
@@ -14,7 +16,8 @@ public class ASEntregarAsignacion extends AccionSemantica{
             BUFFER.append(simbolo);
             String salida = BUFFER.toString();
             BUFFER.setLength(0);
-            return new Pair<>(salida, Parser.TWO_POINTS_ASSIGNATION);
+
+            return new Pair<>(salida, TABLA_PALABRAS_RESERVADAS.get(salida));
         } else {
             String salida = BUFFER.toString();
             BUFFER.setLength(0);

@@ -3,6 +3,7 @@ package Lexico.AccionesSemanticas;
 import Tools.Pair;
 import Sintactico.Parser;
 
+import static Tools.TablaPalabrasReservadas.TABLA_PALABRAS_RESERVADAS;
 import static Tools.TablaSimbolos.TABLA_SIMBOLOS;
 
 public class ASEntregarEntero extends AccionSemantica {
@@ -22,10 +23,10 @@ public class ASEntregarEntero extends AccionSemantica {
         }
         BUFFER.append(simbolo);
         if(TABLA_SIMBOLOS.containsKey(aux)) {
-            return new Pair<String,Integer>(aux,Parser.CTE_INT);
+            return new Pair<String,Integer>(aux,TABLA_PALABRAS_RESERVADAS.get("CTE_INT"));
         }
         TABLA_SIMBOLOS.put(aux,null);
         BUFFER.setLength(0);
-        return new Pair<>(aux,Parser.CTE_INT);
+        return new Pair<>(aux,TABLA_PALABRAS_RESERVADAS.get("CTE_INT"));
     }
 }

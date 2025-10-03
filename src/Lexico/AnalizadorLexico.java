@@ -34,8 +34,6 @@ public class AnalizadorLexico {
 
         for (ArrayList<Character> l : data) {
             String linea[] = l.stream().map(Object::toString).collect(Collectors.joining("")).split("\\s*;\\s*");
-            System.out.println("Linea[] es " + linea.length);
-            System.out.println("Linea 3 es " + linea[3]);
 
             try {
                 e0 = Integer.parseInt(linea[0]);
@@ -74,12 +72,11 @@ public Pair<String, Integer> generarToken(){
         char caracter = cursor.getCharacter();
         as = matrizTransicion.getAccionSemantica(estado, caracter);
         estado = matrizTransicion.getEstado(estado, caracter);
-        System.out.println("Accion Semantica: "+ as +" Estado: "+ estado);
         if (as != null){ // si hay alguna accion semantica a ejecutar, la ejecuto
-
             token=as.run(caracter, cursor);
             if (token == null){
                 //TODO:Logger error de Accion Semantica
+                cursor.next();
                 return null;
             }
             if (token.getSecond() != null && estado ==17){ // MIRAR ACCIONES SEMNATICAS PARA ENTENDER EJEMPLOS DE RETURN DE LITERALES POR EJEMPLO
@@ -91,7 +88,6 @@ public Pair<String, Integer> generarToken(){
                 estado = 0;
                 //TODO:Logger error de estado -1
             }
-
         }
         cursor.next();
     }

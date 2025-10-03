@@ -4,6 +4,8 @@ import Tools.Pair;
 
 import java.math.BigDecimal;
 
+import static Tools.TablaPalabrasReservadas.TABLA_PALABRAS_RESERVADAS;
+
 public class ASEntregarFlotante extends AccionSemantica{
     public static final Double MAX_VALUE_POS = 3.40282347E38;
     public static final Double MIN_VALUE_POS = 1.17549435E-38;
@@ -61,6 +63,6 @@ public class ASEntregarFlotante extends AccionSemantica{
     BUFFER.setLength(0);
     cursor.gobackCharacter();
     // retornamons el numero y el token float
-    return new Pair<String, Integer>(aDevolver, Parser.CTE_FLOAT);
+    return new Pair<String, Integer>(aDevolver, TABLA_PALABRAS_RESERVADAS.get("CTE_FLOAT"));
     }
 }
