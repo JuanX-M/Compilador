@@ -25,9 +25,11 @@ public class ASEntregarPalabras extends AccionSemantica{
         //ArrayList<String> auxPalabrasReservadas = new ArrayList<>(transformarArraylist());
 
         try {
-            //System.out.println(auxPalabrasReservadas.contains(aux));
+
             if (TABLA_PALABRAS_RESERVADAS.containsKey(aux)) {
                 return new Pair<String, Integer>(aux, TABLA_PALABRAS_RESERVADAS.get(aux));
+            } else {
+                throw new IllegalArgumentException("Palabra reservada '" + aux + "' no existe");
             }
         }
         catch (IllegalArgumentException e) {
