@@ -1,0 +1,13 @@
+int F1  (int Y){
+    int X;
+    int F11 (int X1, int X2)
+    {
+        X2 := X1;
+        return X2;
+
+    }
+
+    X := F11(Y == X1, 0I = X2);
+
+    return (X)
+}
