@@ -1,4 +1,5 @@
 package Lexico;
+import Lexico.AccionesSemanticas.ASError;
 import Tools.Pair;
 import Lexico.AccionesSemanticas.AccionSemantica;
 
@@ -101,7 +102,7 @@ public final class MatrizTransicion {
         //System.out.println("Columna convertida: " + aux);
         int aux = convertir(simbolo);
         if (estado == -1) { // TODO: buscar como detectar el error lexico
-            return null;
+            return new ASError();
         }
         Pair<Integer, AccionSemantica> cell = MATRIZ[estado][aux];
         return cell.getSecond();
