@@ -89,10 +89,10 @@ public final class MatrizTransicion {
 
     public int getEstado(int estado, char simbolo) {
         int aux = convertir(simbolo);
-        Pair<Integer, AccionSemantica> cell = MATRIZ[estado][aux];
-        if (cell == null) {
-            return -1; // estado inválido
+        if (estado == -1) { // TODO: buscar como detectar el error lexico
+            return 0;
         }
+        Pair<Integer, AccionSemantica> cell = MATRIZ[estado][aux];
         return cell.getFirst();
     }
 
@@ -100,6 +100,9 @@ public final class MatrizTransicion {
         //System.out.println("Estado: " + estado + ", Simbolo: '" + simbolo + "'");
         //System.out.println("Columna convertida: " + aux);
         int aux = convertir(simbolo);
+        if (estado == -1) { // TODO: buscar como detectar el error lexico
+            return null;
+        }
         Pair<Integer, AccionSemantica> cell = MATRIZ[estado][aux];
         return cell.getSecond();
     }
