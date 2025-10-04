@@ -1,6 +1,5 @@
 package Lexico.AccionesSemanticas;
 
-import Sintactico.Parser;
 import Tools.Cursor;
 import Tools.Pair;
 

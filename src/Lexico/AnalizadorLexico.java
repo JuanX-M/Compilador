@@ -65,6 +65,7 @@ public class AnalizadorLexico {
     }
 
 public Pair<String, Integer> generarToken(){
+    //TODO:generarToken() debe entregar Nro de Token solamente, info de lexema por yylval que es un objeto ParselVal
     int estado=0;
     AccionSemantica as;
     Pair<String, Integer> token = null;

@@ -15,6 +15,14 @@ public class Info {
         this.nroLinea = nroLinea; // creo que se calcula por lexico, cambiar esto
     }
 
+    @Override
+    public String toString() {
+        return "Info{" +
+                "tokenType='" + tokenType + '\'' +
+                ", nroLinea=" + nroLinea +
+                '}';
+    }
+
     public String getTokenType() {
         return tokenType;
     }
