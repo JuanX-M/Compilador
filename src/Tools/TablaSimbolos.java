@@ -26,4 +26,5 @@ public class TablaSimbolos {
         }
         System.out.println("---------------------------------------------");
     }
+
 }

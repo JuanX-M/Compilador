@@ -15,6 +15,9 @@ public class Cursor {
     }
 
     public Character getCharacter() {
+        if (hasFinished()) {
+            return null; // Evita IndexOutOfBounds
+        }
         return PROGRAM.get(currentLine).get(currentColumn);
     }
 
@@ -44,15 +47,17 @@ public class Cursor {
     }
 
     private int getUltimaPosicionLinea(int linea){
-        return PROGRAM.get(linea).size();
+        return PROGRAM.get(linea).size()-1;
     }
-
 
     public boolean hasFinished() {
         // Si el número de línea actual es igual o mayor que el total de líneas,
         // significa que ya hemos procesado la última línea y hemos terminado.
-        return currentLine >= PROGRAM.size();
+        return currentLine >= PROGRAM.size() ||
+                (currentLine == PROGRAM.size() - 1 && currentColumn >= PROGRAM.get(currentLine).size());
     }
+
+
     public int getCurrentLine() {
         return currentLine;
     }

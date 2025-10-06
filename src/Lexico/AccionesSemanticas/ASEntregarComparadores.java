@@ -1,8 +1,9 @@
 package Lexico.AccionesSemanticas;
 
-import Sintactico.Parser;
 import Tools.Cursor;
 import Tools.Pair;
+
+import static Tools.TablaPalabrasReservadas.TABLA_PALABRAS_RESERVADAS;
 
 public class ASEntregarComparadores extends AccionSemantica{
     public ASEntregarComparadores(){
@@ -14,18 +15,7 @@ public class ASEntregarComparadores extends AccionSemantica{
             BUFFER.append(simbolo);
             String salida = BUFFER.toString();
             BUFFER.setLength(0);
-            switch (salida) {
-                case ">=":
-                    return new Pair<>(salida, Parser.GREATER_OR_EQUAL);
-                case "<=":
-                    return new Pair<>(salida, Parser.LESS_OR_EQUAL);
-                case "==":
-                    return new Pair<>(salida, Parser.EQUAL);
-                case "=!":
-                    return new Pair<>(salida, Parser.NOT_EQUAL);
-                default:
-                    return null;
-            }
+            return new Pair<>(salida, TABLA_PALABRAS_RESERVADAS.get(salida));
         } else {
             String salida = BUFFER.toString();
             BUFFER.setLength(0);

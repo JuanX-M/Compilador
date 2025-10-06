@@ -1,8 +1,10 @@
 package Lexico.AccionesSemanticas;
 
+import Tools.Info;
+import Tools.Logger;
 import Tools.Pair;
-import Sintactico.Parser;
 
+import static Tools.TablaPalabrasReservadas.TABLA_PALABRAS_RESERVADAS;
 import static Tools.TablaSimbolos.TABLA_SIMBOLOS;
 
 public class ASEntregarEntero extends AccionSemantica {
@@ -14,17 +16,25 @@ public class ASEntregarEntero extends AccionSemantica {
     @Override
     public Pair<String, Integer> run(Character simbolo, Tools.Cursor cursor) {
         String aux = BUFFER.toString();
+        //System.out.println(aux);
         try {
-            int numero = Integer.parseInt(aux);
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
+            short numero = Short.parseShort(aux);
+        } catch (NumberFormatException e) {
+            if(aux.contains("-"))
+                Logger.logError(cursor.getCurrentLine(), "Error: El número entero es demasiado pequeño");
+            else
+                Logger.logError(cursor.getCurrentLine(), "Error: El número entero es demasiado grande");
+            BUFFER.setLength(0);
+            // si no esta BUFFER.setLength(0)  hay error para todos los enteros porque se van concatenando
+            // en el mismo buffer
+            return null;
         }
         BUFFER.append(simbolo);
         if(TABLA_SIMBOLOS.containsKey(aux)) {
-            return new Pair<String,Integer>(aux,Parser.CTE_INT);
+            return new Pair<String,Integer>(aux,TABLA_PALABRAS_RESERVADAS.get("CTE_INT"));
         }
-        TABLA_SIMBOLOS.put(aux,null);
+        TABLA_SIMBOLOS.put(aux,new Info(aux,TABLA_PALABRAS_RESERVADAS.get("CTE_INT")));
         BUFFER.setLength(0);
-        return new Pair<>(aux,Parser.CTE_INT);
+        return new Pair<>(aux,TABLA_PALABRAS_RESERVADAS.get("CTE_INT"));
     }
 }

@@ -39,11 +39,10 @@ public class AnalizadorLexico {
                 e0 = Integer.parseInt(linea[0]);
                 e1 = Integer.parseInt(linea[1]);
                 e2 = Integer.parseInt(linea[2]);
-                acc = Integer.parseInt(linea[3]);
+                acc = Integer.parseInt(linea[3].trim());
 
             } catch (NumberFormatException e) {
-                System.out.println("entra");
-                System.out.println(e.getMessage()); //TODO:Salida por error de formato
+                System.out.println("Error en cargar matriz" + e.getMessage()); //TODO:Salida por error de formato
             }
             this.matrizTransicion.addTransicion(e0, e1, e2, toAccionSemantica(acc));
         }
@@ -65,9 +64,8 @@ public class AnalizadorLexico {
         }
     }
 
-
-
 public Pair<String, Integer> generarToken(){
+    //TODO:generarToken() debe entregar Nro de Token solamente, info de lexema por yylval que es un objeto ParselVal
     int estado=0;
     AccionSemantica as;
     Pair<String, Integer> token = null;
@@ -75,16 +73,15 @@ public Pair<String, Integer> generarToken(){
         char caracter = cursor.getCharacter();
         as = matrizTransicion.getAccionSemantica(estado, caracter);
         estado = matrizTransicion.getEstado(estado, caracter);
-        System.out.println("Accion Semantica: "+ as +" Estado: "+ estado);
         if (as != null){ // si hay alguna accion semantica a ejecutar, la ejecuto
-
             token=as.run(caracter, cursor);
             if (token == null){
                 //TODO:Logger error de Accion Semantica
+                cursor.next();
                 return null;
             }
             if (token.getSecond() != null && estado ==17){ // MIRAR ACCIONES SEMNATICAS PARA ENTENDER EJEMPLOS DE RETURN DE LITERALES POR EJEMPLO
-                estado = 0;
+                cursor.next();
                 return token;
             }
             if (estado == -1){
@@ -92,7 +89,6 @@ public Pair<String, Integer> generarToken(){
                 estado = 0;
                 //TODO:Logger error de estado -1
             }
-
         }
         cursor.next();
     }
@@ -101,5 +97,17 @@ public Pair<String, Integer> generarToken(){
 
     return null;
 }
+
+    public ArrayList<Pair<String,Integer>> getTodosLosTokens() {
+        ArrayList<Pair<String,Integer>> salida = new ArrayList<>();
+        while (!cursor.hasFinished()) {
+            Pair<String,Integer> token = generarToken();
+            if (token != null) {
+                salida.add(token);
+            }
+        }
+        return salida;
+    }
+
 
 }
