@@ -21,9 +21,9 @@ public class ASEntregarEntero extends AccionSemantica {
             short numero = Short.parseShort(aux);
         } catch (NumberFormatException e) {
             if(aux.contains("-"))
-                Logger.logError(cursor.getCurrentLine(), "Error: El número entero es demasiado pequeño");
+                Logger.logError(cursor.getCurrentLine(), "El número entero es demasiado pequeño");
             else
-                Logger.logError(cursor.getCurrentLine(), "Error: El número entero es demasiado grande");
+                Logger.logError(cursor.getCurrentLine(), "El número entero es demasiado grande");
             BUFFER.setLength(0);
             // si no esta BUFFER.setLength(0)  hay error para todos los enteros porque se van concatenando
             // en el mismo buffer

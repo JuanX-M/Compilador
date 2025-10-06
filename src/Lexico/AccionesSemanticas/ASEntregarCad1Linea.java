@@ -20,7 +20,7 @@ public class ASEntregarCad1Linea extends AccionSemantica{
                 throw new IllegalArgumentException();
         }
         catch (IllegalArgumentException i){
-            Logger.logError(cursor.getCurrentLine(), "Error: Cadena contiene salto de linea");
+            Logger.logError(cursor.getCurrentLine(), "Cadena contiene salto de linea");
             return null;
         }
         return new Pair<>(aux, TABLA_PALABRAS_RESERVADAS.get("STRING"));

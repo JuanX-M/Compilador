@@ -41,29 +41,28 @@ public class ASEntregarFlotante extends AccionSemantica{
             if ((result.signum() > 0 && result.compareTo(BigDecimal.valueOf(MIN_VALUE_POS)) < 0) ||
                     (result.signum() < 0 && result.compareTo(BigDecimal.valueOf(MAX_VALUE_NEG)) > 0)) {
                 BUFFER.setLength(0);
-                Logger.logError(cursor.getCurrentLine(), "Error: El número flotante es demasiado pequeño");
+                Logger.logError(cursor.getCurrentLine(), "El número flotante es demasiado pequeño");
                 return null;
             }
             if ((result.signum() > 0 && result.compareTo(BigDecimal.valueOf(MAX_VALUE_POS)) > 0) ||
                     (result.signum() < 0 && result.compareTo(BigDecimal.valueOf(MIN_VALUE_NEG)) < 0)) {
                 BUFFER.setLength(0);
-                Logger.logError(cursor.getCurrentLine(), "Error: El número flotante es demasiado grande");
+                Logger.logError(cursor.getCurrentLine(), "El número flotante es demasiado grande");
                 return null;
             }
 
             aux = aux.replace('F', 'E'); //Formateamos para meter en variable
         }
         try {
-                float numero = Float.parseFloat(aux);
-                if (Float.isInfinite(numero)) {
-                    System.out.println("Error: El número es infinito");
-                    throw new NumberFormatException();
-                }
+            float numero = Float.parseFloat(aux);
+            if (Float.isInfinite(numero))
+                throw new NumberFormatException();
             if(!TABLA_SIMBOLOS.containsKey(aux)){
                 TABLA_SIMBOLOS.put(aux,new Info(aux,TABLA_PALABRAS_RESERVADAS.get("CTE_FLOAT")));
             }
-            } catch (NumberFormatException e) { //TODO:Logger
-                System.out.println("Excede cantidad de bits");
+            } catch (NumberFormatException e) {
+                BUFFER.setLength(0);
+                Logger.logError(cursor.getCurrentLine(), "Excede cantidad de bits");
                 return null;
         }
     BUFFER.setLength(0);

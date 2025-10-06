@@ -18,7 +18,7 @@ public class ASEntregarID extends AccionSemantica {
     public Pair<String, Integer> run(Character simbolo, Cursor cursor) {
         if(BUFFER.length() > 20){
             BUFFER.setLength(20);
-            Logger.logWarning(cursor.getCurrentLine(),"WARNING: Identificador truncado");
+            Logger.logWarning(cursor.getCurrentLine(),"Identificador " + BUFFER + " truncado");
         }
         String aux = BUFFER.toString();
         //System.out.println(aux);

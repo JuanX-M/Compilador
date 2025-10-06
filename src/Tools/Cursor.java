@@ -59,7 +59,7 @@ public class Cursor {
 
 
     public int getCurrentLine() {
-        return currentLine;
+        return currentLine + 1;
     }
 
     public int getCurrentColumn() {

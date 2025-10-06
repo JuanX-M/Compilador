@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import Lexico.AccionesSemanticas.*;
 import Tools.LectorArchivo;
 import Tools.Cursor;
+import Tools.Logger;
 import Tools.Pair;
 
 import java.util.stream.Collectors;
@@ -13,7 +14,7 @@ public class AnalizadorLexico {
     private final int ESTADOS = 17; //filas
     private final int SIMBOLOS = 28; //columnas
 
-    public static int estado_error = 0;
+    public static int ESTADO_ANTERIOR = 0;
     private MatrizTransicion matrizTransicion;
     private Cursor cursor;
 
@@ -72,23 +73,27 @@ public Pair<String, Integer> generarToken(){
     while (!cursor.hasFinished() &&  !matrizTransicion.isEstadoFinal(estado)){
         char caracter = cursor.getCharacter();
         as = matrizTransicion.getAccionSemantica(estado, caracter);
+        ESTADO_ANTERIOR = estado;
         estado = matrizTransicion.getEstado(estado, caracter);
-        if (as != null){ // si hay alguna accion semantica a ejecutar, la ejecuto
-            token=as.run(caracter, cursor);
-            if (token == null){
-                //TODO:Logger error de Accion Semantica
-                cursor.next();
-                return null;
-            }
-            if (token.getSecond() != null && estado ==17){ // MIRAR ACCIONES SEMNATICAS PARA ENTENDER EJEMPLOS DE RETURN DE LITERALES POR EJEMPLO
-                cursor.next();
-                return token;
-            }
-            if (estado == -1){
-                //va aca? (Solucionar errores con warning. Marcela
-                estado = 0;
-                //TODO:Logger error de estado -1
-            }
+        System.out.println("Accion:  " + as + "  Estado:  " + estado);
+        if (estado == -1){
+            AccionSemantica auxAccion = new ASError();
+            auxAccion.run(caracter, cursor);
+            estado = 0;
+
+        }
+        else
+            if (as != null){ // si hay alguna accion semantica a ejecutar, la ejecuto
+                token=as.run(caracter, cursor);
+                if (token == null){
+                    //TODO:Logger error de Accion Semantica
+                    cursor.next();
+                    return null;
+                }
+                if (token.getSecond() != null && estado ==17){ // MIRAR ACCIONES SEMNATICAS PARA ENTENDER EJEMPLOS DE RETURN DE LITERALES POR EJEMPLO
+                    cursor.next();
+                    return token;
+                }
         }
         cursor.next();
     }

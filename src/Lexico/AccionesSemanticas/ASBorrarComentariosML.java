@@ -11,7 +11,6 @@ public class ASBorrarComentariosML extends AccionSemantica{
 
     @Override
     public Pair<String, Integer> run(Character simbolo, Cursor cursor) {
-        System.out.println("buffer " + BUFFER.toString());
         BUFFER.setLength(0);
         return new Pair<>(null, null); //no es simplemente null porque si fuera null es porque hay un error
     }
