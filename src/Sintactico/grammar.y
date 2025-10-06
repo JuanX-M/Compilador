@@ -68,16 +68,16 @@ lista_variables         :   lista_variables ',' ID
                         |   ID
                         ;
 
+lista_exp_aritmeticas   :   lista_exp_aritmeticas ',' expresion_aritmetica
+                        |   expresion_aritmetica
+                        ;
+
 lista_tipos             :   lista_tipos ',' tipo
                         |   tipo
                         ;
 
 lista_param_formales    :   lista_param_formales ',' parametro_formal
                         |   parametro_formal
-                        ;
-
-lista_exp_aritmeticas   :   lista_exp_aritmeticas ',' expresion_aritmetica
-                        |   expresion_aritmetica
                         ;
 
 operando                :   ID
