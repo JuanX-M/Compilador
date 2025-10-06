@@ -13,13 +13,26 @@ public class ASError extends AccionSemantica{
         int aux = AnalizadorLexico.ESTADO_ANTERIOR;
         System.out.println(aux);
         switch (aux) {
-            case 1: Logger.logError(cursor.getCurrentLine(), "Debe ingresar un digito, un punto o una I");
-            case 2: Logger.logError(cursor.getCurrentLine(), "Debe ingresar algun digito");
-            case 4: Logger.logError(cursor.getCurrentLine(), "Debe ingresar simbolo + o -");
-            case 5: Logger.logError(cursor.getCurrentLine(), "Debe ingresar algun digito");
-            case 10: Logger.logError(cursor.getCurrentLine(), "Debe ingresar un #");
-            case 15: Logger.logError(cursor.getCurrentLine(), "Debe ingresar un =");
-            default : {aux = 0;}
+            case 1:
+                Logger.logError(cursor.getCurrentLine(), "Debe ingresar un digito, un punto o una I");
+                break;
+            case 2:
+                Logger.logError(cursor.getCurrentLine(), "Debe ingresar algun digito");
+                break;
+            case 4:
+                Logger.logError(cursor.getCurrentLine(), "Debe ingresar simbolo + o -");
+                break;
+            case 5:
+                Logger.logError(cursor.getCurrentLine(), "Debe ingresar algun digito");
+                break;
+            case 10:
+                Logger.logError(cursor.getCurrentLine(), "Debe ingresar un #");
+                break;
+            case 15:
+                Logger.logError(cursor.getCurrentLine(), "Debe ingresar un =");
+                break;
+            default :
+                break;
         }
         BUFFER.setLength(0);
         return null;
