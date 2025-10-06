@@ -14,7 +14,7 @@ public class AnalizadorLexico {
 
     public static int ESTADO_ANTERIOR = 0;
     private MatrizTransicion matrizTransicion;
-    private final Cursor cursor;
+    private final Cursor cursor; //es final?
 
     public AnalizadorLexico(String programa) {
         cargarMatriz();
