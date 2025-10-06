@@ -1,6 +1,7 @@
 package Lexico.AccionesSemanticas;
 
 import Tools.Cursor;
+import Tools.Logger;
 import Tools.Pair;
 
 import static Tools.TablaPalabrasReservadas.TABLA_PALABRAS_RESERVADAS;
@@ -25,13 +26,13 @@ public class ASEntregarPalabras extends AccionSemantica{
         try {
 
             if (TABLA_PALABRAS_RESERVADAS.containsKey(aux)) {
-                return new Pair<String, Integer>(aux, TABLA_PALABRAS_RESERVADAS.get(aux));
+                return new Pair<>(aux, TABLA_PALABRAS_RESERVADAS.get(aux));
             } else {
                 throw new IllegalArgumentException("Palabra reservada '" + aux + "' no existe");
             }
         }
         catch (IllegalArgumentException e) {
-            System.out.println("No existe la palabra reservada: " + e.getMessage()); //TODO: Logger
+            Logger.logError(cursor.getCurrentLine(), e.getMessage());
         }
         return null;
     }

@@ -36,7 +36,7 @@ public class ASEntregarFlotante extends AccionSemantica{
 
             BigDecimal result = BigDecimal.valueOf(base).multiply(BigDecimal.valueOf(Math.pow(10, exponente)));
 
-            System.out.println(result);
+            //System.out.println(result);
 
             if ((result.signum() > 0 && result.compareTo(BigDecimal.valueOf(MIN_VALUE_POS)) < 0) ||
                     (result.signum() < 0 && result.compareTo(BigDecimal.valueOf(MAX_VALUE_NEG)) > 0)) {
@@ -68,6 +68,6 @@ public class ASEntregarFlotante extends AccionSemantica{
     BUFFER.setLength(0);
     cursor.gobackCharacter();
     // retornamons el numero y el token float
-    return new Pair<String, Integer>(aDevolver, TABLA_PALABRAS_RESERVADAS.get("CTE_FLOAT"));
+    return new Pair<>(aDevolver, TABLA_PALABRAS_RESERVADAS.get("CTE_FLOAT"));
     }
 }

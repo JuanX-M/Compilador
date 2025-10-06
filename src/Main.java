@@ -15,6 +15,5 @@ public class Main {
         System.out.println(analizadorLexico.getTodosLosTokens());
         System.out.println("TablaSimbolos: " + TablaSimbolos.TABLA_SIMBOLOS);
         System.out.println(Logger.generateLog());
-
     }
 }

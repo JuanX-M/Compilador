@@ -1,22 +1,20 @@
 package Lexico;
 import java.util.ArrayList;
-
 import Lexico.AccionesSemanticas.*;
 import Tools.LectorArchivo;
 import Tools.Cursor;
-import Tools.Logger;
 import Tools.Pair;
 
 import java.util.stream.Collectors;
 
 public class AnalizadorLexico {
 
-    private final int ESTADOS = 17; //filas
-    private final int SIMBOLOS = 28; //columnas
+    //private final int ESTADOS = 17; //filas
+    //private final int SIMBOLOS = 28; //columnas
 
     public static int ESTADO_ANTERIOR = 0;
     private MatrizTransicion matrizTransicion;
-    private Cursor cursor;
+    private final Cursor cursor;
 
     public AnalizadorLexico(String programa) {
         cargarMatriz();
@@ -34,7 +32,7 @@ public class AnalizadorLexico {
 
 
         for (ArrayList<Character> l : data) {
-            String linea[] = l.stream().map(Object::toString).collect(Collectors.joining("")).split("\\s*;\\s*");
+            String[] linea = l.stream().map(Object::toString).collect(Collectors.joining("")).split("\\s*;\\s*");
 
             try {
                 e0 = Integer.parseInt(linea[0]);
@@ -50,41 +48,40 @@ public class AnalizadorLexico {
     }
 
     private AccionSemantica toAccionSemantica(Integer acc) {
-        switch (acc) { //crea la instancia de clase de accion semantica
-            case 1 : return new ASConcatenarBuffer();
-            case 3 : return new ASEntregarEntero();
-            case 4 : return new ASEntregarFlotante();
-            case 5 : return new ASEntregarID();
-            case 6 : return new ASEntregarLiterales();
-            case 7 : return new ASEntregarCad1Linea();
-            case 8 : return new ASEntregarComparadores();
-            case 10 : return new ASBorrarComentariosML();
-            case 11 : return new ASEntregarAsignacion();
-            case 12 : return new ASEntregarPalabras();
-            default : return null;
-        }
+        return switch (acc) { //crea la instancia de clase de accion semantica
+            case 1 -> new ASConcatenarBuffer();
+            case 3 -> new ASEntregarEntero();
+            case 4 -> new ASEntregarFlotante();
+            case 5 -> new ASEntregarID();
+            case 6 -> new ASEntregarLiterales();
+            case 7 -> new ASEntregarCad1Linea();
+            case 8 -> new ASEntregarComparadores();
+            case 10 -> new ASBorrarComentariosML();
+            case 11 -> new ASEntregarAsignacion();
+            case 12 -> new ASEntregarPalabras();
+            default -> null;
+        };
     }
 
 public Pair<String, Integer> generarToken(){
     //TODO:generarToken() debe entregar Nro de Token solamente, info de lexema por yylval que es un objeto ParselVal
     int estado=0;
     AccionSemantica as;
-    Pair<String, Integer> token = null;
+    Pair<String, Integer> token;
     while (!cursor.hasFinished() &&  !matrizTransicion.isEstadoFinal(estado)){
         char caracter = cursor.getCharacter();
         as = matrizTransicion.getAccionSemantica(estado, caracter);
         ESTADO_ANTERIOR = estado;
         estado = matrizTransicion.getEstado(estado, caracter);
-        System.out.println("Accion:  " + as + "  Estado:  " + estado);
+        //System.out.println("Accion:  " + as + "  Estado:  " + estado);
         if (estado == -1){
             AccionSemantica auxAccion = new ASError();
             auxAccion.run(caracter, cursor);
             estado = 0;
-
         }
         else
             if (as != null){ // si hay alguna accion semantica a ejecutar, la ejecuto
-                token=as.run(caracter, cursor);
+                token = as.run(caracter, cursor);
                 if (token == null){
                     //TODO:Logger error de Accion Semantica
                     cursor.next();

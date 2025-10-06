@@ -1,1 +1,4 @@
-2.0F+;
+X = 1I;
+X = 2I;
+
+//Guarda el 1 y 2 en la tabla de simbolos cuando deberian quedar "dentro" de X nada mas

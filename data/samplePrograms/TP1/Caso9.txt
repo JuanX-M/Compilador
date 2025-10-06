@@ -1,1 +1,4 @@
+"Esta es una cadena bien escrita";
 
+"Esta es una
+cadena mal escrita";
