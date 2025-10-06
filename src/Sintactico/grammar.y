@@ -1,17 +1,16 @@
 %{
-
-
-
+    import java.io.*;
+    import Lexico.AnalizadorLexico;
 %}
 
-
-%token TWO_POINTS_ASSIGNATION STRING GREATER_OR_EQUAL LESS_OR_EQUAL EQUAL NOT_EQUAL CTE_INT CTE_FLOAT ID IF ELSE ENDIF PRINT RETURN VAR FOR FROM TO CR SE LE TOI INT FLOAT ARROW
+%token
+TWO_POINTS_ASSIGNATION STRING GREATER_OR_EQUAL LESS_OR_EQUAL EQUAL NOT_EQUAL CTE_INT CTE_FLOAT ID
+IF ELSE ENDIF PRINT RETURN VAR FOR FROM TO CR SE LE TOI INT FLOAT ARROW
 
 %start  prog
 %left '+' '-'
 %left '*' '/'
 %%
-
 
 prog                    :   ID '{' cuerpo '}'
                         ;
@@ -28,10 +27,6 @@ sentencia               :   sentencia_declarativa
 sentencia_declarativa   :   sentencia_declarativa funcion
                         |   funcion
                         ;
-sentencia_lambda        :    '(' tipo ID ')' '{' cuerpo '}' '(' ID ')'
-                        |    '(' tipo ID ')' '{' cuerpo '}' '(' CTE_INT ')'
-                        |    '(' tipo ID ')' '{' cuerpo '}' '(' CTE_FLOAT ')'
-                        ;
 
 sentencia_ejecucion     :   VAR ID TWO_POINTS_ASSIGNATION expresion_aritmetica
                         |   IF '(' condicion ')' '{' cuerpo '}' ELSE '{' cuerpo '}' ENDIF
@@ -42,20 +37,13 @@ sentencia_ejecucion     :   VAR ID TWO_POINTS_ASSIGNATION expresion_aritmetica
                         |   lista_variables = lista_operandos
                         ;
 
+sentencia_lambda        :    '(' tipo ID ')' '{' cuerpo '}' '(' ID ')'
+                        |    '(' tipo ID ')' '{' cuerpo '}' '(' CTE_INT ')'
+                        |    '(' tipo ID ')' '{' cuerpo '}' '(' CTE_FLOAT ')'
+                        ;
+
 funcion                 :   tipo ID '(' parametros_formales ')' '{' cuerpo '}' RETURN '(' expresion_aritmetica ')' ';'
                         |   lista_tipos ID '(' parametros_formales ')' '{' cuerpo '}' RETURN '(' lista_operandos ')' ';'
-                        ;
-
-parametros_formales     :   parametros_formales ',' semantica_pasaje tipo ID
-                        |   semantica_pasaje tipo ID
-                        |   tipo ID
-                        ;
-
-parametros_reales       :   operando ARROW parametros_formales
-                        ;
-
-semantica_pasaje        :   CR SE
-                        |   CR LE
                         ;
 
 expresion_aritmetica    :   expresion_aritmetica '+' operando
@@ -75,11 +63,26 @@ condicion               :   expresion_aritmetica GREATER_OR_EQUAL expresion_arit
                         |   expresion_aritmetica '<' expresion_aritmetica
                         ;
 
+lista_variables         :   lista_variables ',' ID
+                        |   ID
+                        ;
+
 lista_operandos         :   lista_operandos ',' expresion_aritmetica
                         |   expresion_aritmetica
                         ;
-lista_variables         :   lista_variables ',' ID
-                        |   ID
+
+tipo                    :   INT
+                        |   FLOAT
+                        |   STRING
+                        ;
+
+parametros_formales     :   parametros_formales ',' semantica_pasaje tipo ID
+                        |   semantica_pasaje tipo ID
+                        |   tipo ID
+                        ;
+
+lista_tipos             :   lista_tipos , tipo
+                        |   tipo
                         ;
 
 operando                :   ID
@@ -89,12 +92,10 @@ operando                :   ID
                         |   ID'.'ID
                         ;
 
-lista_tipos             :   lista_tipos , tipo
-                        |   tipo
+semantica_pasaje        :   CR SE
+                        |   CR LE
                         ;
 
-tipo                    :   INT
-                        |   FLOAT
-                        |   STRING
+parametros_reales       :   parametros_reales ',' operando ARROW parametros_formales
+                        |   operando ARROW parametros_formales
                         ;
-
