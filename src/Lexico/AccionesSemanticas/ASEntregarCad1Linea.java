@@ -1,6 +1,7 @@
 package Lexico.AccionesSemanticas;
 
 import Tools.Cursor;
+import Tools.Logger;
 import Tools.Pair;
 
 import static Tools.TablaPalabrasReservadas.TABLA_PALABRAS_RESERVADAS;
@@ -16,10 +17,10 @@ public class ASEntregarCad1Linea extends AccionSemantica{
         BUFFER.setLength(0);
         try {
             if (aux.contains("\r") || aux.contains("\n"))
-                throw new IllegalArgumentException("Cadena contiene salto de linea");
+                throw new IllegalArgumentException();
         }
         catch (IllegalArgumentException i){
-            System.out.println(i.getMessage());
+            Logger.logError(cursor.getCurrentLine(), "Error: Cadena contiene salto de linea");
             return null;
         }
         return new Pair<>(aux, TABLA_PALABRAS_RESERVADAS.get("STRING"));

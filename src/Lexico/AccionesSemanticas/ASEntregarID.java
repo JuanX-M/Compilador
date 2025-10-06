@@ -2,6 +2,7 @@ package Lexico.AccionesSemanticas;
 
 import Tools.Cursor;
 import Tools.Info;
+import Tools.Logger;
 import Tools.Pair;
 
 import static Tools.TablaSimbolos.TABLA_SIMBOLOS;
@@ -17,7 +18,7 @@ public class ASEntregarID extends AccionSemantica {
     public Pair<String, Integer> run(Character simbolo, Cursor cursor) {
         if(BUFFER.length() > 20){
             BUFFER.setLength(20);
-            System.out.println("WARNING: Identificador truncado"); //TODO: Logger
+            Logger.logWarning(cursor.getCurrentLine(),"WARNING: Identificador truncado");
         }
         String aux = BUFFER.toString();
         //System.out.println(aux);

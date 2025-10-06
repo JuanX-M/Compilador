@@ -1,6 +1,7 @@
 package Lexico.AccionesSemanticas;
 import Tools.Info;
 import Tools.Pair;
+import Tools.Logger;
 
 import java.math.BigDecimal;
 
@@ -39,13 +40,14 @@ public class ASEntregarFlotante extends AccionSemantica{
 
             if ((result.signum() > 0 && result.compareTo(BigDecimal.valueOf(MIN_VALUE_POS)) < 0) ||
                     (result.signum() < 0 && result.compareTo(BigDecimal.valueOf(MAX_VALUE_NEG)) > 0)) {
-                System.out.println("Error: El número flotante es demasiado pequeño");
+                BUFFER.setLength(0);
+                Logger.logError(cursor.getCurrentLine(), "Error: El número flotante es demasiado pequeño");
                 return null;
             }
-
             if ((result.signum() > 0 && result.compareTo(BigDecimal.valueOf(MAX_VALUE_POS)) > 0) ||
                     (result.signum() < 0 && result.compareTo(BigDecimal.valueOf(MIN_VALUE_NEG)) < 0)) {
-                System.out.println("Error: El número flotante es demasiado grande");
+                BUFFER.setLength(0);
+                Logger.logError(cursor.getCurrentLine(), "Error: El número flotante es demasiado grande");
                 return null;
             }
 

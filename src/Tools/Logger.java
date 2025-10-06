@@ -36,7 +36,7 @@ public final class Logger {
         rules.add("Se encontro un " + LogType.RULE + " en la linea [" + line + "] : " + message + "\n");
     }
 
-    private static String generateLog() {
+    public static String generateLog() {
         String out = null;
 
         out = "\n>>>    LOG \n";

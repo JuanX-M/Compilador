@@ -1,5 +1,7 @@
 package Lexico.AccionesSemanticas;
 
+import Tools.Info;
+import Tools.Logger;
 import Tools.Pair;
 
 import static Tools.TablaPalabrasReservadas.TABLA_PALABRAS_RESERVADAS;
@@ -16,11 +18,13 @@ public class ASEntregarEntero extends AccionSemantica {
         String aux = BUFFER.toString();
         //System.out.println(aux);
         try {
-            int numero = Integer.parseInt(aux);
+            short numero = Short.parseShort(aux);
         } catch (NumberFormatException e) {
-            System.out.println("Excede la cantidad de bits");
+            if(aux.contains("-"))
+                Logger.logError(cursor.getCurrentLine(), "Error: El número entero es demasiado pequeño");
+            else
+                Logger.logError(cursor.getCurrentLine(), "Error: El número entero es demasiado grande");
             BUFFER.setLength(0);
-
             // si no esta BUFFER.setLength(0)  hay error para todos los enteros porque se van concatenando
             // en el mismo buffer
             return null;
@@ -29,7 +33,7 @@ public class ASEntregarEntero extends AccionSemantica {
         if(TABLA_SIMBOLOS.containsKey(aux)) {
             return new Pair<String,Integer>(aux,TABLA_PALABRAS_RESERVADAS.get("CTE_INT"));
         }
-        TABLA_SIMBOLOS.put(aux,null);
+        TABLA_SIMBOLOS.put(aux,new Info(aux,TABLA_PALABRAS_RESERVADAS.get("CTE_INT")));
         BUFFER.setLength(0);
         return new Pair<>(aux,TABLA_PALABRAS_RESERVADAS.get("CTE_INT"));
     }
