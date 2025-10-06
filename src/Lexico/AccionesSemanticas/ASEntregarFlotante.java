@@ -1,9 +1,11 @@
 package Lexico.AccionesSemanticas;
+import Tools.Info;
 import Tools.Pair;
 
 import java.math.BigDecimal;
 
 import static Tools.TablaPalabrasReservadas.TABLA_PALABRAS_RESERVADAS;
+import static Tools.TablaSimbolos.TABLA_SIMBOLOS;
 
 public class ASEntregarFlotante extends AccionSemantica{
     public static final Double MAX_VALUE_POS = 3.40282347E38;
@@ -55,6 +57,9 @@ public class ASEntregarFlotante extends AccionSemantica{
                     System.out.println("Error: El número es infinito");
                     throw new NumberFormatException();
                 }
+            if(!TABLA_SIMBOLOS.containsKey(aux)){
+                TABLA_SIMBOLOS.put(aux,new Info(aux,TABLA_PALABRAS_RESERVADAS.get("CTE_FLOAT")));
+            }
             } catch (NumberFormatException e) { //TODO:Logger
                 System.out.println("Excede cantidad de bits");
                 return null;

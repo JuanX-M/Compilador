@@ -1,13 +1,42 @@
 package Tools;
 
+import java.io.FileWriter;
 import java.util.ArrayList;
 
-public class Logger {
+public final class Logger {
     private static final String OUTPUT = "/output/";
     private static final String LOG_FILE = "log.txt";
     private static final ArrayList<String> warnings = new ArrayList<>();
     private static final ArrayList<String> errors = new ArrayList<>();
     private static final ArrayList<String> tokens = new ArrayList<>();
     private static final ArrayList<String> rules = new ArrayList<>();
+
+    private Logger(){};
+
+    private enum LogType{
+        ERROR,
+        WARNING,
+        TOKEN,
+        RULE
+    }
+
+    public static void logError(int line, Object message) {
+        errors.add("Se encontro un " + LogType.ERROR + " en la linea [" + line + "] : " + message + "\n");
+    }
+
+    public static void logWarning(int line, Object message) {
+        warnings.add("Se encontro un " + LogType.WARNING + " en la linea [" + line + "] : " + message + "\n");
+    }
+
+    public static void logToken(int line, Object message) {
+        tokens.add("Se encontro un " + LogType.TOKEN + " en la linea [" + line + "] : " + message + "\n");
+    }
+
+    public static void logRule(int line, Object message) {
+        rules.add("Se encontro un " + LogType.RULE + " en la linea [" + line + "] : " + message + "\n");
+    }
+
+
+
 
 }
