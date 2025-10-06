@@ -36,7 +36,7 @@ sentencia_ejecucion     :   VAR ID TWO_POINTS_ASSIGNATION expresion_aritmetica
                         |   PRINT '(' STRING ')'
                         |   PRINT '(' expresion_aritmetica ')'
                         |   FOR '(' ID FROM CTE_INT TO CTE_INT ')' '{' cuerpo '}'
-                        |   lista_variables '='
+                        |   lista_variables '=' lista_exp_aritmeticas
                         ;
 
 sentencia_lambda        :    '(' tipo ID ')' '{' cuerpo '}' '(' ID ')'
@@ -64,9 +64,7 @@ condicion               :   expresion_aritmetica GREATER_OR_EQUAL expresion_arit
                         |   expresion_aritmetica '<' expresion_aritmetica
                         ;
 
-lista_variables         :   lista_variables ',' ID
-                        |   ID
-                        ;
+
 
 lista_exp_aritmeticas   :   lista_exp_aritmeticas ',' expresion_aritmetica
                         |   expresion_aritmetica
@@ -80,13 +78,19 @@ lista_param_formales    :   lista_param_formales ',' parametro_formal
                         |   parametro_formal
                         ;
 
-operando                :   ID
-                        |   CTE_INT
+operando                :   CTE_INT
                         |   CTE_FLOAT
                         |   ID '(' lista_param_reales ')'
-                        |   ID'.'ID
+                        |   variable
                         ;
 
+lista_variables         :   lista_variables ',' variable
+                        |   variable
+                        ;
+
+variable                :   ID
+                        |   ID'.'ID
+                        ;
 tipo                    :   INT
                         |   FLOAT
                         |   STRING
