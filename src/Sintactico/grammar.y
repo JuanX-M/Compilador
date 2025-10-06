@@ -44,10 +44,8 @@ sentencia_lambda        :    '(' tipo ID ')' '{' cuerpo '}' '(' ID ')'
                         |    '(' tipo ID ')' '{' cuerpo '}' '(' CTE_FLOAT ')'
                         ;
 
-
-funcion                 : lista_tipos ID '(' parametros_formales ')' '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' ';'
+funcion                 : lista_tipos ID '(' lista_param_formales ')' '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' ';'
                         ;
-
 
 expresion_aritmetica    :   expresion_aritmetica '+' operando
                         |   expresion_aritmetica '-' operando
@@ -70,8 +68,23 @@ lista_variables         :   lista_variables ',' ID
                         |   ID
                         ;
 
+lista_tipos             :   lista_tipos ',' tipo
+                        |   tipo
+                        ;
+
+lista_param_formales    :   lista_param_formales ',' parametro_formal
+                        |   parametro_formal
+                        ;
+
 lista_exp_aritmeticas   :   lista_exp_aritmeticas ',' expresion_aritmetica
                         |   expresion_aritmetica
+                        ;
+
+operando                :   ID
+                        |   CTE_INT
+                        |   CTE_FLOAT
+                        |   ID '(' lista_param_reales ')'
+                        |   ID'.'ID
                         ;
 
 tipo                    :   INT
@@ -79,30 +92,16 @@ tipo                    :   INT
                         |   STRING
                         ;
 
-parametros_formales     :   parametros_formales ',' parametro_formal
-                        |   parametro_formal
-                        ;
 parametro_formal        :   semantica_pasaje tipo ID
                         |   tipo ID
                         ;
 
-lista_tipos             :   lista_tipos ',' tipo
-                        |   tipo
-                        ;
-
-operando                :   ID
-                        |   CTE_INT
-                        |   CTE_FLOAT
-                        |   ID '(' parametros_reales ')'
-                        |   ID'.'ID
+lista_param_reales      :   lista_param_reales ',' parametro_real
+                        |   parametro_real
                         ;
 
 semantica_pasaje        :   CR SE
                         |   CR LE
-                        ;
-
-parametros_reales       :   parametros_reales ',' parametro_real
-                        |   parametro_real
                         ;
 
 parametro_real          :   operando ARROW parametro_formal
