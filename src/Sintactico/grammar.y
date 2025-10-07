@@ -23,33 +23,37 @@
 %%
 
 
-prog                    :   ID '{' cuerpo '}' {System.out.println("entra1");}
+prog                    :   ID '{' cuerpo '}'
                         |   prog_error
                         ;
 
-prog_error              :   '{' cuerpo '}' {Logger.logError(cursor.getCurrentLine(), "Debe ingresar un nombre al inicializar el programa");}
+prog_error              :   '{' cuerpo '}' {Logger.logError(cursor.getCurrentLine(), "Falta el nombre del programa");}
                         |   ID '(' cuerpo ')' {Logger.logError(cursor.getCurrentLine(), "Debe indicar el programa entre {}");}
                         ;
 
-cuerpo                  :   cuerpo sentencia {System.out.println("entra2");}
-                        |   sentencia       {System.out.println("entra3");}
+cuerpo                  :   cuerpo sentencia
+                        |   sentencia
                         ;
 
 sentencia               :   sentencia_declarativa
                         |   sentencia_ejecucion ';'
+                        |   sentencia_ejecucion_error {Logger.logError(cursor.getCurrentLine(), "Falta de ';' al final de las sentencias");}
                         |   sentencia_lambda
                         ;
 
 sentencia_declarativa   :   funcion
                         ;
 
-sentencia_ejecucion     :   VAR ID TWO_POINTS_ASSIGNATION expresion_aritmetica {System.out.println("entra4");}
+sentencia_ejecucion     :   VAR ID TWO_POINTS_ASSIGNATION expresion_aritmetica
                         |   IF '(' condicion ')' '{' cuerpo '}' ELSE '{' cuerpo '}' ENDIF
                         |   IF '(' condicion ')' '{' cuerpo '}' ENDIF
                         |   PRINT '(' STRING ')'
                         |   PRINT '(' expresion_aritmetica ')'
                         |   FOR '(' ID FROM CTE_INT TO CTE_INT ')' '{' cuerpo '}'
                         |   lista_variables '=' lista_exp_aritmeticas
+                        ;
+
+sentencia_ejecucion_error: sentencia_ejecucion
                         ;
 
 sentencia_lambda        :    '(' tipo ID ')' '{' cuerpo '}' '(' ID ')'
@@ -76,8 +80,6 @@ condicion               :   expresion_aritmetica GREATER_OR_EQUAL expresion_arit
                         |   expresion_aritmetica '>' expresion_aritmetica
                         |   expresion_aritmetica '<' expresion_aritmetica
                         ;
-
-
 
 lista_exp_aritmeticas   :   lista_exp_aritmeticas ',' expresion_aritmetica
                         |   expresion_aritmetica
@@ -155,14 +157,13 @@ int yylex() {
     Pair<String, Integer> t = lex.generarToken();
     String lexema = t.getFirst();
     Integer token = t.getSecond();
-
     if (lexema != null){
         yylval = new ParserVal(lexema);
         yylval_recognition += 1;
     }
-
     return token;
 }
+
 void yyerror (String s) {
     System.out.println(s);
 }
