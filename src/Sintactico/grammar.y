@@ -123,7 +123,7 @@ semantica_pasaje        :   CR SE
                         |   CR LE
                         ;
 
-parametro_real          :   operando ARROW parametro_formal
+parametro_real          :   expresion_aritmetica ARROW ID
                         ;
 %%
 
