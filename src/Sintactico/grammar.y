@@ -7,6 +7,8 @@
     import Tools.Pair;
     import Tools.TablaPalabrasReservadas;
     import Tools.Logger;
+    import Tools.Cursor;
+
 %}
 
 %token TWO_POINTS_ASSIGNATION STRING GREATER_OR_EQUAL LESS_OR_EQUAL EQUAL NOT_EQUAL CTE_INT CTE_FLOAT ID IF ELSE ENDIF PRINT RETURN VAR FOR FROM TO CR SE LE TOI INT FLOAT ARROW
@@ -22,6 +24,7 @@
 
 
 prog                    :   ID '{' cuerpo '}'
+                        |   '{' cuerpo '}' {Logger.logError(cursor.getCurrentLine(), "Falta declarar nombre del programa al iniciar");}
                         ;
 
 cuerpo                  :   cuerpo sentencia
@@ -122,11 +125,13 @@ private static int yylval_recognition = 0;
 
 static AnalizadorLexico lex = null;
 static Parser par = null;
+static Cursor cursor = null;
 
 public static void main (String [] args) {
 
     System.out.println("Iniciando compilación ... ");
     String programa = "samplePrograms/testing.txt";
+    Cursor cursor = new Cursor(programa);
 
     TablaPalabrasReservadas tablaPalabrasReservadas = new TablaPalabrasReservadas();
     tablaPalabrasReservadas.cargarTabla();
