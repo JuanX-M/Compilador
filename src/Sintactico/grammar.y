@@ -36,7 +36,7 @@ sentencia               :   sentencia_declarativa
 sentencia_declarativa   :   funcion
                         ;
 
-sentencia_ejecucion     :   VAR ID TWO_POINTS_ASSIGNATION expresion_aritmetica
+sentencia_ejecucion     :   VAR ID TWO_POINTS_ASSIGNATION lista_exp_aritmeticas
                         |   IF '(' condicion ')' '{' cuerpo '}' ELSE '{' cuerpo '}' ENDIF
                         |   IF '(' condicion ')' '{' cuerpo '}' ENDIF
                         |   PRINT '(' STRING ')'
@@ -128,10 +128,13 @@ public static void main (String [] args) {
     System.out.println("Iniciando compilación ... ");
     String programa = "samplePrograms/testing.txt";
 
+
+
     TablaPalabrasReservadas tablaPalabrasReservadas = new TablaPalabrasReservadas();
     tablaPalabrasReservadas.cargarTabla();
 
     lex = new AnalizadorLexico (programa) ;
+    System.out.println(lex.getTodosLosTokens());
     par = new Parser (false);
     par.run () ;
 

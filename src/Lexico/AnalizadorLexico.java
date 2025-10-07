@@ -73,7 +73,7 @@ public Pair<String, Integer> generarToken(){
         as = matrizTransicion.getAccionSemantica(estado, caracter);
         ESTADO_ANTERIOR = estado;
         estado = matrizTransicion.getEstado(estado, caracter);
-        //System.out.println("Accion:  " + as + "  Estado:  " + estado);
+        System.out.println("Accion:  " + as + "  Estado:  " + estado);
         if (estado == -1){
             AccionSemantica auxAccion = new ASError();
             auxAccion.run(caracter, cursor);

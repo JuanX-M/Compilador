@@ -21,6 +21,7 @@ public class ASEntregarLiterales extends AccionSemantica{
             case ',' : return new Pair<>(",", (int) ',');
             case '{' : return new Pair<>("{", (int) '{');
             case '}' : return new Pair<>("}", (int) '}');
+            case '*' : return new Pair<>("*", (int) '*');
             default : return null;
         }
     }

@@ -11,7 +11,7 @@
 
    7  sentencia_declarativa : funcion
 
-   8  sentencia_ejecucion : VAR ID TWO_POINTS_ASSIGNATION expresion_aritmetica
+   8  sentencia_ejecucion : VAR ID TWO_POINTS_ASSIGNATION lista_exp_aritmeticas
    9                      | IF '(' condicion ')' '{' cuerpo '}' ELSE '{' cuerpo '}' ENDIF
   10                      | IF '(' condicion ')' '{' cuerpo '}' ENDIF
   11                      | PRINT '(' STRING ')'
@@ -155,7 +155,7 @@ state 7
 
 
 state 8
-	sentencia_ejecucion : VAR . ID TWO_POINTS_ASSIGNATION expresion_aritmetica  (8)
+	sentencia_ejecucion : VAR . ID TWO_POINTS_ASSIGNATION lista_exp_aritmeticas  (8)
 
 	ID  shift 26
 	.  error
@@ -299,8 +299,8 @@ state 24
 	'-'  shift 41
 	.  error
 
-	expresion_aritmetica  goto 42
-	condicion  goto 43
+	condicion  goto 42
+	expresion_aritmetica  goto 43
 	operando  goto 44
 	variable  goto 45
 
@@ -323,7 +323,7 @@ state 25
 
 
 state 26
-	sentencia_ejecucion : VAR ID . TWO_POINTS_ASSIGNATION expresion_aritmetica  (8)
+	sentencia_ejecucion : VAR ID . TWO_POINTS_ASSIGNATION lista_exp_aritmeticas  (8)
 
 	TWO_POINTS_ASSIGNATION  shift 48
 	.  error
@@ -373,8 +373,8 @@ state 32
 	'-'  shift 41
 	.  error
 
-	expresion_aritmetica  goto 51
-	lista_exp_aritmeticas  goto 52
+	lista_exp_aritmeticas  goto 51
+	expresion_aritmetica  goto 52
 	operando  goto 44
 	variable  goto 45
 
@@ -470,6 +470,14 @@ state 41
 
 
 state 42
+	sentencia_ejecucion : IF '(' condicion . ')' '{' cuerpo '}' ELSE '{' cuerpo '}' ENDIF  (9)
+	sentencia_ejecucion : IF '(' condicion . ')' '{' cuerpo '}' ENDIF  (10)
+
+	')'  shift 59
+	.  error
+
+
+state 43
 	expresion_aritmetica : expresion_aritmetica . '+' operando  (19)
 	expresion_aritmetica : expresion_aritmetica . '-' operando  (20)
 	expresion_aritmetica : expresion_aritmetica . '*' operando  (21)
@@ -481,24 +489,16 @@ state 42
 	condicion : expresion_aritmetica . '>' expresion_aritmetica  (30)
 	condicion : expresion_aritmetica . '<' expresion_aritmetica  (31)
 
-	GREATER_OR_EQUAL  shift 59
-	LESS_OR_EQUAL  shift 60
-	EQUAL  shift 61
-	NOT_EQUAL  shift 62
-	'+'  shift 63
-	'-'  shift 64
-	'*'  shift 65
-	'/'  shift 66
-	'>'  shift 67
-	'<'  shift 68
-	.  error
-
-
-state 43
-	sentencia_ejecucion : IF '(' condicion . ')' '{' cuerpo '}' ELSE '{' cuerpo '}' ENDIF  (9)
-	sentencia_ejecucion : IF '(' condicion . ')' '{' cuerpo '}' ENDIF  (10)
-
-	')'  shift 69
+	GREATER_OR_EQUAL  shift 60
+	LESS_OR_EQUAL  shift 61
+	EQUAL  shift 62
+	NOT_EQUAL  shift 63
+	'+'  shift 64
+	'-'  shift 65
+	'*'  shift 66
+	'/'  shift 67
+	'>'  shift 68
+	'<'  shift 69
 	.  error
 
 
@@ -528,16 +528,16 @@ state 47
 	expresion_aritmetica : expresion_aritmetica . '*' operando  (21)
 	expresion_aritmetica : expresion_aritmetica . '/' operando  (22)
 
-	'+'  shift 63
-	'-'  shift 64
-	'*'  shift 65
-	'/'  shift 66
+	'+'  shift 64
+	'-'  shift 65
+	'*'  shift 66
+	'/'  shift 67
 	')'  shift 71
 	.  error
 
 
 state 48
-	sentencia_ejecucion : VAR ID TWO_POINTS_ASSIGNATION . expresion_aritmetica  (8)
+	sentencia_ejecucion : VAR ID TWO_POINTS_ASSIGNATION . lista_exp_aritmeticas  (8)
 
 	CTE_INT  shift 37
 	CTE_FLOAT  shift 38
@@ -546,7 +546,8 @@ state 48
 	'-'  shift 41
 	.  error
 
-	expresion_aritmetica  goto 72
+	lista_exp_aritmeticas  goto 72
+	expresion_aritmetica  goto 52
 	operando  goto 44
 	variable  goto 45
 
@@ -568,27 +569,27 @@ state 50
 
 
 state 51
+	sentencia_ejecucion : lista_variables '=' lista_exp_aritmeticas .  (14)
+	lista_exp_aritmeticas : lista_exp_aritmeticas . ',' expresion_aritmetica  (32)
+
+	','  shift 75
+	';'  reduce 14
+
+
+state 52
 	expresion_aritmetica : expresion_aritmetica . '+' operando  (19)
 	expresion_aritmetica : expresion_aritmetica . '-' operando  (20)
 	expresion_aritmetica : expresion_aritmetica . '*' operando  (21)
 	expresion_aritmetica : expresion_aritmetica . '/' operando  (22)
 	lista_exp_aritmeticas : expresion_aritmetica .  (33)
 
-	'+'  shift 63
-	'-'  shift 64
-	'*'  shift 65
-	'/'  shift 66
+	'+'  shift 64
+	'-'  shift 65
+	'*'  shift 66
+	'/'  shift 67
 	';'  reduce 33
 	')'  reduce 33
 	','  reduce 33
-
-
-state 52
-	sentencia_ejecucion : lista_variables '=' lista_exp_aritmeticas .  (14)
-	lista_exp_aritmeticas : lista_exp_aritmeticas . ',' expresion_aritmetica  (32)
-
-	','  shift 75
-	';'  reduce 14
 
 
 state 53
@@ -658,22 +659,15 @@ state 58
 
 
 state 59
-	condicion : expresion_aritmetica GREATER_OR_EQUAL . expresion_aritmetica  (26)
+	sentencia_ejecucion : IF '(' condicion ')' . '{' cuerpo '}' ELSE '{' cuerpo '}' ENDIF  (9)
+	sentencia_ejecucion : IF '(' condicion ')' . '{' cuerpo '}' ENDIF  (10)
 
-	CTE_INT  shift 37
-	CTE_FLOAT  shift 38
-	ID  shift 39
-	TOI  shift 40
-	'-'  shift 41
+	'{'  shift 85
 	.  error
-
-	expresion_aritmetica  goto 85
-	operando  goto 44
-	variable  goto 45
 
 
 state 60
-	condicion : expresion_aritmetica LESS_OR_EQUAL . expresion_aritmetica  (27)
+	condicion : expresion_aritmetica GREATER_OR_EQUAL . expresion_aritmetica  (26)
 
 	CTE_INT  shift 37
 	CTE_FLOAT  shift 38
@@ -688,7 +682,7 @@ state 60
 
 
 state 61
-	condicion : expresion_aritmetica EQUAL . expresion_aritmetica  (28)
+	condicion : expresion_aritmetica LESS_OR_EQUAL . expresion_aritmetica  (27)
 
 	CTE_INT  shift 37
 	CTE_FLOAT  shift 38
@@ -703,7 +697,7 @@ state 61
 
 
 state 62
-	condicion : expresion_aritmetica NOT_EQUAL . expresion_aritmetica  (29)
+	condicion : expresion_aritmetica EQUAL . expresion_aritmetica  (28)
 
 	CTE_INT  shift 37
 	CTE_FLOAT  shift 38
@@ -718,19 +712,22 @@ state 62
 
 
 state 63
-	expresion_aritmetica : expresion_aritmetica '+' . operando  (19)
+	condicion : expresion_aritmetica NOT_EQUAL . expresion_aritmetica  (29)
 
 	CTE_INT  shift 37
 	CTE_FLOAT  shift 38
 	ID  shift 39
+	TOI  shift 40
+	'-'  shift 41
 	.  error
 
-	operando  goto 89
+	expresion_aritmetica  goto 89
+	operando  goto 44
 	variable  goto 45
 
 
 state 64
-	expresion_aritmetica : expresion_aritmetica '-' . operando  (20)
+	expresion_aritmetica : expresion_aritmetica '+' . operando  (19)
 
 	CTE_INT  shift 37
 	CTE_FLOAT  shift 38
@@ -742,7 +739,7 @@ state 64
 
 
 state 65
-	expresion_aritmetica : expresion_aritmetica '*' . operando  (21)
+	expresion_aritmetica : expresion_aritmetica '-' . operando  (20)
 
 	CTE_INT  shift 37
 	CTE_FLOAT  shift 38
@@ -754,7 +751,7 @@ state 65
 
 
 state 66
-	expresion_aritmetica : expresion_aritmetica '/' . operando  (22)
+	expresion_aritmetica : expresion_aritmetica '*' . operando  (21)
 
 	CTE_INT  shift 37
 	CTE_FLOAT  shift 38
@@ -766,22 +763,19 @@ state 66
 
 
 state 67
-	condicion : expresion_aritmetica '>' . expresion_aritmetica  (30)
+	expresion_aritmetica : expresion_aritmetica '/' . operando  (22)
 
 	CTE_INT  shift 37
 	CTE_FLOAT  shift 38
 	ID  shift 39
-	TOI  shift 40
-	'-'  shift 41
 	.  error
 
-	expresion_aritmetica  goto 93
-	operando  goto 44
+	operando  goto 93
 	variable  goto 45
 
 
 state 68
-	condicion : expresion_aritmetica '<' . expresion_aritmetica  (31)
+	condicion : expresion_aritmetica '>' . expresion_aritmetica  (30)
 
 	CTE_INT  shift 37
 	CTE_FLOAT  shift 38
@@ -796,11 +790,18 @@ state 68
 
 
 state 69
-	sentencia_ejecucion : IF '(' condicion ')' . '{' cuerpo '}' ELSE '{' cuerpo '}' ENDIF  (9)
-	sentencia_ejecucion : IF '(' condicion ')' . '{' cuerpo '}' ENDIF  (10)
+	condicion : expresion_aritmetica '<' . expresion_aritmetica  (31)
 
-	'{'  shift 95
+	CTE_INT  shift 37
+	CTE_FLOAT  shift 38
+	ID  shift 39
+	TOI  shift 40
+	'-'  shift 41
 	.  error
+
+	expresion_aritmetica  goto 95
+	operando  goto 44
+	variable  goto 45
 
 
 state 70
@@ -816,16 +817,10 @@ state 71
 
 
 state 72
-	sentencia_ejecucion : VAR ID TWO_POINTS_ASSIGNATION expresion_aritmetica .  (8)
-	expresion_aritmetica : expresion_aritmetica . '+' operando  (19)
-	expresion_aritmetica : expresion_aritmetica . '-' operando  (20)
-	expresion_aritmetica : expresion_aritmetica . '*' operando  (21)
-	expresion_aritmetica : expresion_aritmetica . '/' operando  (22)
+	sentencia_ejecucion : VAR ID TWO_POINTS_ASSIGNATION lista_exp_aritmeticas .  (8)
+	lista_exp_aritmeticas : lista_exp_aritmeticas . ',' expresion_aritmetica  (32)
 
-	'+'  shift 63
-	'-'  shift 64
-	'*'  shift 65
-	'/'  shift 66
+	','  shift 75
 	';'  reduce 8
 
 
@@ -931,123 +926,15 @@ state 84
 	expresion_aritmetica : expresion_aritmetica . '/' operando  (22)
 	expresion_aritmetica : TOI '(' expresion_aritmetica . ')'  (24)
 
-	'+'  shift 63
-	'-'  shift 64
-	'*'  shift 65
-	'/'  shift 66
+	'+'  shift 64
+	'-'  shift 65
+	'*'  shift 66
+	'/'  shift 67
 	')'  shift 108
 	.  error
 
 
 state 85
-	expresion_aritmetica : expresion_aritmetica . '+' operando  (19)
-	expresion_aritmetica : expresion_aritmetica . '-' operando  (20)
-	expresion_aritmetica : expresion_aritmetica . '*' operando  (21)
-	expresion_aritmetica : expresion_aritmetica . '/' operando  (22)
-	condicion : expresion_aritmetica GREATER_OR_EQUAL expresion_aritmetica .  (26)
-
-	'+'  shift 63
-	'-'  shift 64
-	'*'  shift 65
-	'/'  shift 66
-	')'  reduce 26
-
-
-state 86
-	expresion_aritmetica : expresion_aritmetica . '+' operando  (19)
-	expresion_aritmetica : expresion_aritmetica . '-' operando  (20)
-	expresion_aritmetica : expresion_aritmetica . '*' operando  (21)
-	expresion_aritmetica : expresion_aritmetica . '/' operando  (22)
-	condicion : expresion_aritmetica LESS_OR_EQUAL expresion_aritmetica .  (27)
-
-	'+'  shift 63
-	'-'  shift 64
-	'*'  shift 65
-	'/'  shift 66
-	')'  reduce 27
-
-
-state 87
-	expresion_aritmetica : expresion_aritmetica . '+' operando  (19)
-	expresion_aritmetica : expresion_aritmetica . '-' operando  (20)
-	expresion_aritmetica : expresion_aritmetica . '*' operando  (21)
-	expresion_aritmetica : expresion_aritmetica . '/' operando  (22)
-	condicion : expresion_aritmetica EQUAL expresion_aritmetica .  (28)
-
-	'+'  shift 63
-	'-'  shift 64
-	'*'  shift 65
-	'/'  shift 66
-	')'  reduce 28
-
-
-state 88
-	expresion_aritmetica : expresion_aritmetica . '+' operando  (19)
-	expresion_aritmetica : expresion_aritmetica . '-' operando  (20)
-	expresion_aritmetica : expresion_aritmetica . '*' operando  (21)
-	expresion_aritmetica : expresion_aritmetica . '/' operando  (22)
-	condicion : expresion_aritmetica NOT_EQUAL expresion_aritmetica .  (29)
-
-	'+'  shift 63
-	'-'  shift 64
-	'*'  shift 65
-	'/'  shift 66
-	')'  reduce 29
-
-
-state 89
-	expresion_aritmetica : expresion_aritmetica '+' operando .  (19)
-
-	.  reduce 19
-
-
-state 90
-	expresion_aritmetica : expresion_aritmetica '-' operando .  (20)
-
-	.  reduce 20
-
-
-state 91
-	expresion_aritmetica : expresion_aritmetica '*' operando .  (21)
-
-	.  reduce 21
-
-
-state 92
-	expresion_aritmetica : expresion_aritmetica '/' operando .  (22)
-
-	.  reduce 22
-
-
-state 93
-	expresion_aritmetica : expresion_aritmetica . '+' operando  (19)
-	expresion_aritmetica : expresion_aritmetica . '-' operando  (20)
-	expresion_aritmetica : expresion_aritmetica . '*' operando  (21)
-	expresion_aritmetica : expresion_aritmetica . '/' operando  (22)
-	condicion : expresion_aritmetica '>' expresion_aritmetica .  (30)
-
-	'+'  shift 63
-	'-'  shift 64
-	'*'  shift 65
-	'/'  shift 66
-	')'  reduce 30
-
-
-state 94
-	expresion_aritmetica : expresion_aritmetica . '+' operando  (19)
-	expresion_aritmetica : expresion_aritmetica . '-' operando  (20)
-	expresion_aritmetica : expresion_aritmetica . '*' operando  (21)
-	expresion_aritmetica : expresion_aritmetica . '/' operando  (22)
-	condicion : expresion_aritmetica '<' expresion_aritmetica .  (31)
-
-	'+'  shift 63
-	'-'  shift 64
-	'*'  shift 65
-	'/'  shift 66
-	')'  reduce 31
-
-
-state 95
 	sentencia_ejecucion : IF '(' condicion ')' '{' . cuerpo '}' ELSE '{' cuerpo '}' ENDIF  (9)
 	sentencia_ejecucion : IF '(' condicion ')' '{' . cuerpo '}' ENDIF  (10)
 
@@ -1072,6 +959,114 @@ state 95
 	tipo  goto 20
 	lista_tipos  goto 21
 	variable  goto 22
+
+
+state 86
+	expresion_aritmetica : expresion_aritmetica . '+' operando  (19)
+	expresion_aritmetica : expresion_aritmetica . '-' operando  (20)
+	expresion_aritmetica : expresion_aritmetica . '*' operando  (21)
+	expresion_aritmetica : expresion_aritmetica . '/' operando  (22)
+	condicion : expresion_aritmetica GREATER_OR_EQUAL expresion_aritmetica .  (26)
+
+	'+'  shift 64
+	'-'  shift 65
+	'*'  shift 66
+	'/'  shift 67
+	')'  reduce 26
+
+
+state 87
+	expresion_aritmetica : expresion_aritmetica . '+' operando  (19)
+	expresion_aritmetica : expresion_aritmetica . '-' operando  (20)
+	expresion_aritmetica : expresion_aritmetica . '*' operando  (21)
+	expresion_aritmetica : expresion_aritmetica . '/' operando  (22)
+	condicion : expresion_aritmetica LESS_OR_EQUAL expresion_aritmetica .  (27)
+
+	'+'  shift 64
+	'-'  shift 65
+	'*'  shift 66
+	'/'  shift 67
+	')'  reduce 27
+
+
+state 88
+	expresion_aritmetica : expresion_aritmetica . '+' operando  (19)
+	expresion_aritmetica : expresion_aritmetica . '-' operando  (20)
+	expresion_aritmetica : expresion_aritmetica . '*' operando  (21)
+	expresion_aritmetica : expresion_aritmetica . '/' operando  (22)
+	condicion : expresion_aritmetica EQUAL expresion_aritmetica .  (28)
+
+	'+'  shift 64
+	'-'  shift 65
+	'*'  shift 66
+	'/'  shift 67
+	')'  reduce 28
+
+
+state 89
+	expresion_aritmetica : expresion_aritmetica . '+' operando  (19)
+	expresion_aritmetica : expresion_aritmetica . '-' operando  (20)
+	expresion_aritmetica : expresion_aritmetica . '*' operando  (21)
+	expresion_aritmetica : expresion_aritmetica . '/' operando  (22)
+	condicion : expresion_aritmetica NOT_EQUAL expresion_aritmetica .  (29)
+
+	'+'  shift 64
+	'-'  shift 65
+	'*'  shift 66
+	'/'  shift 67
+	')'  reduce 29
+
+
+state 90
+	expresion_aritmetica : expresion_aritmetica '+' operando .  (19)
+
+	.  reduce 19
+
+
+state 91
+	expresion_aritmetica : expresion_aritmetica '-' operando .  (20)
+
+	.  reduce 20
+
+
+state 92
+	expresion_aritmetica : expresion_aritmetica '*' operando .  (21)
+
+	.  reduce 21
+
+
+state 93
+	expresion_aritmetica : expresion_aritmetica '/' operando .  (22)
+
+	.  reduce 22
+
+
+state 94
+	expresion_aritmetica : expresion_aritmetica . '+' operando  (19)
+	expresion_aritmetica : expresion_aritmetica . '-' operando  (20)
+	expresion_aritmetica : expresion_aritmetica . '*' operando  (21)
+	expresion_aritmetica : expresion_aritmetica . '/' operando  (22)
+	condicion : expresion_aritmetica '>' expresion_aritmetica .  (30)
+
+	'+'  shift 64
+	'-'  shift 65
+	'*'  shift 66
+	'/'  shift 67
+	')'  reduce 30
+
+
+state 95
+	expresion_aritmetica : expresion_aritmetica . '+' operando  (19)
+	expresion_aritmetica : expresion_aritmetica . '-' operando  (20)
+	expresion_aritmetica : expresion_aritmetica . '*' operando  (21)
+	expresion_aritmetica : expresion_aritmetica . '/' operando  (22)
+	condicion : expresion_aritmetica '<' expresion_aritmetica .  (31)
+
+	'+'  shift 64
+	'-'  shift 65
+	'*'  shift 66
+	'/'  shift 67
+	')'  reduce 31
 
 
 state 96
@@ -1116,10 +1111,10 @@ state 98
 	expresion_aritmetica : expresion_aritmetica . '/' operando  (22)
 	lista_exp_aritmeticas : lista_exp_aritmeticas ',' expresion_aritmetica .  (32)
 
-	'+'  shift 63
-	'-'  shift 64
-	'*'  shift 65
-	'/'  shift 66
+	'+'  shift 64
+	'-'  shift 65
+	'*'  shift 66
+	'/'  shift 67
 	';'  reduce 32
 	')'  reduce 32
 	','  reduce 32
@@ -1576,8 +1571,8 @@ state 137
 	'-'  shift 41
 	.  error
 
-	expresion_aritmetica  goto 51
 	lista_exp_aritmeticas  goto 140
+	expresion_aritmetica  goto 52
 	operando  goto 44
 	variable  goto 45
 
