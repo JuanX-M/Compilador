@@ -17,13 +17,13 @@
   11                      | PRINT '(' STRING ')'
   12                      | PRINT '(' expresion_aritmetica ')'
   13                      | FOR '(' ID FROM CTE_INT TO CTE_INT ')' '{' cuerpo '}'
-  14                      | lista_variables '='
+  14                      | lista_variables '=' lista_exp_aritmeticas
 
   15  sentencia_lambda : '(' tipo ID ')' '{' cuerpo '}' '(' ID ')'
   16                   | '(' tipo ID ')' '{' cuerpo '}' '(' CTE_INT ')'
   17                   | '(' tipo ID ')' '{' cuerpo '}' '(' CTE_FLOAT ')'
 
-  18  funcion : lista_tipos ID '(' parametros_formales ')' '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' ';'
+  18  funcion : lista_tipos ID '(' lista_param_formales ')' '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' ';'
 
   19  expresion_aritmetica : expresion_aritmetica '+' operando
   20                       | expresion_aritmetica '-' operando
@@ -40,38 +40,40 @@
   30            | expresion_aritmetica '>' expresion_aritmetica
   31            | expresion_aritmetica '<' expresion_aritmetica
 
-  32  lista_variables : lista_variables ',' ID
-  33                  | ID
+  32  lista_exp_aritmeticas : lista_exp_aritmeticas ',' expresion_aritmetica
+  33                        | expresion_aritmetica
 
-  34  lista_exp_aritmeticas : lista_exp_aritmeticas ',' expresion_aritmetica
-  35                        | expresion_aritmetica
+  34  lista_tipos : lista_tipos ',' tipo
+  35              | tipo
 
-  36  tipo : INT
-  37       | FLOAT
-  38       | STRING
+  36  lista_param_formales : lista_param_formales ',' parametro_formal
+  37                       | parametro_formal
 
-  39  parametros_formales : parametros_formales ',' parametro_formal
-  40                      | parametro_formal
+  38  operando : CTE_INT
+  39           | CTE_FLOAT
+  40           | ID '(' lista_param_reales ')'
+  41           | variable
 
-  41  parametro_formal : semantica_pasaje tipo ID
-  42                   | tipo ID
+  42  lista_variables : lista_variables ',' variable
+  43                  | variable
 
-  43  lista_tipos : lista_tipos ',' tipo
-  44              | tipo
+  44  variable : ID
+  45           | ID '.' ID
 
-  45  operando : ID
-  46           | CTE_INT
-  47           | CTE_FLOAT
-  48           | ID '(' parametros_reales ')'
-  49           | ID '.' ID
+  46  tipo : INT
+  47       | FLOAT
+  48       | STRING
 
-  50  semantica_pasaje : CR SE
-  51                   | CR LE
+  49  parametro_formal : semantica_pasaje tipo ID
+  50                   | tipo ID
 
-  52  parametros_reales : parametros_reales ',' parametro_real
-  53                    | parametro_real
+  51  lista_param_reales : lista_param_reales ',' parametro_real
+  52                     | parametro_real
 
-  54  parametro_real : operando ARROW parametro_formal
+  53  semantica_pasaje : CR SE
+  54                   | CR LE
+
+  55  parametro_real : operando ARROW parametro_formal
 
 state 0
 	$accept : . prog $end  (0)
@@ -118,25 +120,29 @@ state 3
 	lista_variables  goto 19
 	tipo  goto 20
 	lista_tipos  goto 21
+	variable  goto 22
 
 
 state 4
-	tipo : STRING .  (38)
+	tipo : STRING .  (48)
 
-	.  reduce 38
+	.  reduce 48
 
 
 state 5
-	lista_variables : ID .  (33)
+	variable : ID .  (44)
+	variable : ID . '.' ID  (45)
 
-	.  reduce 33
+	'.'  shift 23
+	'='  reduce 44
+	','  reduce 44
 
 
 state 6
 	sentencia_ejecucion : IF . '(' condicion ')' '{' cuerpo '}' ELSE '{' cuerpo '}' ENDIF  (9)
 	sentencia_ejecucion : IF . '(' condicion ')' '{' cuerpo '}' ENDIF  (10)
 
-	'('  shift 22
+	'('  shift 24
 	.  error
 
 
@@ -144,34 +150,34 @@ state 7
 	sentencia_ejecucion : PRINT . '(' STRING ')'  (11)
 	sentencia_ejecucion : PRINT . '(' expresion_aritmetica ')'  (12)
 
-	'('  shift 23
+	'('  shift 25
 	.  error
 
 
 state 8
 	sentencia_ejecucion : VAR . ID TWO_POINTS_ASSIGNATION expresion_aritmetica  (8)
 
-	ID  shift 24
+	ID  shift 26
 	.  error
 
 
 state 9
 	sentencia_ejecucion : FOR . '(' ID FROM CTE_INT TO CTE_INT ')' '{' cuerpo '}'  (13)
 
-	'('  shift 25
+	'('  shift 27
 	.  error
 
 
 state 10
-	tipo : INT .  (36)
+	tipo : INT .  (46)
 
-	.  reduce 36
+	.  reduce 46
 
 
 state 11
-	tipo : FLOAT .  (37)
+	tipo : FLOAT .  (47)
 
-	.  reduce 37
+	.  reduce 47
 
 
 state 12
@@ -184,7 +190,7 @@ state 12
 	FLOAT  shift 11
 	.  error
 
-	tipo  goto 26
+	tipo  goto 28
 
 
 state 13
@@ -199,11 +205,11 @@ state 13
 	FOR  shift 9
 	INT  shift 10
 	FLOAT  shift 11
-	'}'  shift 27
+	'}'  shift 29
 	'('  shift 12
 	.  error
 
-	sentencia  goto 28
+	sentencia  goto 30
 	sentencia_declarativa  goto 15
 	sentencia_ejecucion  goto 16
 	sentencia_lambda  goto 17
@@ -211,6 +217,7 @@ state 13
 	lista_variables  goto 19
 	tipo  goto 20
 	lista_tipos  goto 21
+	variable  goto 22
 
 
 state 14
@@ -228,7 +235,7 @@ state 15
 state 16
 	sentencia : sentencia_ejecucion . ';'  (5)
 
-	';'  shift 29
+	';'  shift 31
 	.  error
 
 
@@ -245,190 +252,224 @@ state 18
 
 
 state 19
-	sentencia_ejecucion : lista_variables . '='  (14)
-	lista_variables : lista_variables . ',' ID  (32)
+	sentencia_ejecucion : lista_variables . '=' lista_exp_aritmeticas  (14)
+	lista_variables : lista_variables . ',' variable  (42)
 
-	'='  shift 30
-	','  shift 31
-	.  error
-
-
-state 20
-	lista_tipos : tipo .  (44)
-
-	.  reduce 44
-
-
-state 21
-	funcion : lista_tipos . ID '(' parametros_formales ')' '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' ';'  (18)
-	lista_tipos : lista_tipos . ',' tipo  (43)
-
-	ID  shift 32
+	'='  shift 32
 	','  shift 33
 	.  error
 
 
-state 22
-	sentencia_ejecucion : IF '(' . condicion ')' '{' cuerpo '}' ELSE '{' cuerpo '}' ENDIF  (9)
-	sentencia_ejecucion : IF '(' . condicion ')' '{' cuerpo '}' ENDIF  (10)
+state 20
+	lista_tipos : tipo .  (35)
 
-	CTE_INT  shift 34
-	CTE_FLOAT  shift 35
-	ID  shift 36
-	TOI  shift 37
-	'-'  shift 38
+	.  reduce 35
+
+
+state 21
+	funcion : lista_tipos . ID '(' lista_param_formales ')' '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' ';'  (18)
+	lista_tipos : lista_tipos . ',' tipo  (34)
+
+	ID  shift 34
+	','  shift 35
 	.  error
 
-	expresion_aritmetica  goto 39
-	condicion  goto 40
-	operando  goto 41
+
+state 22
+	lista_variables : variable .  (43)
+
+	.  reduce 43
 
 
 state 23
-	sentencia_ejecucion : PRINT '(' . STRING ')'  (11)
-	sentencia_ejecucion : PRINT '(' . expresion_aritmetica ')'  (12)
+	variable : ID '.' . ID  (45)
 
-	STRING  shift 42
-	CTE_INT  shift 34
-	CTE_FLOAT  shift 35
 	ID  shift 36
-	TOI  shift 37
-	'-'  shift 38
 	.  error
-
-	expresion_aritmetica  goto 43
-	operando  goto 41
 
 
 state 24
-	sentencia_ejecucion : VAR ID . TWO_POINTS_ASSIGNATION expresion_aritmetica  (8)
+	sentencia_ejecucion : IF '(' . condicion ')' '{' cuerpo '}' ELSE '{' cuerpo '}' ENDIF  (9)
+	sentencia_ejecucion : IF '(' . condicion ')' '{' cuerpo '}' ENDIF  (10)
 
-	TWO_POINTS_ASSIGNATION  shift 44
+	CTE_INT  shift 37
+	CTE_FLOAT  shift 38
+	ID  shift 39
+	TOI  shift 40
+	'-'  shift 41
 	.  error
+
+	expresion_aritmetica  goto 42
+	condicion  goto 43
+	operando  goto 44
+	variable  goto 45
 
 
 state 25
-	sentencia_ejecucion : FOR '(' . ID FROM CTE_INT TO CTE_INT ')' '{' cuerpo '}'  (13)
+	sentencia_ejecucion : PRINT '(' . STRING ')'  (11)
+	sentencia_ejecucion : PRINT '(' . expresion_aritmetica ')'  (12)
 
-	ID  shift 45
+	STRING  shift 46
+	CTE_INT  shift 37
+	CTE_FLOAT  shift 38
+	ID  shift 39
+	TOI  shift 40
+	'-'  shift 41
 	.  error
+
+	expresion_aritmetica  goto 47
+	operando  goto 44
+	variable  goto 45
 
 
 state 26
-	sentencia_lambda : '(' tipo . ID ')' '{' cuerpo '}' '(' ID ')'  (15)
-	sentencia_lambda : '(' tipo . ID ')' '{' cuerpo '}' '(' CTE_INT ')'  (16)
-	sentencia_lambda : '(' tipo . ID ')' '{' cuerpo '}' '(' CTE_FLOAT ')'  (17)
+	sentencia_ejecucion : VAR ID . TWO_POINTS_ASSIGNATION expresion_aritmetica  (8)
 
-	ID  shift 46
+	TWO_POINTS_ASSIGNATION  shift 48
 	.  error
 
 
 state 27
+	sentencia_ejecucion : FOR '(' . ID FROM CTE_INT TO CTE_INT ')' '{' cuerpo '}'  (13)
+
+	ID  shift 49
+	.  error
+
+
+state 28
+	sentencia_lambda : '(' tipo . ID ')' '{' cuerpo '}' '(' ID ')'  (15)
+	sentencia_lambda : '(' tipo . ID ')' '{' cuerpo '}' '(' CTE_INT ')'  (16)
+	sentencia_lambda : '(' tipo . ID ')' '{' cuerpo '}' '(' CTE_FLOAT ')'  (17)
+
+	ID  shift 50
+	.  error
+
+
+state 29
 	prog : ID '{' cuerpo '}' .  (1)
 
 	.  reduce 1
 
 
-state 28
+state 30
 	cuerpo : cuerpo sentencia .  (2)
 
 	.  reduce 2
 
 
-state 29
+state 31
 	sentencia : sentencia_ejecucion ';' .  (5)
 
 	.  reduce 5
 
 
-state 30
-	sentencia_ejecucion : lista_variables '=' .  (14)
-
-	.  reduce 14
-
-
-state 31
-	lista_variables : lista_variables ',' . ID  (32)
-
-	ID  shift 47
-	.  error
-
-
 state 32
-	funcion : lista_tipos ID . '(' parametros_formales ')' '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' ';'  (18)
+	sentencia_ejecucion : lista_variables '=' . lista_exp_aritmeticas  (14)
 
-	'('  shift 48
+	CTE_INT  shift 37
+	CTE_FLOAT  shift 38
+	ID  shift 39
+	TOI  shift 40
+	'-'  shift 41
 	.  error
+
+	expresion_aritmetica  goto 51
+	lista_exp_aritmeticas  goto 52
+	operando  goto 44
+	variable  goto 45
 
 
 state 33
-	lista_tipos : lista_tipos ',' . tipo  (43)
+	lista_variables : lista_variables ',' . variable  (42)
+
+	ID  shift 5
+	.  error
+
+	variable  goto 53
+
+
+state 34
+	funcion : lista_tipos ID . '(' lista_param_formales ')' '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' ';'  (18)
+
+	'('  shift 54
+	.  error
+
+
+state 35
+	lista_tipos : lista_tipos ',' . tipo  (34)
 
 	STRING  shift 4
 	INT  shift 10
 	FLOAT  shift 11
 	.  error
 
-	tipo  goto 49
-
-
-state 34
-	operando : CTE_INT .  (46)
-
-	.  reduce 46
-
-
-state 35
-	operando : CTE_FLOAT .  (47)
-
-	.  reduce 47
+	tipo  goto 55
 
 
 state 36
-	operando : ID .  (45)
-	operando : ID . '(' parametros_reales ')'  (48)
-	operando : ID . '.' ID  (49)
+	variable : ID '.' ID .  (45)
 
-	'('  shift 50
-	'.'  shift 51
-	GREATER_OR_EQUAL  reduce 45
-	LESS_OR_EQUAL  reduce 45
-	EQUAL  reduce 45
-	NOT_EQUAL  reduce 45
-	ARROW  reduce 45
-	'+'  reduce 45
-	'-'  reduce 45
-	'*'  reduce 45
-	'/'  reduce 45
-	';'  reduce 45
-	')'  reduce 45
-	'>'  reduce 45
-	'<'  reduce 45
-	','  reduce 45
+	.  reduce 45
 
 
 state 37
-	expresion_aritmetica : TOI . '(' expresion_aritmetica ')'  (24)
+	operando : CTE_INT .  (38)
 
-	'('  shift 52
-	.  error
+	.  reduce 38
 
 
 state 38
-	expresion_aritmetica : '-' . expresion_aritmetica  (23)
+	operando : CTE_FLOAT .  (39)
 
-	CTE_INT  shift 34
-	CTE_FLOAT  shift 35
-	ID  shift 36
-	TOI  shift 37
-	'-'  shift 38
-	.  error
-
-	expresion_aritmetica  goto 53
-	operando  goto 41
+	.  reduce 39
 
 
 state 39
+	operando : ID . '(' lista_param_reales ')'  (40)
+	variable : ID .  (44)
+	variable : ID . '.' ID  (45)
+
+	'('  shift 56
+	'.'  shift 23
+	GREATER_OR_EQUAL  reduce 44
+	LESS_OR_EQUAL  reduce 44
+	EQUAL  reduce 44
+	NOT_EQUAL  reduce 44
+	ARROW  reduce 44
+	'+'  reduce 44
+	'-'  reduce 44
+	'*'  reduce 44
+	'/'  reduce 44
+	';'  reduce 44
+	')'  reduce 44
+	'>'  reduce 44
+	'<'  reduce 44
+	','  reduce 44
+
+
+state 40
+	expresion_aritmetica : TOI . '(' expresion_aritmetica ')'  (24)
+
+	'('  shift 57
+	.  error
+
+
+state 41
+	expresion_aritmetica : '-' . expresion_aritmetica  (23)
+
+	CTE_INT  shift 37
+	CTE_FLOAT  shift 38
+	ID  shift 39
+	TOI  shift 40
+	'-'  shift 41
+	.  error
+
+	expresion_aritmetica  goto 58
+	operando  goto 44
+	variable  goto 45
+
+
+state 42
 	expresion_aritmetica : expresion_aritmetica . '+' operando  (19)
 	expresion_aritmetica : expresion_aritmetica . '-' operando  (20)
 	expresion_aritmetica : expresion_aritmetica . '*' operando  (21)
@@ -440,147 +481,173 @@ state 39
 	condicion : expresion_aritmetica . '>' expresion_aritmetica  (30)
 	condicion : expresion_aritmetica . '<' expresion_aritmetica  (31)
 
-	GREATER_OR_EQUAL  shift 54
-	LESS_OR_EQUAL  shift 55
-	EQUAL  shift 56
-	NOT_EQUAL  shift 57
-	'+'  shift 58
-	'-'  shift 59
-	'*'  shift 60
-	'/'  shift 61
-	'>'  shift 62
-	'<'  shift 63
+	GREATER_OR_EQUAL  shift 59
+	LESS_OR_EQUAL  shift 60
+	EQUAL  shift 61
+	NOT_EQUAL  shift 62
+	'+'  shift 63
+	'-'  shift 64
+	'*'  shift 65
+	'/'  shift 66
+	'>'  shift 67
+	'<'  shift 68
 	.  error
 
 
-state 40
+state 43
 	sentencia_ejecucion : IF '(' condicion . ')' '{' cuerpo '}' ELSE '{' cuerpo '}' ENDIF  (9)
 	sentencia_ejecucion : IF '(' condicion . ')' '{' cuerpo '}' ENDIF  (10)
 
-	')'  shift 64
+	')'  shift 69
 	.  error
 
 
-state 41
+state 44
 	expresion_aritmetica : operando .  (25)
 
 	.  reduce 25
 
 
-state 42
+state 45
+	operando : variable .  (41)
+
+	.  reduce 41
+
+
+state 46
 	sentencia_ejecucion : PRINT '(' STRING . ')'  (11)
 
-	')'  shift 65
+	')'  shift 70
 	.  error
 
 
-state 43
+state 47
 	sentencia_ejecucion : PRINT '(' expresion_aritmetica . ')'  (12)
 	expresion_aritmetica : expresion_aritmetica . '+' operando  (19)
 	expresion_aritmetica : expresion_aritmetica . '-' operando  (20)
 	expresion_aritmetica : expresion_aritmetica . '*' operando  (21)
 	expresion_aritmetica : expresion_aritmetica . '/' operando  (22)
 
-	'+'  shift 58
-	'-'  shift 59
-	'*'  shift 60
-	'/'  shift 61
-	')'  shift 66
+	'+'  shift 63
+	'-'  shift 64
+	'*'  shift 65
+	'/'  shift 66
+	')'  shift 71
 	.  error
 
 
-state 44
+state 48
 	sentencia_ejecucion : VAR ID TWO_POINTS_ASSIGNATION . expresion_aritmetica  (8)
 
-	CTE_INT  shift 34
-	CTE_FLOAT  shift 35
-	ID  shift 36
-	TOI  shift 37
-	'-'  shift 38
+	CTE_INT  shift 37
+	CTE_FLOAT  shift 38
+	ID  shift 39
+	TOI  shift 40
+	'-'  shift 41
 	.  error
 
-	expresion_aritmetica  goto 67
-	operando  goto 41
+	expresion_aritmetica  goto 72
+	operando  goto 44
+	variable  goto 45
 
 
-state 45
+state 49
 	sentencia_ejecucion : FOR '(' ID . FROM CTE_INT TO CTE_INT ')' '{' cuerpo '}'  (13)
 
-	FROM  shift 68
+	FROM  shift 73
 	.  error
 
 
-state 46
+state 50
 	sentencia_lambda : '(' tipo ID . ')' '{' cuerpo '}' '(' ID ')'  (15)
 	sentencia_lambda : '(' tipo ID . ')' '{' cuerpo '}' '(' CTE_INT ')'  (16)
 	sentencia_lambda : '(' tipo ID . ')' '{' cuerpo '}' '(' CTE_FLOAT ')'  (17)
 
-	')'  shift 69
+	')'  shift 74
 	.  error
 
 
-state 47
-	lista_variables : lista_variables ',' ID .  (32)
+state 51
+	expresion_aritmetica : expresion_aritmetica . '+' operando  (19)
+	expresion_aritmetica : expresion_aritmetica . '-' operando  (20)
+	expresion_aritmetica : expresion_aritmetica . '*' operando  (21)
+	expresion_aritmetica : expresion_aritmetica . '/' operando  (22)
+	lista_exp_aritmeticas : expresion_aritmetica .  (33)
 
-	.  reduce 32
+	'+'  shift 63
+	'-'  shift 64
+	'*'  shift 65
+	'/'  shift 66
+	';'  reduce 33
+	')'  reduce 33
+	','  reduce 33
 
 
-state 48
-	funcion : lista_tipos ID '(' . parametros_formales ')' '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' ';'  (18)
+state 52
+	sentencia_ejecucion : lista_variables '=' lista_exp_aritmeticas .  (14)
+	lista_exp_aritmeticas : lista_exp_aritmeticas . ',' expresion_aritmetica  (32)
+
+	','  shift 75
+	';'  reduce 14
+
+
+state 53
+	lista_variables : lista_variables ',' variable .  (42)
+
+	.  reduce 42
+
+
+state 54
+	funcion : lista_tipos ID '(' . lista_param_formales ')' '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' ';'  (18)
 
 	STRING  shift 4
-	CR  shift 70
+	CR  shift 76
 	INT  shift 10
 	FLOAT  shift 11
 	.  error
 
-	tipo  goto 71
-	parametros_formales  goto 72
-	parametro_formal  goto 73
-	semantica_pasaje  goto 74
+	tipo  goto 77
+	lista_param_formales  goto 78
+	parametro_formal  goto 79
+	semantica_pasaje  goto 80
 
 
-state 49
-	lista_tipos : lista_tipos ',' tipo .  (43)
+state 55
+	lista_tipos : lista_tipos ',' tipo .  (34)
 
-	.  reduce 43
+	.  reduce 34
 
 
-state 50
-	operando : ID '(' . parametros_reales ')'  (48)
+state 56
+	operando : ID '(' . lista_param_reales ')'  (40)
 
-	CTE_INT  shift 34
-	CTE_FLOAT  shift 35
-	ID  shift 36
+	CTE_INT  shift 37
+	CTE_FLOAT  shift 38
+	ID  shift 39
 	.  error
 
-	operando  goto 75
-	parametros_reales  goto 76
-	parametro_real  goto 77
+	operando  goto 81
+	lista_param_reales  goto 82
+	variable  goto 45
+	parametro_real  goto 83
 
 
-state 51
-	operando : ID '.' . ID  (49)
-
-	ID  shift 78
-	.  error
-
-
-state 52
+state 57
 	expresion_aritmetica : TOI '(' . expresion_aritmetica ')'  (24)
 
-	CTE_INT  shift 34
-	CTE_FLOAT  shift 35
-	ID  shift 36
-	TOI  shift 37
-	'-'  shift 38
+	CTE_INT  shift 37
+	CTE_FLOAT  shift 38
+	ID  shift 39
+	TOI  shift 40
+	'-'  shift 41
 	.  error
 
-	expresion_aritmetica  goto 79
-	operando  goto 41
+	expresion_aritmetica  goto 84
+	operando  goto 44
+	variable  goto 45
 
 
-state 53
+state 58
 	expresion_aritmetica : expresion_aritmetica . '+' operando  (19)
 	expresion_aritmetica : expresion_aritmetica . '-' operando  (20)
 	expresion_aritmetica : expresion_aritmetica . '*' operando  (21)
@@ -590,347 +657,328 @@ state 53
 	.  reduce 23
 
 
-state 54
+state 59
 	condicion : expresion_aritmetica GREATER_OR_EQUAL . expresion_aritmetica  (26)
 
-	CTE_INT  shift 34
-	CTE_FLOAT  shift 35
-	ID  shift 36
-	TOI  shift 37
-	'-'  shift 38
+	CTE_INT  shift 37
+	CTE_FLOAT  shift 38
+	ID  shift 39
+	TOI  shift 40
+	'-'  shift 41
 	.  error
 
-	expresion_aritmetica  goto 80
-	operando  goto 41
-
-
-state 55
-	condicion : expresion_aritmetica LESS_OR_EQUAL . expresion_aritmetica  (27)
-
-	CTE_INT  shift 34
-	CTE_FLOAT  shift 35
-	ID  shift 36
-	TOI  shift 37
-	'-'  shift 38
-	.  error
-
-	expresion_aritmetica  goto 81
-	operando  goto 41
-
-
-state 56
-	condicion : expresion_aritmetica EQUAL . expresion_aritmetica  (28)
-
-	CTE_INT  shift 34
-	CTE_FLOAT  shift 35
-	ID  shift 36
-	TOI  shift 37
-	'-'  shift 38
-	.  error
-
-	expresion_aritmetica  goto 82
-	operando  goto 41
-
-
-state 57
-	condicion : expresion_aritmetica NOT_EQUAL . expresion_aritmetica  (29)
-
-	CTE_INT  shift 34
-	CTE_FLOAT  shift 35
-	ID  shift 36
-	TOI  shift 37
-	'-'  shift 38
-	.  error
-
-	expresion_aritmetica  goto 83
-	operando  goto 41
-
-
-state 58
-	expresion_aritmetica : expresion_aritmetica '+' . operando  (19)
-
-	CTE_INT  shift 34
-	CTE_FLOAT  shift 35
-	ID  shift 36
-	.  error
-
-	operando  goto 84
-
-
-state 59
-	expresion_aritmetica : expresion_aritmetica '-' . operando  (20)
-
-	CTE_INT  shift 34
-	CTE_FLOAT  shift 35
-	ID  shift 36
-	.  error
-
-	operando  goto 85
+	expresion_aritmetica  goto 85
+	operando  goto 44
+	variable  goto 45
 
 
 state 60
-	expresion_aritmetica : expresion_aritmetica '*' . operando  (21)
+	condicion : expresion_aritmetica LESS_OR_EQUAL . expresion_aritmetica  (27)
 
-	CTE_INT  shift 34
-	CTE_FLOAT  shift 35
-	ID  shift 36
+	CTE_INT  shift 37
+	CTE_FLOAT  shift 38
+	ID  shift 39
+	TOI  shift 40
+	'-'  shift 41
 	.  error
 
-	operando  goto 86
+	expresion_aritmetica  goto 86
+	operando  goto 44
+	variable  goto 45
 
 
 state 61
-	expresion_aritmetica : expresion_aritmetica '/' . operando  (22)
+	condicion : expresion_aritmetica EQUAL . expresion_aritmetica  (28)
 
-	CTE_INT  shift 34
-	CTE_FLOAT  shift 35
-	ID  shift 36
+	CTE_INT  shift 37
+	CTE_FLOAT  shift 38
+	ID  shift 39
+	TOI  shift 40
+	'-'  shift 41
 	.  error
 
-	operando  goto 87
+	expresion_aritmetica  goto 87
+	operando  goto 44
+	variable  goto 45
 
 
 state 62
-	condicion : expresion_aritmetica '>' . expresion_aritmetica  (30)
+	condicion : expresion_aritmetica NOT_EQUAL . expresion_aritmetica  (29)
 
-	CTE_INT  shift 34
-	CTE_FLOAT  shift 35
-	ID  shift 36
-	TOI  shift 37
-	'-'  shift 38
+	CTE_INT  shift 37
+	CTE_FLOAT  shift 38
+	ID  shift 39
+	TOI  shift 40
+	'-'  shift 41
 	.  error
 
 	expresion_aritmetica  goto 88
-	operando  goto 41
+	operando  goto 44
+	variable  goto 45
 
 
 state 63
-	condicion : expresion_aritmetica '<' . expresion_aritmetica  (31)
+	expresion_aritmetica : expresion_aritmetica '+' . operando  (19)
 
-	CTE_INT  shift 34
-	CTE_FLOAT  shift 35
-	ID  shift 36
-	TOI  shift 37
-	'-'  shift 38
+	CTE_INT  shift 37
+	CTE_FLOAT  shift 38
+	ID  shift 39
 	.  error
 
-	expresion_aritmetica  goto 89
-	operando  goto 41
+	operando  goto 89
+	variable  goto 45
 
 
 state 64
-	sentencia_ejecucion : IF '(' condicion ')' . '{' cuerpo '}' ELSE '{' cuerpo '}' ENDIF  (9)
-	sentencia_ejecucion : IF '(' condicion ')' . '{' cuerpo '}' ENDIF  (10)
+	expresion_aritmetica : expresion_aritmetica '-' . operando  (20)
 
-	'{'  shift 90
+	CTE_INT  shift 37
+	CTE_FLOAT  shift 38
+	ID  shift 39
 	.  error
+
+	operando  goto 90
+	variable  goto 45
 
 
 state 65
+	expresion_aritmetica : expresion_aritmetica '*' . operando  (21)
+
+	CTE_INT  shift 37
+	CTE_FLOAT  shift 38
+	ID  shift 39
+	.  error
+
+	operando  goto 91
+	variable  goto 45
+
+
+state 66
+	expresion_aritmetica : expresion_aritmetica '/' . operando  (22)
+
+	CTE_INT  shift 37
+	CTE_FLOAT  shift 38
+	ID  shift 39
+	.  error
+
+	operando  goto 92
+	variable  goto 45
+
+
+state 67
+	condicion : expresion_aritmetica '>' . expresion_aritmetica  (30)
+
+	CTE_INT  shift 37
+	CTE_FLOAT  shift 38
+	ID  shift 39
+	TOI  shift 40
+	'-'  shift 41
+	.  error
+
+	expresion_aritmetica  goto 93
+	operando  goto 44
+	variable  goto 45
+
+
+state 68
+	condicion : expresion_aritmetica '<' . expresion_aritmetica  (31)
+
+	CTE_INT  shift 37
+	CTE_FLOAT  shift 38
+	ID  shift 39
+	TOI  shift 40
+	'-'  shift 41
+	.  error
+
+	expresion_aritmetica  goto 94
+	operando  goto 44
+	variable  goto 45
+
+
+state 69
+	sentencia_ejecucion : IF '(' condicion ')' . '{' cuerpo '}' ELSE '{' cuerpo '}' ENDIF  (9)
+	sentencia_ejecucion : IF '(' condicion ')' . '{' cuerpo '}' ENDIF  (10)
+
+	'{'  shift 95
+	.  error
+
+
+state 70
 	sentencia_ejecucion : PRINT '(' STRING ')' .  (11)
 
 	.  reduce 11
 
 
-state 66
+state 71
 	sentencia_ejecucion : PRINT '(' expresion_aritmetica ')' .  (12)
 
 	.  reduce 12
 
 
-state 67
+state 72
 	sentencia_ejecucion : VAR ID TWO_POINTS_ASSIGNATION expresion_aritmetica .  (8)
 	expresion_aritmetica : expresion_aritmetica . '+' operando  (19)
 	expresion_aritmetica : expresion_aritmetica . '-' operando  (20)
 	expresion_aritmetica : expresion_aritmetica . '*' operando  (21)
 	expresion_aritmetica : expresion_aritmetica . '/' operando  (22)
 
-	'+'  shift 58
-	'-'  shift 59
-	'*'  shift 60
-	'/'  shift 61
+	'+'  shift 63
+	'-'  shift 64
+	'*'  shift 65
+	'/'  shift 66
 	';'  reduce 8
 
 
-state 68
+state 73
 	sentencia_ejecucion : FOR '(' ID FROM . CTE_INT TO CTE_INT ')' '{' cuerpo '}'  (13)
 
-	CTE_INT  shift 91
+	CTE_INT  shift 96
 	.  error
 
 
-state 69
+state 74
 	sentencia_lambda : '(' tipo ID ')' . '{' cuerpo '}' '(' ID ')'  (15)
 	sentencia_lambda : '(' tipo ID ')' . '{' cuerpo '}' '(' CTE_INT ')'  (16)
 	sentencia_lambda : '(' tipo ID ')' . '{' cuerpo '}' '(' CTE_FLOAT ')'  (17)
 
-	'{'  shift 92
+	'{'  shift 97
 	.  error
 
 
-state 70
-	semantica_pasaje : CR . SE  (50)
-	semantica_pasaje : CR . LE  (51)
+state 75
+	lista_exp_aritmeticas : lista_exp_aritmeticas ',' . expresion_aritmetica  (32)
 
-	SE  shift 93
-	LE  shift 94
+	CTE_INT  shift 37
+	CTE_FLOAT  shift 38
+	ID  shift 39
+	TOI  shift 40
+	'-'  shift 41
+	.  error
+
+	expresion_aritmetica  goto 98
+	operando  goto 44
+	variable  goto 45
+
+
+state 76
+	semantica_pasaje : CR . SE  (53)
+	semantica_pasaje : CR . LE  (54)
+
+	SE  shift 99
+	LE  shift 100
 	.  error
 
 
-state 71
-	parametro_formal : tipo . ID  (42)
+state 77
+	parametro_formal : tipo . ID  (50)
 
-	ID  shift 95
+	ID  shift 101
 	.  error
 
 
-state 72
-	funcion : lista_tipos ID '(' parametros_formales . ')' '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' ';'  (18)
-	parametros_formales : parametros_formales . ',' parametro_formal  (39)
+state 78
+	funcion : lista_tipos ID '(' lista_param_formales . ')' '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' ';'  (18)
+	lista_param_formales : lista_param_formales . ',' parametro_formal  (36)
 
-	')'  shift 96
-	','  shift 97
+	')'  shift 102
+	','  shift 103
 	.  error
 
 
-state 73
-	parametros_formales : parametro_formal .  (40)
+state 79
+	lista_param_formales : parametro_formal .  (37)
 
-	.  reduce 40
+	.  reduce 37
 
 
-state 74
-	parametro_formal : semantica_pasaje . tipo ID  (41)
+state 80
+	parametro_formal : semantica_pasaje . tipo ID  (49)
 
 	STRING  shift 4
 	INT  shift 10
 	FLOAT  shift 11
 	.  error
 
-	tipo  goto 98
+	tipo  goto 104
 
 
-state 75
-	parametro_real : operando . ARROW parametro_formal  (54)
+state 81
+	parametro_real : operando . ARROW parametro_formal  (55)
 
-	ARROW  shift 99
+	ARROW  shift 105
 	.  error
 
 
-state 76
-	operando : ID '(' parametros_reales . ')'  (48)
-	parametros_reales : parametros_reales . ',' parametro_real  (52)
+state 82
+	operando : ID '(' lista_param_reales . ')'  (40)
+	lista_param_reales : lista_param_reales . ',' parametro_real  (51)
 
-	')'  shift 100
-	','  shift 101
+	')'  shift 106
+	','  shift 107
 	.  error
 
 
-state 77
-	parametros_reales : parametro_real .  (53)
+state 83
+	lista_param_reales : parametro_real .  (52)
 
-	.  reduce 53
-
-
-state 78
-	operando : ID '.' ID .  (49)
-
-	.  reduce 49
+	.  reduce 52
 
 
-state 79
+state 84
 	expresion_aritmetica : expresion_aritmetica . '+' operando  (19)
 	expresion_aritmetica : expresion_aritmetica . '-' operando  (20)
 	expresion_aritmetica : expresion_aritmetica . '*' operando  (21)
 	expresion_aritmetica : expresion_aritmetica . '/' operando  (22)
 	expresion_aritmetica : TOI '(' expresion_aritmetica . ')'  (24)
 
-	'+'  shift 58
-	'-'  shift 59
-	'*'  shift 60
-	'/'  shift 61
-	')'  shift 102
+	'+'  shift 63
+	'-'  shift 64
+	'*'  shift 65
+	'/'  shift 66
+	')'  shift 108
 	.  error
 
 
-state 80
+state 85
 	expresion_aritmetica : expresion_aritmetica . '+' operando  (19)
 	expresion_aritmetica : expresion_aritmetica . '-' operando  (20)
 	expresion_aritmetica : expresion_aritmetica . '*' operando  (21)
 	expresion_aritmetica : expresion_aritmetica . '/' operando  (22)
 	condicion : expresion_aritmetica GREATER_OR_EQUAL expresion_aritmetica .  (26)
 
-	'+'  shift 58
-	'-'  shift 59
-	'*'  shift 60
-	'/'  shift 61
+	'+'  shift 63
+	'-'  shift 64
+	'*'  shift 65
+	'/'  shift 66
 	')'  reduce 26
 
 
-state 81
+state 86
 	expresion_aritmetica : expresion_aritmetica . '+' operando  (19)
 	expresion_aritmetica : expresion_aritmetica . '-' operando  (20)
 	expresion_aritmetica : expresion_aritmetica . '*' operando  (21)
 	expresion_aritmetica : expresion_aritmetica . '/' operando  (22)
 	condicion : expresion_aritmetica LESS_OR_EQUAL expresion_aritmetica .  (27)
 
-	'+'  shift 58
-	'-'  shift 59
-	'*'  shift 60
-	'/'  shift 61
+	'+'  shift 63
+	'-'  shift 64
+	'*'  shift 65
+	'/'  shift 66
 	')'  reduce 27
 
 
-state 82
+state 87
 	expresion_aritmetica : expresion_aritmetica . '+' operando  (19)
 	expresion_aritmetica : expresion_aritmetica . '-' operando  (20)
 	expresion_aritmetica : expresion_aritmetica . '*' operando  (21)
 	expresion_aritmetica : expresion_aritmetica . '/' operando  (22)
 	condicion : expresion_aritmetica EQUAL expresion_aritmetica .  (28)
 
-	'+'  shift 58
-	'-'  shift 59
-	'*'  shift 60
-	'/'  shift 61
+	'+'  shift 63
+	'-'  shift 64
+	'*'  shift 65
+	'/'  shift 66
 	')'  reduce 28
-
-
-state 83
-	expresion_aritmetica : expresion_aritmetica . '+' operando  (19)
-	expresion_aritmetica : expresion_aritmetica . '-' operando  (20)
-	expresion_aritmetica : expresion_aritmetica . '*' operando  (21)
-	expresion_aritmetica : expresion_aritmetica . '/' operando  (22)
-	condicion : expresion_aritmetica NOT_EQUAL expresion_aritmetica .  (29)
-
-	'+'  shift 58
-	'-'  shift 59
-	'*'  shift 60
-	'/'  shift 61
-	')'  reduce 29
-
-
-state 84
-	expresion_aritmetica : expresion_aritmetica '+' operando .  (19)
-
-	.  reduce 19
-
-
-state 85
-	expresion_aritmetica : expresion_aritmetica '-' operando .  (20)
-
-	.  reduce 20
-
-
-state 86
-	expresion_aritmetica : expresion_aritmetica '*' operando .  (21)
-
-	.  reduce 21
-
-
-state 87
-	expresion_aritmetica : expresion_aritmetica '/' operando .  (22)
-
-	.  reduce 22
 
 
 state 88
@@ -938,30 +986,68 @@ state 88
 	expresion_aritmetica : expresion_aritmetica . '-' operando  (20)
 	expresion_aritmetica : expresion_aritmetica . '*' operando  (21)
 	expresion_aritmetica : expresion_aritmetica . '/' operando  (22)
-	condicion : expresion_aritmetica '>' expresion_aritmetica .  (30)
+	condicion : expresion_aritmetica NOT_EQUAL expresion_aritmetica .  (29)
 
-	'+'  shift 58
-	'-'  shift 59
-	'*'  shift 60
-	'/'  shift 61
-	')'  reduce 30
+	'+'  shift 63
+	'-'  shift 64
+	'*'  shift 65
+	'/'  shift 66
+	')'  reduce 29
 
 
 state 89
+	expresion_aritmetica : expresion_aritmetica '+' operando .  (19)
+
+	.  reduce 19
+
+
+state 90
+	expresion_aritmetica : expresion_aritmetica '-' operando .  (20)
+
+	.  reduce 20
+
+
+state 91
+	expresion_aritmetica : expresion_aritmetica '*' operando .  (21)
+
+	.  reduce 21
+
+
+state 92
+	expresion_aritmetica : expresion_aritmetica '/' operando .  (22)
+
+	.  reduce 22
+
+
+state 93
+	expresion_aritmetica : expresion_aritmetica . '+' operando  (19)
+	expresion_aritmetica : expresion_aritmetica . '-' operando  (20)
+	expresion_aritmetica : expresion_aritmetica . '*' operando  (21)
+	expresion_aritmetica : expresion_aritmetica . '/' operando  (22)
+	condicion : expresion_aritmetica '>' expresion_aritmetica .  (30)
+
+	'+'  shift 63
+	'-'  shift 64
+	'*'  shift 65
+	'/'  shift 66
+	')'  reduce 30
+
+
+state 94
 	expresion_aritmetica : expresion_aritmetica . '+' operando  (19)
 	expresion_aritmetica : expresion_aritmetica . '-' operando  (20)
 	expresion_aritmetica : expresion_aritmetica . '*' operando  (21)
 	expresion_aritmetica : expresion_aritmetica . '/' operando  (22)
 	condicion : expresion_aritmetica '<' expresion_aritmetica .  (31)
 
-	'+'  shift 58
-	'-'  shift 59
-	'*'  shift 60
-	'/'  shift 61
+	'+'  shift 63
+	'-'  shift 64
+	'*'  shift 65
+	'/'  shift 66
 	')'  reduce 31
 
 
-state 90
+state 95
 	sentencia_ejecucion : IF '(' condicion ')' '{' . cuerpo '}' ELSE '{' cuerpo '}' ENDIF  (9)
 	sentencia_ejecucion : IF '(' condicion ')' '{' . cuerpo '}' ENDIF  (10)
 
@@ -976,7 +1062,7 @@ state 90
 	'('  shift 12
 	.  error
 
-	cuerpo  goto 103
+	cuerpo  goto 109
 	sentencia  goto 14
 	sentencia_declarativa  goto 15
 	sentencia_ejecucion  goto 16
@@ -985,16 +1071,17 @@ state 90
 	lista_variables  goto 19
 	tipo  goto 20
 	lista_tipos  goto 21
+	variable  goto 22
 
 
-state 91
+state 96
 	sentencia_ejecucion : FOR '(' ID FROM CTE_INT . TO CTE_INT ')' '{' cuerpo '}'  (13)
 
-	TO  shift 104
+	TO  shift 110
 	.  error
 
 
-state 92
+state 97
 	sentencia_lambda : '(' tipo ID ')' '{' . cuerpo '}' '(' ID ')'  (15)
 	sentencia_lambda : '(' tipo ID ')' '{' . cuerpo '}' '(' CTE_INT ')'  (16)
 	sentencia_lambda : '(' tipo ID ')' '{' . cuerpo '}' '(' CTE_FLOAT ')'  (17)
@@ -1010,7 +1097,7 @@ state 92
 	'('  shift 12
 	.  error
 
-	cuerpo  goto 105
+	cuerpo  goto 111
 	sentencia  goto 14
 	sentencia_declarativa  goto 15
 	sentencia_ejecucion  goto 16
@@ -1019,93 +1106,111 @@ state 92
 	lista_variables  goto 19
 	tipo  goto 20
 	lista_tipos  goto 21
+	variable  goto 22
 
 
-state 93
-	semantica_pasaje : CR SE .  (50)
+state 98
+	expresion_aritmetica : expresion_aritmetica . '+' operando  (19)
+	expresion_aritmetica : expresion_aritmetica . '-' operando  (20)
+	expresion_aritmetica : expresion_aritmetica . '*' operando  (21)
+	expresion_aritmetica : expresion_aritmetica . '/' operando  (22)
+	lista_exp_aritmeticas : lista_exp_aritmeticas ',' expresion_aritmetica .  (32)
+
+	'+'  shift 63
+	'-'  shift 64
+	'*'  shift 65
+	'/'  shift 66
+	';'  reduce 32
+	')'  reduce 32
+	','  reduce 32
+
+
+state 99
+	semantica_pasaje : CR SE .  (53)
+
+	.  reduce 53
+
+
+state 100
+	semantica_pasaje : CR LE .  (54)
+
+	.  reduce 54
+
+
+state 101
+	parametro_formal : tipo ID .  (50)
 
 	.  reduce 50
 
 
-state 94
-	semantica_pasaje : CR LE .  (51)
-
-	.  reduce 51
-
-
-state 95
-	parametro_formal : tipo ID .  (42)
-
-	.  reduce 42
-
-
-state 96
-	funcion : lista_tipos ID '(' parametros_formales ')' . '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' ';'  (18)
-
-	'{'  shift 106
-	.  error
-
-
-state 97
-	parametros_formales : parametros_formales ',' . parametro_formal  (39)
-
-	STRING  shift 4
-	CR  shift 70
-	INT  shift 10
-	FLOAT  shift 11
-	.  error
-
-	tipo  goto 71
-	parametro_formal  goto 107
-	semantica_pasaje  goto 74
-
-
-state 98
-	parametro_formal : semantica_pasaje tipo . ID  (41)
-
-	ID  shift 108
-	.  error
-
-
-state 99
-	parametro_real : operando ARROW . parametro_formal  (54)
-
-	STRING  shift 4
-	CR  shift 70
-	INT  shift 10
-	FLOAT  shift 11
-	.  error
-
-	tipo  goto 71
-	parametro_formal  goto 109
-	semantica_pasaje  goto 74
-
-
-state 100
-	operando : ID '(' parametros_reales ')' .  (48)
-
-	.  reduce 48
-
-
-state 101
-	parametros_reales : parametros_reales ',' . parametro_real  (52)
-
-	CTE_INT  shift 34
-	CTE_FLOAT  shift 35
-	ID  shift 36
-	.  error
-
-	operando  goto 75
-	parametro_real  goto 110
-
-
 state 102
+	funcion : lista_tipos ID '(' lista_param_formales ')' . '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' ';'  (18)
+
+	'{'  shift 112
+	.  error
+
+
+state 103
+	lista_param_formales : lista_param_formales ',' . parametro_formal  (36)
+
+	STRING  shift 4
+	CR  shift 76
+	INT  shift 10
+	FLOAT  shift 11
+	.  error
+
+	tipo  goto 77
+	parametro_formal  goto 113
+	semantica_pasaje  goto 80
+
+
+state 104
+	parametro_formal : semantica_pasaje tipo . ID  (49)
+
+	ID  shift 114
+	.  error
+
+
+state 105
+	parametro_real : operando ARROW . parametro_formal  (55)
+
+	STRING  shift 4
+	CR  shift 76
+	INT  shift 10
+	FLOAT  shift 11
+	.  error
+
+	tipo  goto 77
+	parametro_formal  goto 115
+	semantica_pasaje  goto 80
+
+
+state 106
+	operando : ID '(' lista_param_reales ')' .  (40)
+
+	.  reduce 40
+
+
+state 107
+	lista_param_reales : lista_param_reales ',' . parametro_real  (51)
+
+	CTE_INT  shift 37
+	CTE_FLOAT  shift 38
+	ID  shift 39
+	.  error
+
+	operando  goto 81
+	variable  goto 45
+	parametro_real  goto 116
+
+
+state 108
 	expresion_aritmetica : TOI '(' expresion_aritmetica ')' .  (24)
 
 	.  reduce 24
 
 
-state 103
+state 109
 	cuerpo : cuerpo . sentencia  (2)
 	sentencia_ejecucion : IF '(' condicion ')' '{' cuerpo . '}' ELSE '{' cuerpo '}' ENDIF  (9)
 	sentencia_ejecucion : IF '(' condicion ')' '{' cuerpo . '}' ENDIF  (10)
@@ -1118,11 +1223,11 @@ state 103
 	FOR  shift 9
 	INT  shift 10
 	FLOAT  shift 11
-	'}'  shift 111
+	'}'  shift 117
 	'('  shift 12
 	.  error
 
-	sentencia  goto 28
+	sentencia  goto 30
 	sentencia_declarativa  goto 15
 	sentencia_ejecucion  goto 16
 	sentencia_lambda  goto 17
@@ -1130,16 +1235,17 @@ state 103
 	lista_variables  goto 19
 	tipo  goto 20
 	lista_tipos  goto 21
+	variable  goto 22
 
 
-state 104
+state 110
 	sentencia_ejecucion : FOR '(' ID FROM CTE_INT TO . CTE_INT ')' '{' cuerpo '}'  (13)
 
-	CTE_INT  shift 112
+	CTE_INT  shift 118
 	.  error
 
 
-state 105
+state 111
 	cuerpo : cuerpo . sentencia  (2)
 	sentencia_lambda : '(' tipo ID ')' '{' cuerpo . '}' '(' ID ')'  (15)
 	sentencia_lambda : '(' tipo ID ')' '{' cuerpo . '}' '(' CTE_INT ')'  (16)
@@ -1153,11 +1259,11 @@ state 105
 	FOR  shift 9
 	INT  shift 10
 	FLOAT  shift 11
-	'}'  shift 113
+	'}'  shift 119
 	'('  shift 12
 	.  error
 
-	sentencia  goto 28
+	sentencia  goto 30
 	sentencia_declarativa  goto 15
 	sentencia_ejecucion  goto 16
 	sentencia_lambda  goto 17
@@ -1165,10 +1271,11 @@ state 105
 	lista_variables  goto 19
 	tipo  goto 20
 	lista_tipos  goto 21
+	variable  goto 22
 
 
-state 106
-	funcion : lista_tipos ID '(' parametros_formales ')' '{' . cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' ';'  (18)
+state 112
+	funcion : lista_tipos ID '(' lista_param_formales ')' '{' . cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' ';'  (18)
 
 	STRING  shift 4
 	ID  shift 5
@@ -1181,7 +1288,7 @@ state 106
 	'('  shift 12
 	.  error
 
-	cuerpo  goto 114
+	cuerpo  goto 120
 	sentencia  goto 14
 	sentencia_declarativa  goto 15
 	sentencia_ejecucion  goto 16
@@ -1190,60 +1297,61 @@ state 106
 	lista_variables  goto 19
 	tipo  goto 20
 	lista_tipos  goto 21
-
-
-state 107
-	parametros_formales : parametros_formales ',' parametro_formal .  (39)
-
-	.  reduce 39
-
-
-state 108
-	parametro_formal : semantica_pasaje tipo ID .  (41)
-
-	.  reduce 41
-
-
-state 109
-	parametro_real : operando ARROW parametro_formal .  (54)
-
-	.  reduce 54
-
-
-state 110
-	parametros_reales : parametros_reales ',' parametro_real .  (52)
-
-	.  reduce 52
-
-
-state 111
-	sentencia_ejecucion : IF '(' condicion ')' '{' cuerpo '}' . ELSE '{' cuerpo '}' ENDIF  (9)
-	sentencia_ejecucion : IF '(' condicion ')' '{' cuerpo '}' . ENDIF  (10)
-
-	ELSE  shift 115
-	ENDIF  shift 116
-	.  error
-
-
-state 112
-	sentencia_ejecucion : FOR '(' ID FROM CTE_INT TO CTE_INT . ')' '{' cuerpo '}'  (13)
-
-	')'  shift 117
-	.  error
+	variable  goto 22
 
 
 state 113
+	lista_param_formales : lista_param_formales ',' parametro_formal .  (36)
+
+	.  reduce 36
+
+
+state 114
+	parametro_formal : semantica_pasaje tipo ID .  (49)
+
+	.  reduce 49
+
+
+state 115
+	parametro_real : operando ARROW parametro_formal .  (55)
+
+	.  reduce 55
+
+
+state 116
+	lista_param_reales : lista_param_reales ',' parametro_real .  (51)
+
+	.  reduce 51
+
+
+state 117
+	sentencia_ejecucion : IF '(' condicion ')' '{' cuerpo '}' . ELSE '{' cuerpo '}' ENDIF  (9)
+	sentencia_ejecucion : IF '(' condicion ')' '{' cuerpo '}' . ENDIF  (10)
+
+	ELSE  shift 121
+	ENDIF  shift 122
+	.  error
+
+
+state 118
+	sentencia_ejecucion : FOR '(' ID FROM CTE_INT TO CTE_INT . ')' '{' cuerpo '}'  (13)
+
+	')'  shift 123
+	.  error
+
+
+state 119
 	sentencia_lambda : '(' tipo ID ')' '{' cuerpo '}' . '(' ID ')'  (15)
 	sentencia_lambda : '(' tipo ID ')' '{' cuerpo '}' . '(' CTE_INT ')'  (16)
 	sentencia_lambda : '(' tipo ID ')' '{' cuerpo '}' . '(' CTE_FLOAT ')'  (17)
 
-	'('  shift 118
+	'('  shift 124
 	.  error
 
 
-state 114
+state 120
 	cuerpo : cuerpo . sentencia  (2)
-	funcion : lista_tipos ID '(' parametros_formales ')' '{' cuerpo . '}' RETURN '(' lista_exp_aritmeticas ')' ';'  (18)
+	funcion : lista_tipos ID '(' lista_param_formales ')' '{' cuerpo . '}' RETURN '(' lista_exp_aritmeticas ')' ';'  (18)
 
 	STRING  shift 4
 	ID  shift 5
@@ -1253,11 +1361,11 @@ state 114
 	FOR  shift 9
 	INT  shift 10
 	FLOAT  shift 11
-	'}'  shift 119
+	'}'  shift 125
 	'('  shift 12
 	.  error
 
-	sentencia  goto 28
+	sentencia  goto 30
 	sentencia_declarativa  goto 15
 	sentencia_ejecucion  goto 16
 	sentencia_lambda  goto 17
@@ -1265,47 +1373,48 @@ state 114
 	lista_variables  goto 19
 	tipo  goto 20
 	lista_tipos  goto 21
+	variable  goto 22
 
 
-state 115
+state 121
 	sentencia_ejecucion : IF '(' condicion ')' '{' cuerpo '}' ELSE . '{' cuerpo '}' ENDIF  (9)
 
-	'{'  shift 120
+	'{'  shift 126
 	.  error
 
 
-state 116
+state 122
 	sentencia_ejecucion : IF '(' condicion ')' '{' cuerpo '}' ENDIF .  (10)
 
 	.  reduce 10
 
 
-state 117
+state 123
 	sentencia_ejecucion : FOR '(' ID FROM CTE_INT TO CTE_INT ')' . '{' cuerpo '}'  (13)
 
-	'{'  shift 121
+	'{'  shift 127
 	.  error
 
 
-state 118
+state 124
 	sentencia_lambda : '(' tipo ID ')' '{' cuerpo '}' '(' . ID ')'  (15)
 	sentencia_lambda : '(' tipo ID ')' '{' cuerpo '}' '(' . CTE_INT ')'  (16)
 	sentencia_lambda : '(' tipo ID ')' '{' cuerpo '}' '(' . CTE_FLOAT ')'  (17)
 
-	CTE_INT  shift 122
-	CTE_FLOAT  shift 123
-	ID  shift 124
+	CTE_INT  shift 128
+	CTE_FLOAT  shift 129
+	ID  shift 130
 	.  error
 
 
-state 119
-	funcion : lista_tipos ID '(' parametros_formales ')' '{' cuerpo '}' . RETURN '(' lista_exp_aritmeticas ')' ';'  (18)
+state 125
+	funcion : lista_tipos ID '(' lista_param_formales ')' '{' cuerpo '}' . RETURN '(' lista_exp_aritmeticas ')' ';'  (18)
 
-	RETURN  shift 125
+	RETURN  shift 131
 	.  error
 
 
-state 120
+state 126
 	sentencia_ejecucion : IF '(' condicion ')' '{' cuerpo '}' ELSE '{' . cuerpo '}' ENDIF  (9)
 
 	STRING  shift 4
@@ -1319,7 +1428,7 @@ state 120
 	'('  shift 12
 	.  error
 
-	cuerpo  goto 126
+	cuerpo  goto 132
 	sentencia  goto 14
 	sentencia_declarativa  goto 15
 	sentencia_ejecucion  goto 16
@@ -1328,9 +1437,10 @@ state 120
 	lista_variables  goto 19
 	tipo  goto 20
 	lista_tipos  goto 21
+	variable  goto 22
 
 
-state 121
+state 127
 	sentencia_ejecucion : FOR '(' ID FROM CTE_INT TO CTE_INT ')' '{' . cuerpo '}'  (13)
 
 	STRING  shift 4
@@ -1344,7 +1454,7 @@ state 121
 	'('  shift 12
 	.  error
 
-	cuerpo  goto 127
+	cuerpo  goto 133
 	sentencia  goto 14
 	sentencia_declarativa  goto 15
 	sentencia_ejecucion  goto 16
@@ -1353,37 +1463,38 @@ state 121
 	lista_variables  goto 19
 	tipo  goto 20
 	lista_tipos  goto 21
+	variable  goto 22
 
 
-state 122
+state 128
 	sentencia_lambda : '(' tipo ID ')' '{' cuerpo '}' '(' CTE_INT . ')'  (16)
 
-	')'  shift 128
+	')'  shift 134
 	.  error
 
 
-state 123
+state 129
 	sentencia_lambda : '(' tipo ID ')' '{' cuerpo '}' '(' CTE_FLOAT . ')'  (17)
 
-	')'  shift 129
+	')'  shift 135
 	.  error
 
 
-state 124
+state 130
 	sentencia_lambda : '(' tipo ID ')' '{' cuerpo '}' '(' ID . ')'  (15)
 
-	')'  shift 130
+	')'  shift 136
 	.  error
 
 
-state 125
-	funcion : lista_tipos ID '(' parametros_formales ')' '{' cuerpo '}' RETURN . '(' lista_exp_aritmeticas ')' ';'  (18)
+state 131
+	funcion : lista_tipos ID '(' lista_param_formales ')' '{' cuerpo '}' RETURN . '(' lista_exp_aritmeticas ')' ';'  (18)
 
-	'('  shift 131
+	'('  shift 137
 	.  error
 
 
-state 126
+state 132
 	cuerpo : cuerpo . sentencia  (2)
 	sentencia_ejecucion : IF '(' condicion ')' '{' cuerpo '}' ELSE '{' cuerpo . '}' ENDIF  (9)
 
@@ -1395,11 +1506,11 @@ state 126
 	FOR  shift 9
 	INT  shift 10
 	FLOAT  shift 11
-	'}'  shift 132
+	'}'  shift 138
 	'('  shift 12
 	.  error
 
-	sentencia  goto 28
+	sentencia  goto 30
 	sentencia_declarativa  goto 15
 	sentencia_ejecucion  goto 16
 	sentencia_lambda  goto 17
@@ -1407,9 +1518,10 @@ state 126
 	lista_variables  goto 19
 	tipo  goto 20
 	lista_tipos  goto 21
+	variable  goto 22
 
 
-state 127
+state 133
 	cuerpo : cuerpo . sentencia  (2)
 	sentencia_ejecucion : FOR '(' ID FROM CTE_INT TO CTE_INT ')' '{' cuerpo . '}'  (13)
 
@@ -1421,11 +1533,11 @@ state 127
 	FOR  shift 9
 	INT  shift 10
 	FLOAT  shift 11
-	'}'  shift 133
+	'}'  shift 139
 	'('  shift 12
 	.  error
 
-	sentencia  goto 28
+	sentencia  goto 30
 	sentencia_declarativa  goto 15
 	sentencia_ejecucion  goto 16
 	sentencia_lambda  goto 17
@@ -1433,125 +1545,83 @@ state 127
 	lista_variables  goto 19
 	tipo  goto 20
 	lista_tipos  goto 21
+	variable  goto 22
 
 
-state 128
+state 134
 	sentencia_lambda : '(' tipo ID ')' '{' cuerpo '}' '(' CTE_INT ')' .  (16)
 
 	.  reduce 16
 
 
-state 129
+state 135
 	sentencia_lambda : '(' tipo ID ')' '{' cuerpo '}' '(' CTE_FLOAT ')' .  (17)
 
 	.  reduce 17
 
 
-state 130
+state 136
 	sentencia_lambda : '(' tipo ID ')' '{' cuerpo '}' '(' ID ')' .  (15)
 
 	.  reduce 15
 
 
-state 131
-	funcion : lista_tipos ID '(' parametros_formales ')' '{' cuerpo '}' RETURN '(' . lista_exp_aritmeticas ')' ';'  (18)
+state 137
+	funcion : lista_tipos ID '(' lista_param_formales ')' '{' cuerpo '}' RETURN '(' . lista_exp_aritmeticas ')' ';'  (18)
 
-	CTE_INT  shift 34
-	CTE_FLOAT  shift 35
-	ID  shift 36
-	TOI  shift 37
-	'-'  shift 38
+	CTE_INT  shift 37
+	CTE_FLOAT  shift 38
+	ID  shift 39
+	TOI  shift 40
+	'-'  shift 41
 	.  error
 
-	expresion_aritmetica  goto 134
-	lista_exp_aritmeticas  goto 135
-	operando  goto 41
+	expresion_aritmetica  goto 51
+	lista_exp_aritmeticas  goto 140
+	operando  goto 44
+	variable  goto 45
 
 
-state 132
+state 138
 	sentencia_ejecucion : IF '(' condicion ')' '{' cuerpo '}' ELSE '{' cuerpo '}' . ENDIF  (9)
 
-	ENDIF  shift 136
+	ENDIF  shift 141
 	.  error
 
 
-state 133
+state 139
 	sentencia_ejecucion : FOR '(' ID FROM CTE_INT TO CTE_INT ')' '{' cuerpo '}' .  (13)
 
 	.  reduce 13
 
 
-state 134
-	expresion_aritmetica : expresion_aritmetica . '+' operando  (19)
-	expresion_aritmetica : expresion_aritmetica . '-' operando  (20)
-	expresion_aritmetica : expresion_aritmetica . '*' operando  (21)
-	expresion_aritmetica : expresion_aritmetica . '/' operando  (22)
-	lista_exp_aritmeticas : expresion_aritmetica .  (35)
+state 140
+	funcion : lista_tipos ID '(' lista_param_formales ')' '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas . ')' ';'  (18)
+	lista_exp_aritmeticas : lista_exp_aritmeticas . ',' expresion_aritmetica  (32)
 
-	'+'  shift 58
-	'-'  shift 59
-	'*'  shift 60
-	'/'  shift 61
-	')'  reduce 35
-	','  reduce 35
-
-
-state 135
-	funcion : lista_tipos ID '(' parametros_formales ')' '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas . ')' ';'  (18)
-	lista_exp_aritmeticas : lista_exp_aritmeticas . ',' expresion_aritmetica  (34)
-
-	')'  shift 137
-	','  shift 138
+	')'  shift 142
+	','  shift 75
 	.  error
 
 
-state 136
+state 141
 	sentencia_ejecucion : IF '(' condicion ')' '{' cuerpo '}' ELSE '{' cuerpo '}' ENDIF .  (9)
 
 	.  reduce 9
 
 
-state 137
-	funcion : lista_tipos ID '(' parametros_formales ')' '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' . ';'  (18)
+state 142
+	funcion : lista_tipos ID '(' lista_param_formales ')' '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' . ';'  (18)
 
-	';'  shift 139
+	';'  shift 143
 	.  error
 
 
-state 138
-	lista_exp_aritmeticas : lista_exp_aritmeticas ',' . expresion_aritmetica  (34)
-
-	CTE_INT  shift 34
-	CTE_FLOAT  shift 35
-	ID  shift 36
-	TOI  shift 37
-	'-'  shift 38
-	.  error
-
-	expresion_aritmetica  goto 140
-	operando  goto 41
-
-
-state 139
-	funcion : lista_tipos ID '(' parametros_formales ')' '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' ';' .  (18)
+state 143
+	funcion : lista_tipos ID '(' lista_param_formales ')' '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' ';' .  (18)
 
 	.  reduce 18
 
 
-state 140
-	expresion_aritmetica : expresion_aritmetica . '+' operando  (19)
-	expresion_aritmetica : expresion_aritmetica . '-' operando  (20)
-	expresion_aritmetica : expresion_aritmetica . '*' operando  (21)
-	expresion_aritmetica : expresion_aritmetica . '/' operando  (22)
-	lista_exp_aritmeticas : lista_exp_aritmeticas ',' expresion_aritmetica .  (34)
-
-	'+'  shift 58
-	'-'  shift 59
-	'*'  shift 60
-	'/'  shift 61
-	')'  reduce 34
-	','  reduce 34
-
-
-42 terminals, 20 nonterminals
-55 grammar rules, 141 states
+42 terminals, 21 nonterminals
+56 grammar rules, 144 states

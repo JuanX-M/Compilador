@@ -1,6 +1,12 @@
 %{
     import java.io.*;
+
     import Lexico.AnalizadorLexico;
+
+    import Tools.TablaSimbolos;
+    import Tools.Pair;
+    import Tools.TablaPalabrasReservadas;
+    import Tools.Logger;
 %}
 
 %token TWO_POINTS_ASSIGNATION STRING GREATER_OR_EQUAL LESS_OR_EQUAL EQUAL NOT_EQUAL CTE_INT CTE_FLOAT ID IF ELSE ENDIF PRINT RETURN VAR FOR FROM TO CR SE LE TOI INT FLOAT ARROW
@@ -110,3 +116,46 @@ semantica_pasaje        :   CR SE
 
 parametro_real          :   operando ARROW parametro_formal
                         ;
+%%
+
+private static int yylval_recognition = 0;
+
+static AnalizadorLexico lex = null;
+static Parser par = null;
+
+public static void main (String [] args) {
+
+    System.out.println("Iniciando compilación ... ");
+    String programa = "samplePrograms/testing.txt";
+
+    TablaPalabrasReservadas tablaPalabrasReservadas = new TablaPalabrasReservadas();
+    tablaPalabrasReservadas.cargarTabla();
+
+    lex = new AnalizadorLexico (programa) ;
+    par = new Parser (false);
+    par.run () ;
+
+
+
+    System.out.println("TablaSimbolos: " + TablaSimbolos.TABLA_SIMBOLOS);
+    System.out.println(Logger.generateLog());
+
+    System.out.println("Fin compilación");
+}
+
+
+int yylex() {
+    Pair<String, Integer> t = lex.generarToken();
+    String lexema = t.getFirst();
+    Integer token = t.getSecond();
+
+    if (lexema != null){
+        yylval = new ParserVal(lexema);
+        yylval_recognition += 1;
+    }
+
+    return token;
+}
+void yyerror (String s) {
+    System.out.println(s);
+}

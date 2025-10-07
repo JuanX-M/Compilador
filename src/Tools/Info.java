@@ -7,27 +7,26 @@ package Tools;
 public class Info {
 
     //TODO: Verificar atributos privados de Info
-    private String tokenType; // ej: "ID", "CTE_INT"
-    private int nroLinea;
+    private String lexema; // ej: "ID", "CTE_INT"
+    private Integer token;
 
-    public Info(String tokenType, int nroLinea) {
-        this.tokenType = tokenType;
-        this.nroLinea = nroLinea; // creo que se calcula por lexico, cambiar esto
+    public Info(String lexema, Integer token) {
+        this.lexema = lexema;
+        this.token = token; // creo que se calcula por lexico, cambiar esto
     }
 
     @Override
     public String toString() {
-        return "Info{" +
-                "tokenType='" + tokenType + '\'' +
-                ", nroLinea=" + nroLinea +
-                '}';
+        return "Info{ " +
+                "Lexema : " + lexema + " " +
+                ", Token : " + token +
+                "}";
     }
 
-    public String getTokenType() {
-        return tokenType;
+    public String getLexema() {
+        return lexema;
     }
-
-    public int getNroLinea() {
-        return nroLinea;
+    public Integer getToken() {
+        return token;
     }
 }
