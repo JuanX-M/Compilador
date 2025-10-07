@@ -23,12 +23,16 @@
 %%
 
 
-prog                    :   ID '{' cuerpo '}'
-                        |   '{' cuerpo '}' {Logger.logError(cursor.getCurrentLine(), "Falta declarar nombre del programa al iniciar");}
+prog                    :   ID '{' cuerpo '}' {System.out.println("entra1");}
+                        |   prog_error
                         ;
 
-cuerpo                  :   cuerpo sentencia
-                        |   sentencia
+prog_error              :   '{' cuerpo '}' {System.out.println("Debe ingresar un nombre al inicializar el programa");}
+                        |   ID '(' cuerpo ')' {System.out.println("Debe indicar el programa entre {}");}
+                        ;
+
+cuerpo                  :   cuerpo sentencia {System.out.println("entra2");}
+                        |   sentencia       {System.out.println("entra3");}
                         ;
 
 sentencia               :   sentencia_declarativa
@@ -39,7 +43,7 @@ sentencia               :   sentencia_declarativa
 sentencia_declarativa   :   funcion
                         ;
 
-sentencia_ejecucion     :   VAR ID TWO_POINTS_ASSIGNATION expresion_aritmetica
+sentencia_ejecucion     :   VAR ID TWO_POINTS_ASSIGNATION expresion_aritmetica {System.out.println("entra4");}
                         |   IF '(' condicion ')' '{' cuerpo '}' ELSE '{' cuerpo '}' ENDIF
                         |   IF '(' condicion ')' '{' cuerpo '}' ENDIF
                         |   PRINT '(' STRING ')'
@@ -139,8 +143,6 @@ public static void main (String [] args) {
     lex = new AnalizadorLexico (programa) ;
     par = new Parser (false);
     par.run () ;
-
-
 
     System.out.println("TablaSimbolos: " + TablaSimbolos.TABLA_SIMBOLOS);
     System.out.println(Logger.generateLog());

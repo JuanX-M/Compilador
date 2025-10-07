@@ -10,6 +10,7 @@ public class ASEntregarLiterales extends AccionSemantica{
 
     @Override
     public Pair<String, Integer> run(Character simbolo, Cursor cursor) {
+        BUFFER.setLength(0);
         switch (simbolo) {
             // int 'literal' tranformas a codigo ASCII
             case '+' : return new Pair<>("+", (int) '+');
