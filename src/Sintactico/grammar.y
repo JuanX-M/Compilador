@@ -27,8 +27,8 @@ prog                    :   ID '{' cuerpo '}' {System.out.println("entra1");}
                         |   prog_error
                         ;
 
-prog_error              :   '{' cuerpo '}' {System.out.println("Debe ingresar un nombre al inicializar el programa");}
-                        |   ID '(' cuerpo ')' {System.out.println("Debe indicar el programa entre {}");}
+prog_error              :   '{' cuerpo '}' {Logger.logError(cursor.getCurrentLine(), "Debe ingresar un nombre al inicializar el programa");}
+                        |   ID '(' cuerpo ')' {Logger.logError(cursor.getCurrentLine(), "Debe indicar el programa entre {}");}
                         ;
 
 cuerpo                  :   cuerpo sentencia {System.out.println("entra2");}
@@ -135,12 +135,12 @@ public static void main (String [] args) {
 
     System.out.println("Iniciando compilación ... ");
     String programa = "samplePrograms/testing.txt";
-    Cursor cursor = new Cursor(programa);
 
     TablaPalabrasReservadas tablaPalabrasReservadas = new TablaPalabrasReservadas();
     tablaPalabrasReservadas.cargarTabla();
 
     lex = new AnalizadorLexico (programa) ;
+    cursor = lex.getCursor();
     par = new Parser (false);
     par.run () ;
 

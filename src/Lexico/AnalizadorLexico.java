@@ -21,6 +21,10 @@ public class AnalizadorLexico {
         cursor = new Cursor(programa);
     }
 
+    public Cursor getCursor() {
+        return cursor;
+    }
+
     public void cargarMatriz() {
         this.matrizTransicion = new MatrizTransicion();
         LectorArchivo lectorArchivo = new LectorArchivo("MatrizTransiciones.txt", "data");
@@ -73,7 +77,7 @@ public Pair<String, Integer> generarToken(){
         as = matrizTransicion.getAccionSemantica(estado, caracter);
         ESTADO_ANTERIOR = estado;
         estado = matrizTransicion.getEstado(estado, caracter);
-        System.out.println("Accion:  " + as + "  Estado:  " + estado);
+        //System.out.println("Accion:  " + as + "  Estado:  " + estado);
         if (estado == -1){
             AccionSemantica auxAccion = new ASError();
             auxAccion.run(caracter, cursor);
