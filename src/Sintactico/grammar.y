@@ -36,7 +36,7 @@ sentencia               :   sentencia_declarativa
 sentencia_declarativa   :   funcion
                         ;
 
-sentencia_ejecucion     :   VAR ID TWO_POINTS_ASSIGNATION lista_exp_aritmeticas
+sentencia_ejecucion     :   VAR ID TWO_POINTS_ASSIGNATION expresion_aritmetica
                         |   IF '(' condicion ')' '{' cuerpo '}' ELSE '{' cuerpo '}' ENDIF
                         |   IF '(' condicion ')' '{' cuerpo '}' ENDIF
                         |   PRINT '(' STRING ')'
@@ -53,10 +53,10 @@ sentencia_lambda        :    '(' tipo ID ')' '{' cuerpo '}' '(' ID ')'
 funcion                 : lista_tipos ID '(' lista_param_formales ')' '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' ';'
                         ;
 
-expresion_aritmetica    :   expresion_aritmetica '+' operando
-                        |   expresion_aritmetica '-' operando
-                        |   expresion_aritmetica '*' operando
-                        |   expresion_aritmetica '/' operando
+expresion_aritmetica    :   expresion_aritmetica '+' expresion_aritmetica
+                        |   expresion_aritmetica '-' expresion_aritmetica
+                        |   expresion_aritmetica '*' expresion_aritmetica
+                        |   expresion_aritmetica '/' expresion_aritmetica
                         |   '-' expresion_aritmetica %prec UMINUS
                         |   TOI '(' expresion_aritmetica ')'
                         |   operando
@@ -128,13 +128,10 @@ public static void main (String [] args) {
     System.out.println("Iniciando compilación ... ");
     String programa = "samplePrograms/testing.txt";
 
-
-
     TablaPalabrasReservadas tablaPalabrasReservadas = new TablaPalabrasReservadas();
     tablaPalabrasReservadas.cargarTabla();
 
     lex = new AnalizadorLexico (programa) ;
-    System.out.println(lex.getTodosLosTokens());
     par = new Parser (false);
     par.run () ;
 
