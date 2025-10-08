@@ -29,7 +29,7 @@ prog
 
 prog_error
     :   '{' cuerpo '}'      {Logger.logError(cursor.getCurrentLine(), "Falta el nombre del programa");}
-//    |   ID '(' cuerpo ')'   {Logger.logError(cursor.getCurrentLine(), "Debe indicar el programa entre {}");}
+    |   ID '(' cuerpo ')'   {Logger.logError(cursor.getCurrentLine(), "Debe indicar el programa entre {}");}
     |   ID cuerpo           {Logger.logError(cursor.getCurrentLine(), "Faltan los delimitadores de programa");}
     |   ID '{' cuerpo       {Logger.logError(cursor.getCurrentLine(), "Falta el delimitador de programa '}'");}
     |   ID cuerpo '}'       {Logger.logError(cursor.getCurrentLine(), "Falta el delimitador de programa '{'");}
@@ -42,9 +42,9 @@ cuerpo
 
 sentencia
     :   sentencia_declarativa
-    |   sentencia_ejecucion
-    |   sentencia_ejecucion_error    {Logger.logError(cursor.getCurrentLine(), "Falta de ';' al final de las sentencias.");}
-    |   sentencia_lambda
+    |   sentencia_ejecucion ';'
+    |   sentencia_ejecucion_error
+//    |   sentencia_lambda
     ;
 
 sentencia_declarativa
@@ -52,28 +52,34 @@ sentencia_declarativa
     ;
 
 sentencia_ejecucion
-    :   VAR ID TWO_POINTS_ASSIGNATION expresion_aritmetica ';'
-    |   IF '(' condicion ')' '{' cuerpo '}' ELSE '{' cuerpo '}' ENDIF ';'
-    |   IF '(' condicion ')' '{' cuerpo '}' ENDIF ';'
-    |   PRINT '(' STRING ')' ';'
-    |   PRINT '(' expresion_aritmetica ')' ';'
-    |   FOR '(' ID FROM CTE_INT TO CTE_INT ')' '{' cuerpo '}' ';'
-    |   lista_variables '=' lista_exp_aritmeticas ';'
+    :   VAR ID TWO_POINTS_ASSIGNATION expresion_aritmetica
+    |   IF '(' condicion ')' '{' cuerpo '}' ELSE '{' cuerpo '}' ENDIF
+    |   IF '(' condicion ')' '{' cuerpo '}' ENDIF
+    |   PRINT '(' STRING ')'
+    |   PRINT '(' expresion_aritmetica ')'
+    |   FOR '(' ID FROM CTE_INT TO CTE_INT ')' '{' cuerpo '}'
+    |   lista_variables '=' lista_exp_aritmeticas
     ;
 
 sentencia_ejecucion_error
-    :   sentencia_ejecucion
+    :   sentencia_ejecucion     {Logger.logError(cursor.getCurrentLine(), "Falta de ';' al final de las sentencias.");}
     ;
 
-sentencia_lambda
-    :   '(' tipo ID ')' '{' cuerpo '}' '(' ID ')'
-    |   '(' tipo ID ')' '{' cuerpo '}' '(' CTE_INT ')'
-    |   '(' tipo ID ')' '{' cuerpo '}' '(' CTE_FLOAT ')'
-    ;
+//sentencia_lambda
+//    :   '(' tipo ID ')' '{' cuerpo '}' '(' ID ')'
+//    |   '(' tipo ID ')' '{' cuerpo '}' '(' CTE_INT ')'
+//    |   '(' tipo ID ')' '{' cuerpo '}' '(' CTE_FLOAT ')'
+//    ;
 
 funcion
     :   lista_tipos ID '(' lista_param_formales ')' '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' ';'
+    |   funcion_error
     ;
+
+funcion_error
+    :   lista_tipos '(' lista_param_formales ')' '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' ';'     {Logger.logError(cursor.getCurrentLine(), "Falta de nombre en funcion");}
+    ;
+
 
 expresion_aritmetica
     :   expresion_aritmetica '+' expresion_aritmetica
@@ -99,6 +105,7 @@ lista_exp_aritmeticas
     |   expresion_aritmetica
     ;
 
+
 lista_tipos
     :   lista_tipos ',' tipo
     |   tipo
@@ -119,12 +126,18 @@ operando
 lista_variables
     :   lista_variables ',' variable
     |   variable
+    |   lista_variables_error
     ;
+
+lista_variables_error
+    :
 
 variable
     :   ID
     |   ID'.'ID
     ;
+
+
 
 tipo
     :   INT
