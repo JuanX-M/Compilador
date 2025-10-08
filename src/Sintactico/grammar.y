@@ -65,7 +65,7 @@ sentencia_ejecucion_sin_coma
 
 sentencia_print
     :   PRINT '(' STRING ')'
-    |   PRINT '(' expresion_aritmetica ')'
+    |   PRINT '(' lista_exp_aritmeticas ')'
     |   sentencia_print_error
     ;
 
@@ -76,10 +76,10 @@ sentencia_print_error
 sentencia_seleccion
     :   IF parametros_seleccion cuerpo_seleccion ELSE cuerpo_seleccion ENDIF
     |   IF parametros_seleccion cuerpo_seleccion ENDIF
-    |   sentencia_seleccion_sin_if  {Logger.logError(cursor.getCurrentLine(), "Falta de endif");}
+    |   sentencia_seleccion_sin_endif  {Logger.logError(cursor.getCurrentLine(), "Falta de endif");}
     ;
 
-sentencia_seleccion_sin_if
+sentencia_seleccion_sin_endif
     :   IF parametros_seleccion cuerpo_seleccion ELSE cuerpo_seleccion
     |   IF parametros_seleccion cuerpo_seleccion
     ;
@@ -143,23 +143,55 @@ funcion_error
     ;
 
 expresion_aritmetica
-    :   expresion_aritmetica '+' expresion_aritmetica
-    |   expresion_aritmetica '-' expresion_aritmetica
-    |   expresion_aritmetica '*' expresion_aritmetica
-    |   expresion_aritmetica '/' expresion_aritmetica
-    |   '-' expresion_aritmetica %prec UMINUS
-    |   TOI '(' expresion_aritmetica ')'
+    :   expresion_aritmetica_convencional
+    |   expresion_aritmetica_to_integer
+    |   expresion_aritmetica_negativa
     |   operando
     ;
 
-condicion
-    :   expresion_aritmetica GREATER_OR_EQUAL expresion_aritmetica
-    |   expresion_aritmetica LESS_OR_EQUAL expresion_aritmetica
-    |   expresion_aritmetica EQUAL expresion_aritmetica
-    |   expresion_aritmetica NOT_EQUAL expresion_aritmetica
-    |   expresion_aritmetica '>' expresion_aritmetica
-    |   expresion_aritmetica '<' expresion_aritmetica
+
+expresion_aritmetica_convencional
+    :   expresion_aritmetica simbolo_operador operando
+    //|   expresion_aritmetica_convencional_error
     ;
+
+//expresion_aritmetica_convencional_error
+  //  :   simbolo_operador operando {Logger.logError(cursor.getCurrentLine(), "Falta de operando en expresion aritmetica");}
+    //;
+
+simbolo_operador
+    :   '+'
+    |   '-'
+    |   '*'
+    |   '/'
+    ;
+
+expresion_aritmetica_to_integer
+    :   TOI '(' expresion_aritmetica ')'
+    ;
+
+expresion_aritmetica_negativa
+    :   '-' expresion_aritmetica %prec UMINUS
+    ;
+
+condicion
+    :   expresion_aritmetica simbolo_comparador operando
+    |   condicion_error
+    ;
+
+condicion_error
+    :   expresion_aritmetica operando   {Logger.logError(cursor.getCurrentLine(), "Falta de simbolo comparador en condicion");}
+    |   expresion_aritmetica simbolo_comparador   {Logger.logError(cursor.getCurrentLine(), "Falta de argumento derecho en condicion");}
+    |   simbolo_comparador operando    {Logger.logError(cursor.getCurrentLine(), "Falta de argumento izquierdo en condicion");}
+    ;
+
+simbolo_comparador
+    :   GREATER_OR_EQUAL
+    |   LESS_OR_EQUAL
+    |   EQUAL
+    |   NOT_EQUAL
+    |   '>'
+    |   '<'
 
 lista_exp_aritmeticas
     :   lista_exp_aritmeticas ',' expresion_aritmetica
