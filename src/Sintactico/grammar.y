@@ -129,6 +129,7 @@ lista_variables
 
 lista_variables_error
     :   variable_error variable_error    {Logger.logError(cursor.getCurrentLine(), "Falta de ',' en declaracion de variables (lado izquierdo)");}
+    ;
 
 variable
     :   ID
