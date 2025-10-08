@@ -53,9 +53,9 @@ sentencia_declarativa
 
 sentencia_ejecucion
     :   VAR ID TWO_POINTS_ASSIGNATION expresion_aritmetica
-    |   FOR '(' ID FROM CTE_INT TO CTE_INT ')' '{' cuerpo '}'
     |   lista_variables '=' lista_exp_aritmeticas
     |   sentencia_print
+    |   sentencia_seleccion
     |   sentencia_iteracion
     ;
 
@@ -73,20 +73,32 @@ sentencia_print_error
     :   PRINT '(' ')'       {Logger.logError(cursor.getCurrentLine(), "Falta argumento en sentencia PRINT");}
     ;
 
-sentencia_iteracion
+sentencia_seleccion
     :   IF '(' condicion ')' '{' cuerpo '}' ELSE '{' cuerpo '}' ENDIF
     |   IF '(' condicion ')' '{' cuerpo '}' ENDIF
+    |   sentencia_seleccion_error
+    ;
+
+sentencia_seleccion_error
+    :   IF condicion ')' '{' cuerpo '}' ELSE '{' cuerpo '}' ENDIF   {Logger.logError(cursor.getCurrentLine(), "Falta de '(' en condicion de seleccion");}
+    |   IF '(' condicion  '{' cuerpo '}' ELSE '{' cuerpo '}' ENDIF  {Logger.logError(cursor.getCurrentLine(), "Falta de ')' en condicion de seleccion");}
+    |   IF condicion '{' cuerpo '}' ELSE '{' cuerpo '}' ENDIF       {Logger.logError(cursor.getCurrentLine(), "Falta de '()' en condicion de seleccion");}
+    |   IF condicion ')' '{' cuerpo '}' ENDIF                       {Logger.logError(cursor.getCurrentLine(), "Falta de '(' en condicion de seleccion");}
+    |   IF '(' condicion '{' cuerpo '}' ENDIF                       {Logger.logError(cursor.getCurrentLine(), "Falta de ')' en condicion de seleccion");}
+    |   IF  condicion '{' cuerpo '}' ENDIF                          {Logger.logError(cursor.getCurrentLine(), "Falta de '()' en condicion de seleccion");}
+    ;
+
+sentencia_iteracion
+    :   FOR '(' ID FROM CTE_INT TO CTE_INT ')' '{' cuerpo '}'
     |   sentencia_iteracion_error
     ;
 
 sentencia_iteracion_error
-    :   IF condicion ')' '{' cuerpo '}' ELSE '{' cuerpo '}' ENDIF
-    |   IF '(' condicion  '{' cuerpo '}' ELSE '{' cuerpo '}' ENDIF
-    |   IF condicion '{' cuerpo '}' ELSE '{' cuerpo '}' ENDIF
-    |   IF condicion ')' '{' cuerpo '}' ENDIF
-    |   IF '(' condicion '{' cuerpo '}' ENDIF
-    |   IF  condicion '{' cuerpo '}' ENDIF
+    :   FOR ID FROM CTE_INT TO CTE_INT ')' '{' cuerpo '}'    {Logger.logError(cursor.getCurrentLine(), "Falta de '(' en condicion de iteracion");}
+    |   FOR '(' ID FROM CTE_INT TO CTE_INT '{' cuerpo '}'    {Logger.logError(cursor.getCurrentLine(), "Falta de ')' en condicion de iteracion");}
+    |   FOR ID FROM CTE_INT TO CTE_INT '{' cuerpo '}'        {Logger.logError(cursor.getCurrentLine(), "Falta de '()' en condicion de iteracion");}
     ;
+
 
 //sentencia_lambda
 //    :   '(' tipo ID ')' '{' cuerpo '}' '(' ID ')'
