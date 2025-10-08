@@ -63,7 +63,7 @@ sentencia_ejecucion
 
 sentencia_ejecucion_error
     :   sentencia_ejecucion     {Logger.logError(cursor.getCurrentLine(), "Falta de ';' al final de las sentencias.");}
-    |   PRINT '(' ')'           {Logger.logError(cursor.getCurrentLine(), "Falta argumento en sentencia PRINT");}
+    |   PRINT '(' ')' ';'       {Logger.logError(cursor.getCurrentLine(), "Falta argumento en sentencia PRINT");}
     ;
 
 //sentencia_lambda
