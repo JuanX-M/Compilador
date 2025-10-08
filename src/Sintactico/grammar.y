@@ -74,31 +74,58 @@ sentencia_print_error
     ;
 
 sentencia_seleccion
-    :   IF '(' condicion ')' '{' cuerpo '}' ELSE '{' cuerpo '}' ENDIF
-    |   IF '(' condicion ')' '{' cuerpo '}' ENDIF
-    |   sentencia_seleccion_error
+    :   IF parametros_seleccion cuerpo_seleccion ELSE cuerpo_seleccion ENDIF
+    |   IF parametros_seleccion cuerpo_seleccion ENDIF
+    |   sentencia_seleccion_sin_if  {Logger.logError(cursor.getCurrentLine(), "Falta de endif");}
     ;
 
-sentencia_seleccion_error
-    :   IF condicion ')' '{' cuerpo '}' ELSE '{' cuerpo '}' ENDIF   {Logger.logError(cursor.getCurrentLine(), "Falta de '(' en condicion de seleccion");}
-    |   IF '(' condicion  '{' cuerpo '}' ELSE '{' cuerpo '}' ENDIF  {Logger.logError(cursor.getCurrentLine(), "Falta de ')' en condicion de seleccion");}
-    |   IF condicion '{' cuerpo '}' ELSE '{' cuerpo '}' ENDIF       {Logger.logError(cursor.getCurrentLine(), "Falta de '()' en condicion de seleccion");}
-    |   IF condicion ')' '{' cuerpo '}' ENDIF                       {Logger.logError(cursor.getCurrentLine(), "Falta de '(' en condicion de seleccion");}
-    |   IF '(' condicion '{' cuerpo '}' ENDIF                       {Logger.logError(cursor.getCurrentLine(), "Falta de ')' en condicion de seleccion");}
-    |   IF  condicion '{' cuerpo '}' ENDIF                          {Logger.logError(cursor.getCurrentLine(), "Falta de '()' en condicion de seleccion");}
+sentencia_seleccion_sin_if
+    :   IF parametros_seleccion cuerpo_seleccion ELSE cuerpo_seleccion
+    |   IF parametros_seleccion cuerpo_seleccion
     ;
+
+parametros_seleccion
+    :    '(' condicion ')'
+    |   parametros_seleccion_error
+    ;
+
+parametros_seleccion_error
+    :   condicion ')'   {Logger.logError(cursor.getCurrentLine(), "Falta de '(' en condicion de seleccion");}
+    |   '(' condicion   {Logger.logError(cursor.getCurrentLine(), "Falta de ')' en condicion de seleccion");}
+    |   condicion       {Logger.logError(cursor.getCurrentLine(), "Falta de '()' en condicion de seleccion");}
+    ;
+
+cuerpo_seleccion
+    :   '{' cuerpo '}'
+    |   cuerpo_seleccion_error
+    ;
+
+cuerpo_seleccion_error
+    :   '{' '}' {Logger.logError(cursor.getCurrentLine(), "Falta de cuerpo en seleccion");}
 
 sentencia_iteracion
-    :   FOR '(' ID FROM CTE_INT TO CTE_INT ')' '{' cuerpo '}'
-    |   sentencia_iteracion_error
+    :   FOR parametros_iteracion cuerpo_iteracion
     ;
 
-sentencia_iteracion_error
-    :   FOR ID FROM CTE_INT TO CTE_INT ')' '{' cuerpo '}'    {Logger.logError(cursor.getCurrentLine(), "Falta de '(' en condicion de iteracion");}
-    |   FOR '(' ID FROM CTE_INT TO CTE_INT '{' cuerpo '}'    {Logger.logError(cursor.getCurrentLine(), "Falta de ')' en condicion de iteracion");}
-    |   FOR ID FROM CTE_INT TO CTE_INT '{' cuerpo '}'        {Logger.logError(cursor.getCurrentLine(), "Falta de '()' en condicion de iteracion");}
+parametros_iteracion
+    :   '(' ID FROM CTE_INT TO CTE_INT ')'
+    |   parametros_iteracion_error
     ;
 
+parametros_iteracion_error
+    :   ID FROM CTE_INT TO CTE_INT ')'  {Logger.logError(cursor.getCurrentLine(), "Falta de '(' en condicion de iteracion");}
+    |   '(' ID FROM CTE_INT TO CTE_INT  {Logger.logError(cursor.getCurrentLine(), "Falta de ')' en condicion de iteracion");}
+    |   ID FROM CTE_INT TO CTE_INT      {Logger.logError(cursor.getCurrentLine(), "Falta de '()' en condicion de iteracion");}
+    ;
+
+cuerpo_iteracion
+    :   '{' cuerpo '}'
+    |   cuerpo_iteracion_error
+    ;
+
+cuerpo_iteracion_error
+    :   '{'  '}'    {Logger.logError(cursor.getCurrentLine(), "Falta de cuerpo en iteracion");}
+    ;
 
 //sentencia_lambda
 //    :   '(' tipo ID ')' '{' cuerpo '}' '(' ID ')'
