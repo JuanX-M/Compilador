@@ -43,7 +43,7 @@ cuerpo
 sentencia
     :   sentencia_declarativa
     |   sentencia_ejecucion ';'
-    |   sentencia_ejecucion_error
+    |   sentencia_ejecucion_sin_coma
 //    |   sentencia_lambda
     ;
 
@@ -53,14 +53,13 @@ sentencia_declarativa
 
 sentencia_ejecucion
     :   VAR ID TWO_POINTS_ASSIGNATION expresion_aritmetica
-    |   IF '(' condicion ')' '{' cuerpo '}' ELSE '{' cuerpo '}' ENDIF
-    |   IF '(' condicion ')' '{' cuerpo '}' ENDIF
     |   FOR '(' ID FROM CTE_INT TO CTE_INT ')' '{' cuerpo '}'
     |   lista_variables '=' lista_exp_aritmeticas
     |   sentencia_print
+    |   sentencia_iteracion
     ;
 
-sentencia_ejecucion_error
+sentencia_ejecucion_sin_coma
     :   sentencia_ejecucion     {Logger.logError(cursor.getCurrentLine(), "Falta de ';' al final de las sentencias.");}
     ;
 
@@ -72,6 +71,21 @@ sentencia_print
 
 sentencia_print_error
     :   PRINT '(' ')'       {Logger.logError(cursor.getCurrentLine(), "Falta argumento en sentencia PRINT");}
+    ;
+
+sentencia_iteracion
+    :   IF '(' condicion ')' '{' cuerpo '}' ELSE '{' cuerpo '}' ENDIF
+    |   IF '(' condicion ')' '{' cuerpo '}' ENDIF
+    |   sentencia_iteracion_error
+    ;
+
+sentencia_iteracion_error
+    :   IF condicion ')' '{' cuerpo '}' ELSE '{' cuerpo '}' ENDIF
+    |   IF '(' condicion  '{' cuerpo '}' ELSE '{' cuerpo '}' ENDIF
+    |   IF condicion '{' cuerpo '}' ELSE '{' cuerpo '}' ENDIF
+    |   IF condicion ')' '{' cuerpo '}' ENDIF
+    |   IF '(' condicion '{' cuerpo '}' ENDIF
+    |   IF  condicion '{' cuerpo '}' ENDIF
     ;
 
 //sentencia_lambda
@@ -164,6 +178,8 @@ parametro_formal
 parametro_formal_error
     :   semantica_pasaje tipo   {Logger.logError(cursor.getCurrentLine(), "Falta el nombre de parametro formal en declaracion de funcion");}
     |   tipo                    {Logger.logError(cursor.getCurrentLine(), "Falta el nombre de parametro formal en declaracion de funcion");}
+    |   semantica_pasaje ID     {Logger.logError(cursor.getCurrentLine(), "Falta de tipo en parametro formal en declaracion de funcion");}
+    |   ID                      {Logger.logError(cursor.getCurrentLine(), "Falta de tipo en parametro formal en declaracion de funcion");}
     ;
 
 lista_param_reales
