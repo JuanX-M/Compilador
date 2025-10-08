@@ -1,3 +1,8 @@
-PROGRAM {
-var Z := X;
-}
+TESTING
+    var X := 5I;
+    if(X>=5I){
+        var A:=100I;
+        print(A);
+    }else{
+        print("menor");
+    } endif;
