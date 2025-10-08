@@ -129,6 +129,7 @@ lista_variables
 
 lista_variables_error
     :   variable_error variable_error    {Logger.logError(cursor.getCurrentLine(), "Falta de ',' en declaracion de variables (lado izquierdo)");}
+    ;
 
 variable
     :   ID
@@ -148,6 +149,12 @@ tipo
 parametro_formal
     :   semantica_pasaje tipo ID
     |   tipo ID
+    |   parametro_formal_error
+    ;
+
+parametro_formal_error
+    :   semantica_pasaje tipo   {Logger.logError(cursor.getCurrentLine(), "Falta el nombre de parametro formal en declaracion de funcion");}
+    |   tipo                    {Logger.logError(cursor.getCurrentLine(), "Falta el nombre de parametro formal en declaracion de funcion");}
     ;
 
 lista_param_reales
