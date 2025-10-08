@@ -71,71 +71,85 @@ sentencia_lambda
     |   '(' tipo ID ')' '{' cuerpo '}' '(' CTE_FLOAT ')'
     ;
 
-funcion                 : lista_tipos ID '(' lista_param_formales ')' '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' ';'
-                        ;
+funcion
+    :   lista_tipos ID '(' lista_param_formales ')' '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' ';'
+    ;
 
-expresion_aritmetica    :   expresion_aritmetica '+' expresion_aritmetica
-                        |   expresion_aritmetica '-' expresion_aritmetica
-                        |   expresion_aritmetica '*' expresion_aritmetica
-                        |   expresion_aritmetica '/' expresion_aritmetica
-                        |   '-' expresion_aritmetica %prec UMINUS
-                        |   TOI '(' expresion_aritmetica ')'
-                        |   operando
-                        ;
+expresion_aritmetica
+    :   expresion_aritmetica '+' expresion_aritmetica
+    |   expresion_aritmetica '-' expresion_aritmetica
+    |   expresion_aritmetica '*' expresion_aritmetica
+    |   expresion_aritmetica '/' expresion_aritmetica
+    |   '-' expresion_aritmetica %prec UMINUS
+    |   TOI '(' expresion_aritmetica ')'
+    |   operando
+    ;
 
-condicion               :   expresion_aritmetica GREATER_OR_EQUAL expresion_aritmetica
-                        |   expresion_aritmetica LESS_OR_EQUAL expresion_aritmetica
-                        |   expresion_aritmetica EQUAL expresion_aritmetica
-                        |   expresion_aritmetica NOT_EQUAL expresion_aritmetica
-                        |   expresion_aritmetica '>' expresion_aritmetica
-                        |   expresion_aritmetica '<' expresion_aritmetica
-                        ;
+condicion
+    :   expresion_aritmetica GREATER_OR_EQUAL expresion_aritmetica
+    |   expresion_aritmetica LESS_OR_EQUAL expresion_aritmetica
+    |   expresion_aritmetica EQUAL expresion_aritmetica
+    |   expresion_aritmetica NOT_EQUAL expresion_aritmetica
+    |   expresion_aritmetica '>' expresion_aritmetica
+    |   expresion_aritmetica '<' expresion_aritmetica
+    ;
 
-lista_exp_aritmeticas   :   lista_exp_aritmeticas ',' expresion_aritmetica
-                        |   expresion_aritmetica
-                        ;
+lista_exp_aritmeticas
+    :   lista_exp_aritmeticas ',' expresion_aritmetica
+    |   expresion_aritmetica
+    ;
 
-lista_tipos             :   lista_tipos ',' tipo
-                        |   tipo
-                        ;
+lista_tipos
+    :   lista_tipos ',' tipo
+    |   tipo
+    ;
 
-lista_param_formales    :   lista_param_formales ',' parametro_formal
-                        |   parametro_formal
-                        ;
+lista_param_formales
+    :   lista_param_formales ',' parametro_formal
+    |   parametro_formal
+    ;
 
-operando                :   CTE_INT
-                        |   CTE_FLOAT
-                        |   ID '(' lista_param_reales ')'
-                        |   variable
-                        ;
+operando
+    :   CTE_INT
+    |   CTE_FLOAT
+    |   ID '(' lista_param_reales ')'
+    |   variable
+    ;
 
-lista_variables         :   lista_variables ',' variable
-                        |   variable
-                        ;
+lista_variables
+    :   lista_variables ',' variable
+    |   variable
+    ;
 
-variable                :   ID
-                        |   ID'.'ID
-                        ;
-tipo                    :   INT
-                        |   FLOAT
-                        |   STRING
-                        ;
+variable
+    :   ID
+    |   ID'.'ID
+    ;
 
-parametro_formal        :   semantica_pasaje tipo ID
-                        |   tipo ID
-                        ;
+tipo
+    :   INT
+    |   FLOAT
+    |   STRING
+    ;
 
-lista_param_reales      :   lista_param_reales ',' parametro_real
-                        |   parametro_real
-                        ;
+parametro_formal
+    :   semantica_pasaje tipo ID
+    |   tipo ID
+    ;
 
-semantica_pasaje        :   CR SE
-                        |   CR LE
-                        ;
+lista_param_reales
+    :   lista_param_reales ',' parametro_real
+    |   parametro_real
+    ;
 
-parametro_real          :   expresion_aritmetica ARROW ID
-                        ;
+semantica_pasaje
+    :   CR SE
+    |   CR LE
+    ;
 
+parametro_real
+    :   expresion_aritmetica ARROW ID
+    ;
 
 %%
 
