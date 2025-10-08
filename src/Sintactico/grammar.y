@@ -80,7 +80,6 @@ funcion_error
     :   lista_tipos '(' lista_param_formales ')' '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' ';'     {Logger.logError(cursor.getCurrentLine(), "Falta de nombre en funcion");}
     ;
 
-
 expresion_aritmetica
     :   expresion_aritmetica '+' expresion_aritmetica
     |   expresion_aritmetica '-' expresion_aritmetica
@@ -104,7 +103,6 @@ lista_exp_aritmeticas
     :   lista_exp_aritmeticas ',' expresion_aritmetica
     |   expresion_aritmetica
     ;
-
 
 lista_tipos
     :   lista_tipos ',' tipo
@@ -130,14 +128,16 @@ lista_variables
     ;
 
 lista_variables_error
-    :
+    :   variable_error variable_error    {Logger.logError(cursor.getCurrentLine(), "Falta de ',' en declaracion de variables (lado izquierdo)");}
 
 variable
     :   ID
     |   ID'.'ID
     ;
 
-
+variable_error
+    :   variable
+    ;
 
 tipo
     :   INT
