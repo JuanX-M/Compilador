@@ -30,9 +30,9 @@ prog
 prog_error
     :   '{' cuerpo '}'      {Logger.logError(cursor.getCurrentLine(), "Falta el nombre del programa");}
     |   ID '(' cuerpo ')'   {Logger.logError(cursor.getCurrentLine(), "Debe indicar el programa entre {}");}
-    |   ID cuerpo           {Logger.logError(cursor.getCurrentLine(), "Falta de delimitador de programa");}
-    |   ID '{' cuerpo
-    |   ID cuerpo '}'
+    |   ID cuerpo           {Logger.logError(cursor.getCurrentLine(), "Faltan los delimitador de programa");}
+    |   ID '{' cuerpo       {Logger.logError(cursor.getCurrentLine(), "Faltan el delimitador de programa '{'");}
+    |   ID cuerpo '}'       {Logger.logError(cursor.getCurrentLine(), "Faltan el delimitador de programa '}'");}
     ;
 
 cuerpo                  :   cuerpo sentencia
