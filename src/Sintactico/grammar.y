@@ -55,15 +55,23 @@ sentencia_ejecucion
     :   VAR ID TWO_POINTS_ASSIGNATION expresion_aritmetica
     |   IF '(' condicion ')' '{' cuerpo '}' ELSE '{' cuerpo '}' ENDIF
     |   IF '(' condicion ')' '{' cuerpo '}' ENDIF
-    |   PRINT '(' STRING ')'
-    |   PRINT '(' expresion_aritmetica ')'
     |   FOR '(' ID FROM CTE_INT TO CTE_INT ')' '{' cuerpo '}'
     |   lista_variables '=' lista_exp_aritmeticas
+    |   sentencia_print
     ;
 
 sentencia_ejecucion_error
     :   sentencia_ejecucion     {Logger.logError(cursor.getCurrentLine(), "Falta de ';' al final de las sentencias.");}
-    |   PRINT '(' ')' ';'       {Logger.logError(cursor.getCurrentLine(), "Falta argumento en sentencia PRINT");}
+    ;
+
+sentencia_print
+    :   PRINT '(' STRING ')'
+    |   PRINT '(' expresion_aritmetica ')'
+    |   sentencia_print_error
+    ;
+
+sentencia_print_error
+    :   PRINT '(' ')'       {Logger.logError(cursor.getCurrentLine(), "Falta argumento en sentencia PRINT");}
     ;
 
 //sentencia_lambda
