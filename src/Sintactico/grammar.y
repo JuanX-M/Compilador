@@ -190,7 +190,14 @@ simbolo_operador
 
 expresion_aritmetica_to_integer
     :   TOI '(' expresion_aritmetica ')'
+//    |   expresion_aritmetica_to_integer_error
     ;
+
+//expresion_aritmetica_to_integer_error
+//    :   TOI expresion_aritmetica ')'
+//    |   TOI '(' expresion_aritmetica
+//    |   TOI expresion_aritmetica
+//    ;
 
 expresion_aritmetica_negativa
     :   '-' expresion_aritmetica %prec UMINUS
@@ -283,6 +290,13 @@ lista_param_reales
 semantica_pasaje
     :   CR SE
     |   CR LE
+    |   semantica_pasaje_error
+    ;
+
+semantica_pasaje_error
+    :   CR  {Logger.logError(cursor.getCurrentLine(), "Falta de LE o SE despues de CR");}
+    |   SE  {Logger.logError(cursor.getCurrentLine(), "Falta de CR antes de SE");}
+    |   LE  {Logger.logError(cursor.getCurrentLine(), "Falta de CR antes de LE");}
     ;
 
 parametro_real
