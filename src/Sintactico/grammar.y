@@ -33,6 +33,7 @@ prog_error
     |   ID cuerpo           {Logger.logError(cursor.getCurrentLine(), "Faltan los delimitadores de programa");}
     |   ID '{' cuerpo       {Logger.logError(cursor.getCurrentLine(), "Falta el delimitador de programa '}'");}
     |   ID cuerpo '}'       {Logger.logError(cursor.getCurrentLine(), "Falta el delimitador de programa '{'");}
+    |   error               {Logger.logError(cursor.getCurrentLine(), "Hay errores lexicos o sintaticos no identificados");}
     ;
 
 cuerpo
@@ -45,7 +46,12 @@ sentencia
     |   sentencia_ejecucion ';'
     |   sentencia_ejecucion_sin_coma
 //    |   sentencia_lambda
+//    |   sentencia_error
     ;
+
+//sentencia_error
+//    :   error {Logger.logError(cursor.getCurrentLine(), "Hay errores lexicos o sintaticos no identificados");}
+//    ;
 
 sentencia_declarativa
     :   funcion
@@ -149,16 +155,28 @@ sentencia_asignacion_error
     :   VAR ID expresion_aritmetica     {Logger.logError(cursor.getCurrentLine(), "Falta de asignacion luego de var");}
     ;
 
-
-//sentencia_lambda
-//    :   '(' tipo ID ')' '{' cuerpo '}' '(' ID ')'
-//    |   '(' tipo ID ')' '{' cuerpo '}' '(' CTE_INT ')'
-//    |   '(' tipo ID ')' '{' cuerpo '}' '(' CTE_FLOAT ')'
-//    ;
-
 funcion
     :   lista_tipos ID '(' lista_param_formales ')' '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' ';'
+    |   sentencia_lambda
     |   funcion_error
+    ;
+
+sentencia_lambda
+    :   tipo_lambda cuerpo_lambda retorno_lambda
+    ;
+
+tipo_lambda
+    :    '(' tipo ID ')'
+    ;
+
+cuerpo_lambda
+    :   '{' cuerpo '}'
+    ;
+
+retorno_lambda
+    :   '(' ID ')'
+    |   '(' CTE_INT ')'
+    |   '(' CTE_FLOAT ')'
     ;
 
 funcion_error
@@ -174,12 +192,12 @@ expresion_aritmetica
 
 expresion_aritmetica_convencional
     :   expresion_aritmetica simbolo_operador operando
-    //|   expresion_aritmetica_convencional_error
+//    |   expresion_aritmetica_convencional_error
     ;
 
 //expresion_aritmetica_convencional_error
-  //  :   simbolo_operador operando {Logger.logError(cursor.getCurrentLine(), "Falta de operando en expresion aritmetica");}
-    //;
+//    :   simbolo_operador operando {Logger.logError(cursor.getCurrentLine(), "Falta de operando en expresion aritmetica");}
+//    ;
 
 simbolo_operador
     :   '+'
@@ -322,6 +340,7 @@ public static void main (String [] args) {
     lex = new AnalizadorLexico (programa) ;
     cursor = lex.getCursor();
     par = new Parser (false);
+
     par.run () ;
 
     System.out.println("TablaSimbolos: " + TablaSimbolos.TABLA_SIMBOLOS);
