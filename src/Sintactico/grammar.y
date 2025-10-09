@@ -108,14 +108,27 @@ sentencia_iteracion
     ;
 
 parametros_iteracion
-    :   '(' ID FROM CTE_INT TO CTE_INT ')'
+    :   '(' encabezado_iteracion ')'
     |   parametros_iteracion_error
     ;
 
 parametros_iteracion_error
-    :   ID FROM CTE_INT TO CTE_INT ')'  {Logger.logError(cursor.getCurrentLine(), "Falta de '(' en condicion de iteracion");}
-    |   '(' ID FROM CTE_INT TO CTE_INT  {Logger.logError(cursor.getCurrentLine(), "Falta de ')' en condicion de iteracion");}
-    |   ID FROM CTE_INT TO CTE_INT      {Logger.logError(cursor.getCurrentLine(), "Falta de '()' en condicion de iteracion");}
+    :   encabezado_iteracion ')'    {Logger.logError(cursor.getCurrentLine(), "Falta de '(' en condicion de iteracion");}
+    |   '(' encabezado_iteracion    {Logger.logError(cursor.getCurrentLine(), "Falta de ')' en condicion de iteracion");}
+    |   encabezado_iteracion        {Logger.logError(cursor.getCurrentLine(), "Falta de '()' en condicion de iteracion");}
+    ;
+
+encabezado_iteracion
+    :   ID FROM CTE_INT TO CTE_INT
+    |   encabezado_iteracion_error
+    ;
+
+encabezado_iteracion_error
+    :   FROM CTE_INT TO CTE_INT {Logger.logError(cursor.getCurrentLine(), "Falta de encabezado ID del for");}
+    |   ID CTE_INT TO CTE_INT   {Logger.logError(cursor.getCurrentLine(), "Falta de encabezado FROM del for");}
+    |   ID FROM TO CTE_INT      {Logger.logError(cursor.getCurrentLine(), "Falta de encabezado CTE_INT_1 del for");}
+    |   ID FROM CTE_INT CTE_INT {Logger.logError(cursor.getCurrentLine(), "Falta de encabezado TO del for");}
+    |   ID FROM CTE_INT TO      {Logger.logError(cursor.getCurrentLine(), "Falta de encabezado CTE_INT_2 del for");}
     ;
 
 cuerpo_iteracion
