@@ -11,7 +11,7 @@
 
 %}
 
-%token TWO_POINTS_ASSIGNATION STRING GREATER_OR_EQUAL LESS_OR_EQUAL EQUAL NOT_EQUAL CTE_INT CTE_FLOAT ID IF ELSE ENDIF PRINT RETURN VAR FOR FROM TO CR SE LE TOI INT FLOAT ARROW
+%token TWO_POINTS_ASSIGNATION STRING GREATER_OR_EQUAL LESS_OR_EQUAL EQUAL NOT_EQUAL CTE_INT CTE_FLOAT ID IF ELSE ENDIF PRINT RETURN VAR FOR FROM TO CR SE LE TOI INT FLOAT ARROW FUN
 
 %right TWO_POINTS_ASSIGNATION
 %left '+' '-'
@@ -164,9 +164,13 @@ sentencia_asignacion_multiple
     ;
 
 funcion
-    :   lista_tipos ID '(' lista_param_formales ')' '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' ';'
+    :   lista_tipos FUN ID '(' lista_param_formales ')' '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' ';'
     |   sentencia_lambda
     |   funcion_error
+    ;
+
+funcion_error
+    :   lista_tipos FUN '(' lista_param_formales ')' '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' ';'     {Logger.logError(cursor.getCurrentLine(), "Falta de nombre en funcion");}
     ;
 
 sentencia_lambda
@@ -185,10 +189,6 @@ argumento_lambda
     :   '(' ID ')'
     |   '(' CTE_INT ')'
     |   '(' CTE_FLOAT ')'
-    ;
-
-funcion_error
-    :   lista_tipos '(' lista_param_formales ')' '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' ';'     {Logger.logError(cursor.getCurrentLine(), "Falta de nombre en funcion");}
     ;
 
 expresion_aritmetica
@@ -235,9 +235,9 @@ condicion
     ;
 
 condicion_error
-    :   expresion_aritmetica operando   {Logger.logError(cursor.getCurrentLine(), "Falta de simbolo comparador en condicion");}
-    |   expresion_aritmetica simbolo_comparador   {Logger.logError(cursor.getCurrentLine(), "Falta de argumento derecho en condicion");}
-    |   simbolo_comparador operando    {Logger.logError(cursor.getCurrentLine(), "Falta de argumento izquierdo en condicion");}
+    :   expresion_aritmetica operando               {Logger.logError(cursor.getCurrentLine(), "Falta de simbolo comparador en condicion");}
+    |   expresion_aritmetica simbolo_comparador     {Logger.logError(cursor.getCurrentLine(), "Falta de argumento derecho en condicion");}
+    |   simbolo_comparador operando                 {Logger.logError(cursor.getCurrentLine(), "Falta de argumento izquierdo en condicion");}
     ;
 
 simbolo_comparador
