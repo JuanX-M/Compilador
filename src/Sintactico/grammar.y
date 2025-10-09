@@ -52,11 +52,11 @@ sentencia_declarativa
     ;
 
 sentencia_ejecucion
-    :   VAR ID TWO_POINTS_ASSIGNATION expresion_aritmetica
-    |   lista_variables '=' lista_exp_aritmeticas
+    :   lista_variables '=' lista_exp_aritmeticas
     |   sentencia_print
     |   sentencia_seleccion
     |   sentencia_iteracion
+    |   sentencia_asignacion
     ;
 
 sentencia_ejecucion_sin_coma
@@ -127,6 +127,16 @@ cuerpo_iteracion_error
     :   '{'  '}'    {Logger.logError(cursor.getCurrentLine(), "Falta de cuerpo en iteracion");}
     ;
 
+sentencia_asignacion
+    :   VAR ID TWO_POINTS_ASSIGNATION expresion_aritmetica
+    |   sentencia_asignacion_error
+    ;
+
+sentencia_asignacion_error
+    :   VAR ID expresion_aritmetica     {Logger.logError(cursor.getCurrentLine(), "Falta de asignacion luego de var");}
+    ;
+
+
 //sentencia_lambda
 //    :   '(' tipo ID ')' '{' cuerpo '}' '(' ID ')'
 //    |   '(' tipo ID ')' '{' cuerpo '}' '(' CTE_INT ')'
@@ -148,7 +158,6 @@ expresion_aritmetica
     |   expresion_aritmetica_negativa
     |   operando
     ;
-
 
 expresion_aritmetica_convencional
     :   expresion_aritmetica simbolo_operador operando
