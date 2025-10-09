@@ -58,8 +58,7 @@ sentencia_declarativa
     ;
 
 sentencia_ejecucion
-    :   lista_variables '=' lista_exp_aritmeticas
-    |   sentencia_print
+    :   sentencia_print
     |   sentencia_seleccion
     |   sentencia_iteracion
     |   sentencia_asignacion
@@ -147,12 +146,21 @@ cuerpo_iteracion_error
     ;
 
 sentencia_asignacion
-    :   VAR ID TWO_POINTS_ASSIGNATION expresion_aritmetica
-    |   sentencia_asignacion_error
+    :   sentencia_asignacion_unaria
+    |   sentencia_asignacion_multiple
     ;
 
-sentencia_asignacion_error
+sentencia_asignacion_unaria
+    :   VAR ID TWO_POINTS_ASSIGNATION expresion_aritmetica
+    |   sentencia_asignacion_unaria_error
+
+
+sentencia_asignacion_unaria_error
     :   VAR ID expresion_aritmetica     {Logger.logError(cursor.getCurrentLine(), "Falta de asignacion luego de var");}
+    ;
+
+sentencia_asignacion_multiple
+    :   lista_variables '=' lista_exp_aritmeticas
     ;
 
 funcion
