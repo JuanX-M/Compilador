@@ -170,10 +170,10 @@ funcion
     ;
 
 sentencia_lambda
-    :   tipo_lambda cuerpo_lambda retorno_lambda
+    :   parametro_lambda cuerpo_lambda argumento_lambda
     ;
 
-tipo_lambda
+parametro_lambda
     :    '(' tipo ID ')'
     ;
 
@@ -181,7 +181,7 @@ cuerpo_lambda
     :   '{' cuerpo '}'
     ;
 
-retorno_lambda
+argumento_lambda
     :   '(' ID ')'
     |   '(' CTE_INT ')'
     |   '(' CTE_FLOAT ')'
@@ -282,7 +282,7 @@ lista_variables_error
 
 variable
     :   ID
-    |   ID'.'ID
+    |   ID '.' ID
     ;
 
 variable_error
