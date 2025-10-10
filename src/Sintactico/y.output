@@ -1,0 +1,3291 @@
+   0  $accept : prog $end
+
+   1  prog : ID '{' cuerpo '}'
+   2       | prog_error
+
+   3  prog_error : '{' cuerpo '}'
+   4             | ID '(' cuerpo ')'
+   5             | ID cuerpo
+   6             | ID '{' cuerpo
+   7             | ID cuerpo '}'
+
+   8  cuerpo : cuerpo sentencia
+   9         | sentencia
+
+  10  sentencia : sentencia_declarativa
+  11            | sentencia_ejecucion ';'
+  12            | sentencia_ejecucion_sin_coma
+
+  13  sentencia_declarativa : funcion
+
+  14  sentencia_ejecucion : sentencia_print
+  15                      | sentencia_seleccion
+  16                      | sentencia_iteracion
+  17                      | sentencia_asignacion
+
+  18  sentencia_ejecucion_sin_coma : sentencia_ejecucion
+
+  19  sentencia_print : PRINT '(' STRING ')'
+  20                  | PRINT '(' lista_exp_aritmeticas ')'
+  21                  | sentencia_print_error
+
+  22  sentencia_print_error : PRINT '(' ')'
+
+  23  sentencia_seleccion : IF parametros_seleccion cuerpo_seleccion ELSE cuerpo_seleccion ENDIF
+  24                      | IF parametros_seleccion cuerpo_seleccion ENDIF
+  25                      | sentencia_seleccion_sin_endif
+
+  26  sentencia_seleccion_sin_endif : IF parametros_seleccion cuerpo_seleccion ELSE cuerpo_seleccion
+  27                                | IF parametros_seleccion cuerpo_seleccion
+
+  28  parametros_seleccion : '(' condicion ')'
+  29                       | parametros_seleccion_error
+
+  30  parametros_seleccion_error : condicion ')'
+  31                             | '(' condicion
+  32                             | condicion
+
+  33  cuerpo_seleccion : '{' cuerpo '}'
+  34                   | cuerpo_seleccion_error
+
+  35  cuerpo_seleccion_error : '{' '}'
+
+  36  sentencia_iteracion : FOR parametros_iteracion cuerpo_iteracion
+
+  37  parametros_iteracion : '(' encabezado_iteracion ')'
+  38                       | parametros_iteracion_error
+
+  39  parametros_iteracion_error : encabezado_iteracion ')'
+  40                             | '(' encabezado_iteracion
+  41                             | encabezado_iteracion
+
+  42  encabezado_iteracion : ID FROM CTE_INT TO CTE_INT
+  43                       | encabezado_iteracion_error
+
+  44  encabezado_iteracion_error : FROM CTE_INT TO CTE_INT
+  45                             | ID CTE_INT TO CTE_INT
+  46                             | ID FROM TO CTE_INT
+  47                             | ID FROM CTE_INT CTE_INT
+  48                             | ID FROM CTE_INT TO
+
+  49  cuerpo_iteracion : '{' cuerpo '}'
+  50                   | cuerpo_iteracion_error
+
+  51  cuerpo_iteracion_error : '{' '}'
+
+  52  sentencia_asignacion : sentencia_asignacion_unaria
+  53                       | sentencia_asignacion_multiple
+
+  54  sentencia_asignacion_unaria : VAR ID TWO_POINTS_ASSIGNATION expresion_aritmetica
+  55                              | sentencia_asignacion_unaria_error
+
+  56  sentencia_asignacion_unaria_error : VAR ID expresion_aritmetica
+
+  57  sentencia_asignacion_multiple : lista_variables '=' lista_exp_aritmeticas
+
+  58  funcion : lista_tipos FUN '(' lista_param_formales ')' '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' ';'
+  59          | sentencia_lambda
+  60          | funcion_error
+
+  61  funcion_error : lista_tipos '(' lista_param_formales ')' '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' ';'
+
+  62  sentencia_lambda : parametro_lambda cuerpo_lambda argumento_lambda
+
+  63  parametro_lambda : '(' tipo ID ')'
+
+  64  cuerpo_lambda : '{' cuerpo '}'
+
+  65  argumento_lambda : '(' ID ')'
+  66                   | '(' CTE_INT ')'
+  67                   | '(' CTE_FLOAT ')'
+
+  68  condicion : expresion_aritmetica simbolo_comparador factor
+  69            | condicion_error
+
+  70  condicion_error : expresion_aritmetica termino
+  71                  | expresion_aritmetica simbolo_comparador
+  72                  | simbolo_comparador termino
+
+  73  expresion_aritmetica : expresion_aritmetica '+' termino
+  74                       | expresion_aritmetica '-' termino
+  75                       | expresion_aritmetica_toi
+  76                       | termino
+  77                       | expresion_aritmetica_error
+
+  78  expresion_aritmetica_error : error '+' termino
+  79                             | error '-' termino
+  80                             | expresion_aritmetica '+' error
+  81                             | expresion_aritmetica '-' error
+
+  82  termino : termino '*' factor
+  83          | termino '/' factor
+  84          | factor
+  85          | termino_error
+
+  86  termino_error : termino '*' error
+  87                | termino '/' error
+  88                | error '*' factor
+  89                | error '/' factor
+
+  90  factor : CTE_INT
+  91         | CTE_FLOAT
+  92         | FUN '(' lista_param_reales ')'
+  93         | variable
+
+  94  expresion_aritmetica_toi : TOI '(' expresion_aritmetica ')'
+  95                           | expresion_aritmetica_toi_error
+
+  96  expresion_aritmetica_toi_error : TOI error expresion_aritmetica ')'
+  97                                 | TOI '(' expresion_aritmetica error
+  98                                 | TOI error expresion_aritmetica error
+
+  99  simbolo_comparador : GREATER_OR_EQUAL
+ 100                     | LESS_OR_EQUAL
+ 101                     | EQUAL
+ 102                     | NOT_EQUAL
+ 103                     | '>'
+ 104                     | '<'
+
+ 105  lista_exp_aritmeticas : lista_exp_aritmeticas ',' expresion_aritmetica
+ 106                        | expresion_aritmetica
+ 107                        | lista_exp_aritmeticas_error
+
+ 108  lista_exp_aritmeticas_error : lista_exp_aritmeticas error expresion_aritmetica
+
+ 109  lista_tipos : lista_tipos ',' tipo
+ 110              | tipo
+
+ 111  lista_param_formales : lista_param_formales ',' parametro_formal
+ 112                       | parametro_formal
+
+ 113  lista_variables : lista_variables ',' variable
+ 114                  | variable
+ 115                  | lista_variables_error
+
+ 116  lista_variables_error : lista_variables variable
+
+ 117  variable : ID
+ 118           | ID '.' ID
+
+ 119  tipo : INT
+ 120       | FLOAT
+ 121       | STRING
+
+ 122  parametro_formal : semantica_pasaje tipo ID
+ 123                   | tipo ID
+ 124                   | parametro_formal_error
+
+ 125  parametro_formal_error : semantica_pasaje tipo
+ 126                         | tipo
+ 127                         | semantica_pasaje ID
+ 128                         | ID
+
+ 129  lista_param_reales : lista_param_reales ',' parametro_real
+ 130                     | parametro_real
+
+ 131  semantica_pasaje : CR SE
+ 132                   | CR LE
+ 133                   | semantica_pasaje_error
+
+ 134  semantica_pasaje_error : CR
+ 135                         | SE
+ 136                         | LE
+
+ 137  parametro_real : expresion_aritmetica ARROW ID
+
+state 0
+	$accept : . prog $end  (0)
+
+	ID  shift 1
+	'{'  shift 2
+	.  error
+
+	prog  goto 3
+	prog_error  goto 4
+
+
+state 1
+	prog : ID . '{' cuerpo '}'  (1)
+	prog_error : ID . '(' cuerpo ')'  (4)
+	prog_error : ID . cuerpo  (5)
+	prog_error : ID . '{' cuerpo  (6)
+	prog_error : ID . cuerpo '}'  (7)
+
+	STRING  shift 5
+	ID  shift 6
+	IF  shift 7
+	PRINT  shift 8
+	VAR  shift 9
+	FOR  shift 10
+	INT  shift 11
+	FLOAT  shift 12
+	'{'  shift 13
+	'('  shift 14
+	.  error
+
+	cuerpo  goto 15
+	sentencia  goto 16
+	sentencia_declarativa  goto 17
+	sentencia_ejecucion  goto 18
+	sentencia_ejecucion_sin_coma  goto 19
+	funcion  goto 20
+	sentencia_print  goto 21
+	sentencia_seleccion  goto 22
+	sentencia_iteracion  goto 23
+	sentencia_asignacion  goto 24
+	sentencia_print_error  goto 25
+	sentencia_seleccion_sin_endif  goto 26
+	sentencia_asignacion_unaria  goto 27
+	sentencia_asignacion_multiple  goto 28
+	sentencia_asignacion_unaria_error  goto 29
+	lista_variables  goto 30
+	lista_tipos  goto 31
+	sentencia_lambda  goto 32
+	funcion_error  goto 33
+	parametro_lambda  goto 34
+	tipo  goto 35
+	variable  goto 36
+	lista_variables_error  goto 37
+
+
+state 2
+	prog_error : '{' . cuerpo '}'  (3)
+
+	STRING  shift 5
+	ID  shift 6
+	IF  shift 7
+	PRINT  shift 8
+	VAR  shift 9
+	FOR  shift 10
+	INT  shift 11
+	FLOAT  shift 12
+	'('  shift 38
+	.  error
+
+	cuerpo  goto 39
+	sentencia  goto 16
+	sentencia_declarativa  goto 17
+	sentencia_ejecucion  goto 18
+	sentencia_ejecucion_sin_coma  goto 19
+	funcion  goto 20
+	sentencia_print  goto 21
+	sentencia_seleccion  goto 22
+	sentencia_iteracion  goto 23
+	sentencia_asignacion  goto 24
+	sentencia_print_error  goto 25
+	sentencia_seleccion_sin_endif  goto 26
+	sentencia_asignacion_unaria  goto 27
+	sentencia_asignacion_multiple  goto 28
+	sentencia_asignacion_unaria_error  goto 29
+	lista_variables  goto 30
+	lista_tipos  goto 31
+	sentencia_lambda  goto 32
+	funcion_error  goto 33
+	parametro_lambda  goto 34
+	tipo  goto 35
+	variable  goto 36
+	lista_variables_error  goto 37
+
+
+state 3
+	$accept : prog . $end  (0)
+
+	$end  accept
+
+
+state 4
+	prog : prog_error .  (2)
+
+	.  reduce 2
+
+
+state 5
+	tipo : STRING .  (121)
+
+	.  reduce 121
+
+
+state 6
+	variable : ID .  (117)
+	variable : ID . '.' ID  (118)
+
+	'.'  shift 40
+	$end  reduce 117
+	error  reduce 117
+	STRING  reduce 117
+	GREATER_OR_EQUAL  reduce 117
+	LESS_OR_EQUAL  reduce 117
+	EQUAL  reduce 117
+	NOT_EQUAL  reduce 117
+	CTE_INT  reduce 117
+	CTE_FLOAT  reduce 117
+	ID  reduce 117
+	IF  reduce 117
+	PRINT  reduce 117
+	VAR  reduce 117
+	FOR  reduce 117
+	INT  reduce 117
+	FLOAT  reduce 117
+	ARROW  reduce 117
+	FUN  reduce 117
+	'{'  reduce 117
+	'}'  reduce 117
+	'('  reduce 117
+	')'  reduce 117
+	';'  reduce 117
+	'='  reduce 117
+	'+'  reduce 117
+	'-'  reduce 117
+	'*'  reduce 117
+	'/'  reduce 117
+	'>'  reduce 117
+	'<'  reduce 117
+	','  reduce 117
+
+
+state 7
+	sentencia_seleccion : IF . parametros_seleccion cuerpo_seleccion ELSE cuerpo_seleccion ENDIF  (23)
+	sentencia_seleccion : IF . parametros_seleccion cuerpo_seleccion ENDIF  (24)
+	sentencia_seleccion_sin_endif : IF . parametros_seleccion cuerpo_seleccion ELSE cuerpo_seleccion  (26)
+	sentencia_seleccion_sin_endif : IF . parametros_seleccion cuerpo_seleccion  (27)
+
+	error  shift 41
+	GREATER_OR_EQUAL  shift 42
+	LESS_OR_EQUAL  shift 43
+	EQUAL  shift 44
+	NOT_EQUAL  shift 45
+	CTE_INT  shift 46
+	CTE_FLOAT  shift 47
+	ID  shift 6
+	TOI  shift 48
+	FUN  shift 49
+	'('  shift 50
+	'>'  shift 51
+	'<'  shift 52
+	.  error
+
+	parametros_seleccion  goto 53
+	condicion  goto 54
+	parametros_seleccion_error  goto 55
+	expresion_aritmetica  goto 56
+	simbolo_comparador  goto 57
+	factor  goto 58
+	condicion_error  goto 59
+	termino  goto 60
+	expresion_aritmetica_toi  goto 61
+	expresion_aritmetica_error  goto 62
+	termino_error  goto 63
+	variable  goto 64
+	expresion_aritmetica_toi_error  goto 65
+
+
+state 8
+	sentencia_print : PRINT . '(' STRING ')'  (19)
+	sentencia_print : PRINT . '(' lista_exp_aritmeticas ')'  (20)
+	sentencia_print_error : PRINT . '(' ')'  (22)
+
+	'('  shift 66
+	.  error
+
+
+state 9
+	sentencia_asignacion_unaria : VAR . ID TWO_POINTS_ASSIGNATION expresion_aritmetica  (54)
+	sentencia_asignacion_unaria_error : VAR . ID expresion_aritmetica  (56)
+
+	ID  shift 67
+	.  error
+
+
+state 10
+	sentencia_iteracion : FOR . parametros_iteracion cuerpo_iteracion  (36)
+
+	ID  shift 68
+	FROM  shift 69
+	'('  shift 70
+	.  error
+
+	parametros_iteracion  goto 71
+	encabezado_iteracion  goto 72
+	parametros_iteracion_error  goto 73
+	encabezado_iteracion_error  goto 74
+
+
+state 11
+	tipo : INT .  (119)
+
+	.  reduce 119
+
+
+state 12
+	tipo : FLOAT .  (120)
+
+	.  reduce 120
+
+
+state 13
+	prog : ID '{' . cuerpo '}'  (1)
+	prog_error : ID '{' . cuerpo  (6)
+
+	STRING  shift 5
+	ID  shift 6
+	IF  shift 7
+	PRINT  shift 8
+	VAR  shift 9
+	FOR  shift 10
+	INT  shift 11
+	FLOAT  shift 12
+	'('  shift 38
+	.  error
+
+	cuerpo  goto 75
+	sentencia  goto 16
+	sentencia_declarativa  goto 17
+	sentencia_ejecucion  goto 18
+	sentencia_ejecucion_sin_coma  goto 19
+	funcion  goto 20
+	sentencia_print  goto 21
+	sentencia_seleccion  goto 22
+	sentencia_iteracion  goto 23
+	sentencia_asignacion  goto 24
+	sentencia_print_error  goto 25
+	sentencia_seleccion_sin_endif  goto 26
+	sentencia_asignacion_unaria  goto 27
+	sentencia_asignacion_multiple  goto 28
+	sentencia_asignacion_unaria_error  goto 29
+	lista_variables  goto 30
+	lista_tipos  goto 31
+	sentencia_lambda  goto 32
+	funcion_error  goto 33
+	parametro_lambda  goto 34
+	tipo  goto 35
+	variable  goto 36
+	lista_variables_error  goto 37
+
+
+state 14
+	prog_error : ID '(' . cuerpo ')'  (4)
+	parametro_lambda : '(' . tipo ID ')'  (63)
+
+	STRING  shift 5
+	ID  shift 6
+	IF  shift 7
+	PRINT  shift 8
+	VAR  shift 9
+	FOR  shift 10
+	INT  shift 11
+	FLOAT  shift 12
+	'('  shift 38
+	.  error
+
+	cuerpo  goto 76
+	sentencia  goto 16
+	sentencia_declarativa  goto 17
+	sentencia_ejecucion  goto 18
+	sentencia_ejecucion_sin_coma  goto 19
+	funcion  goto 20
+	sentencia_print  goto 21
+	sentencia_seleccion  goto 22
+	sentencia_iteracion  goto 23
+	sentencia_asignacion  goto 24
+	sentencia_print_error  goto 25
+	sentencia_seleccion_sin_endif  goto 26
+	sentencia_asignacion_unaria  goto 27
+	sentencia_asignacion_multiple  goto 28
+	sentencia_asignacion_unaria_error  goto 29
+	lista_variables  goto 30
+	lista_tipos  goto 31
+	sentencia_lambda  goto 32
+	funcion_error  goto 33
+	parametro_lambda  goto 34
+	tipo  goto 77
+	variable  goto 36
+	lista_variables_error  goto 37
+
+
+state 15
+	prog_error : ID cuerpo .  (5)
+	prog_error : ID cuerpo . '}'  (7)
+	cuerpo : cuerpo . sentencia  (8)
+
+	STRING  shift 5
+	ID  shift 6
+	IF  shift 7
+	PRINT  shift 8
+	VAR  shift 9
+	FOR  shift 10
+	INT  shift 11
+	FLOAT  shift 12
+	'}'  shift 78
+	'('  shift 38
+	$end  reduce 5
+
+	sentencia  goto 79
+	sentencia_declarativa  goto 17
+	sentencia_ejecucion  goto 18
+	sentencia_ejecucion_sin_coma  goto 19
+	funcion  goto 20
+	sentencia_print  goto 21
+	sentencia_seleccion  goto 22
+	sentencia_iteracion  goto 23
+	sentencia_asignacion  goto 24
+	sentencia_print_error  goto 25
+	sentencia_seleccion_sin_endif  goto 26
+	sentencia_asignacion_unaria  goto 27
+	sentencia_asignacion_multiple  goto 28
+	sentencia_asignacion_unaria_error  goto 29
+	lista_variables  goto 30
+	lista_tipos  goto 31
+	sentencia_lambda  goto 32
+	funcion_error  goto 33
+	parametro_lambda  goto 34
+	tipo  goto 35
+	variable  goto 36
+	lista_variables_error  goto 37
+
+
+state 16
+	cuerpo : sentencia .  (9)
+
+	.  reduce 9
+
+
+state 17
+	sentencia : sentencia_declarativa .  (10)
+
+	.  reduce 10
+
+
+state 18
+	sentencia : sentencia_ejecucion . ';'  (11)
+	sentencia_ejecucion_sin_coma : sentencia_ejecucion .  (18)
+
+	';'  shift 80
+	$end  reduce 18
+	STRING  reduce 18
+	ID  reduce 18
+	IF  reduce 18
+	PRINT  reduce 18
+	VAR  reduce 18
+	FOR  reduce 18
+	INT  reduce 18
+	FLOAT  reduce 18
+	'}'  reduce 18
+	'('  reduce 18
+	')'  reduce 18
+
+
+state 19
+	sentencia : sentencia_ejecucion_sin_coma .  (12)
+
+	.  reduce 12
+
+
+state 20
+	sentencia_declarativa : funcion .  (13)
+
+	.  reduce 13
+
+
+state 21
+	sentencia_ejecucion : sentencia_print .  (14)
+
+	.  reduce 14
+
+
+state 22
+	sentencia_ejecucion : sentencia_seleccion .  (15)
+
+	.  reduce 15
+
+
+state 23
+	sentencia_ejecucion : sentencia_iteracion .  (16)
+
+	.  reduce 16
+
+
+state 24
+	sentencia_ejecucion : sentencia_asignacion .  (17)
+
+	.  reduce 17
+
+
+state 25
+	sentencia_print : sentencia_print_error .  (21)
+
+	.  reduce 21
+
+
+state 26
+	sentencia_seleccion : sentencia_seleccion_sin_endif .  (25)
+
+	.  reduce 25
+
+
+state 27
+	sentencia_asignacion : sentencia_asignacion_unaria .  (52)
+
+	.  reduce 52
+
+
+state 28
+	sentencia_asignacion : sentencia_asignacion_multiple .  (53)
+
+	.  reduce 53
+
+
+state 29
+	sentencia_asignacion_unaria : sentencia_asignacion_unaria_error .  (55)
+
+	.  reduce 55
+
+
+state 30
+	sentencia_asignacion_multiple : lista_variables . '=' lista_exp_aritmeticas  (57)
+	lista_variables : lista_variables . ',' variable  (113)
+	lista_variables_error : lista_variables . variable  (116)
+
+	ID  shift 6
+	'='  shift 81
+	','  shift 82
+	.  error
+
+	variable  goto 83
+
+
+state 31
+	funcion : lista_tipos . FUN '(' lista_param_formales ')' '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' ';'  (58)
+	funcion_error : lista_tipos . '(' lista_param_formales ')' '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' ';'  (61)
+	lista_tipos : lista_tipos . ',' tipo  (109)
+
+	FUN  shift 84
+	'('  shift 85
+	','  shift 86
+	.  error
+
+
+state 32
+	funcion : sentencia_lambda .  (59)
+
+	.  reduce 59
+
+
+state 33
+	funcion : funcion_error .  (60)
+
+	.  reduce 60
+
+
+state 34
+	sentencia_lambda : parametro_lambda . cuerpo_lambda argumento_lambda  (62)
+
+	'{'  shift 87
+	.  error
+
+	cuerpo_lambda  goto 88
+
+
+state 35
+	lista_tipos : tipo .  (110)
+
+	.  reduce 110
+
+
+state 36
+	lista_variables : variable .  (114)
+
+	.  reduce 114
+
+
+state 37
+	lista_variables : lista_variables_error .  (115)
+
+	.  reduce 115
+
+
+state 38
+	parametro_lambda : '(' . tipo ID ')'  (63)
+
+	STRING  shift 5
+	INT  shift 11
+	FLOAT  shift 12
+	.  error
+
+	tipo  goto 89
+
+
+state 39
+	prog_error : '{' cuerpo . '}'  (3)
+	cuerpo : cuerpo . sentencia  (8)
+
+	STRING  shift 5
+	ID  shift 6
+	IF  shift 7
+	PRINT  shift 8
+	VAR  shift 9
+	FOR  shift 10
+	INT  shift 11
+	FLOAT  shift 12
+	'}'  shift 90
+	'('  shift 38
+	.  error
+
+	sentencia  goto 79
+	sentencia_declarativa  goto 17
+	sentencia_ejecucion  goto 18
+	sentencia_ejecucion_sin_coma  goto 19
+	funcion  goto 20
+	sentencia_print  goto 21
+	sentencia_seleccion  goto 22
+	sentencia_iteracion  goto 23
+	sentencia_asignacion  goto 24
+	sentencia_print_error  goto 25
+	sentencia_seleccion_sin_endif  goto 26
+	sentencia_asignacion_unaria  goto 27
+	sentencia_asignacion_multiple  goto 28
+	sentencia_asignacion_unaria_error  goto 29
+	lista_variables  goto 30
+	lista_tipos  goto 31
+	sentencia_lambda  goto 32
+	funcion_error  goto 33
+	parametro_lambda  goto 34
+	tipo  goto 35
+	variable  goto 36
+	lista_variables_error  goto 37
+
+
+state 40
+	variable : ID '.' . ID  (118)
+
+	ID  shift 91
+	.  error
+
+
+state 41
+	expresion_aritmetica_error : error . '+' termino  (78)
+	expresion_aritmetica_error : error . '-' termino  (79)
+	termino_error : error . '*' factor  (88)
+	termino_error : error . '/' factor  (89)
+
+	'+'  shift 92
+	'-'  shift 93
+	'*'  shift 94
+	'/'  shift 95
+	.  error
+
+
+state 42
+	simbolo_comparador : GREATER_OR_EQUAL .  (99)
+
+	.  reduce 99
+
+
+state 43
+	simbolo_comparador : LESS_OR_EQUAL .  (100)
+
+	.  reduce 100
+
+
+state 44
+	simbolo_comparador : EQUAL .  (101)
+
+	.  reduce 101
+
+
+state 45
+	simbolo_comparador : NOT_EQUAL .  (102)
+
+	.  reduce 102
+
+
+state 46
+	factor : CTE_INT .  (90)
+
+	.  reduce 90
+
+
+state 47
+	factor : CTE_FLOAT .  (91)
+
+	.  reduce 91
+
+
+state 48
+	expresion_aritmetica_toi : TOI . '(' expresion_aritmetica ')'  (94)
+	expresion_aritmetica_toi_error : TOI . error expresion_aritmetica ')'  (96)
+	expresion_aritmetica_toi_error : TOI . '(' expresion_aritmetica error  (97)
+	expresion_aritmetica_toi_error : TOI . error expresion_aritmetica error  (98)
+
+	error  shift 96
+	'('  shift 97
+	.  error
+
+
+state 49
+	factor : FUN . '(' lista_param_reales ')'  (92)
+
+	'('  shift 98
+	.  error
+
+
+state 50
+	parametros_seleccion : '(' . condicion ')'  (28)
+	parametros_seleccion_error : '(' . condicion  (31)
+
+	error  shift 41
+	GREATER_OR_EQUAL  shift 42
+	LESS_OR_EQUAL  shift 43
+	EQUAL  shift 44
+	NOT_EQUAL  shift 45
+	CTE_INT  shift 46
+	CTE_FLOAT  shift 47
+	ID  shift 6
+	TOI  shift 48
+	FUN  shift 49
+	'>'  shift 51
+	'<'  shift 52
+	.  error
+
+	condicion  goto 99
+	expresion_aritmetica  goto 56
+	simbolo_comparador  goto 57
+	factor  goto 58
+	condicion_error  goto 59
+	termino  goto 60
+	expresion_aritmetica_toi  goto 61
+	expresion_aritmetica_error  goto 62
+	termino_error  goto 63
+	variable  goto 64
+	expresion_aritmetica_toi_error  goto 65
+
+
+state 51
+	simbolo_comparador : '>' .  (103)
+
+	.  reduce 103
+
+
+state 52
+	simbolo_comparador : '<' .  (104)
+
+	.  reduce 104
+
+
+state 53
+	sentencia_seleccion : IF parametros_seleccion . cuerpo_seleccion ELSE cuerpo_seleccion ENDIF  (23)
+	sentencia_seleccion : IF parametros_seleccion . cuerpo_seleccion ENDIF  (24)
+	sentencia_seleccion_sin_endif : IF parametros_seleccion . cuerpo_seleccion ELSE cuerpo_seleccion  (26)
+	sentencia_seleccion_sin_endif : IF parametros_seleccion . cuerpo_seleccion  (27)
+
+	'{'  shift 100
+	.  error
+
+	cuerpo_seleccion  goto 101
+	cuerpo_seleccion_error  goto 102
+
+
+state 54
+	parametros_seleccion_error : condicion . ')'  (30)
+	parametros_seleccion_error : condicion .  (32)
+
+	')'  shift 103
+	'{'  reduce 32
+
+
+state 55
+	parametros_seleccion : parametros_seleccion_error .  (29)
+
+	.  reduce 29
+
+
+state 56
+	condicion : expresion_aritmetica . simbolo_comparador factor  (68)
+	condicion_error : expresion_aritmetica . termino  (70)
+	condicion_error : expresion_aritmetica . simbolo_comparador  (71)
+	expresion_aritmetica : expresion_aritmetica . '+' termino  (73)
+	expresion_aritmetica : expresion_aritmetica . '-' termino  (74)
+	expresion_aritmetica_error : expresion_aritmetica . '+' error  (80)
+	expresion_aritmetica_error : expresion_aritmetica . '-' error  (81)
+
+	error  shift 104
+	GREATER_OR_EQUAL  shift 42
+	LESS_OR_EQUAL  shift 43
+	EQUAL  shift 44
+	NOT_EQUAL  shift 45
+	CTE_INT  shift 46
+	CTE_FLOAT  shift 47
+	ID  shift 6
+	FUN  shift 49
+	'+'  shift 105
+	'-'  shift 106
+	'>'  shift 51
+	'<'  shift 52
+	.  error
+
+	simbolo_comparador  goto 107
+	factor  goto 58
+	termino  goto 108
+	termino_error  goto 63
+	variable  goto 64
+
+
+state 57
+	condicion_error : simbolo_comparador . termino  (72)
+
+	error  shift 104
+	CTE_INT  shift 46
+	CTE_FLOAT  shift 47
+	ID  shift 6
+	FUN  shift 49
+	.  error
+
+	factor  goto 58
+	termino  goto 109
+	termino_error  goto 63
+	variable  goto 64
+
+
+state 58
+	termino : factor .  (84)
+
+	.  reduce 84
+
+
+state 59
+	condicion : condicion_error .  (69)
+
+	.  reduce 69
+
+
+state 60
+	expresion_aritmetica : termino .  (76)
+	termino : termino . '*' factor  (82)
+	termino : termino . '/' factor  (83)
+	termino_error : termino . '*' error  (86)
+	termino_error : termino . '/' error  (87)
+
+	'*'  shift 110
+	'/'  shift 111
+	$end  reduce 76
+	error  reduce 76
+	STRING  reduce 76
+	GREATER_OR_EQUAL  reduce 76
+	LESS_OR_EQUAL  reduce 76
+	EQUAL  reduce 76
+	NOT_EQUAL  reduce 76
+	CTE_INT  reduce 76
+	CTE_FLOAT  reduce 76
+	ID  reduce 76
+	IF  reduce 76
+	PRINT  reduce 76
+	VAR  reduce 76
+	FOR  reduce 76
+	INT  reduce 76
+	FLOAT  reduce 76
+	ARROW  reduce 76
+	FUN  reduce 76
+	'}'  reduce 76
+	'('  reduce 76
+	')'  reduce 76
+	';'  reduce 76
+	'+'  reduce 76
+	'-'  reduce 76
+	'>'  reduce 76
+	'<'  reduce 76
+	','  reduce 76
+
+
+state 61
+	expresion_aritmetica : expresion_aritmetica_toi .  (75)
+
+	.  reduce 75
+
+
+state 62
+	expresion_aritmetica : expresion_aritmetica_error .  (77)
+
+	.  reduce 77
+
+
+state 63
+	termino : termino_error .  (85)
+
+	.  reduce 85
+
+
+state 64
+	factor : variable .  (93)
+
+	.  reduce 93
+
+
+state 65
+	expresion_aritmetica_toi : expresion_aritmetica_toi_error .  (95)
+
+	.  reduce 95
+
+
+state 66
+	sentencia_print : PRINT '(' . STRING ')'  (19)
+	sentencia_print : PRINT '(' . lista_exp_aritmeticas ')'  (20)
+	sentencia_print_error : PRINT '(' . ')'  (22)
+
+	error  shift 41
+	STRING  shift 112
+	CTE_INT  shift 46
+	CTE_FLOAT  shift 47
+	ID  shift 6
+	TOI  shift 48
+	FUN  shift 49
+	')'  shift 113
+	.  error
+
+	lista_exp_aritmeticas  goto 114
+	expresion_aritmetica  goto 115
+	factor  goto 58
+	termino  goto 60
+	expresion_aritmetica_toi  goto 61
+	expresion_aritmetica_error  goto 62
+	termino_error  goto 63
+	variable  goto 64
+	expresion_aritmetica_toi_error  goto 65
+	lista_exp_aritmeticas_error  goto 116
+
+
+state 67
+	sentencia_asignacion_unaria : VAR ID . TWO_POINTS_ASSIGNATION expresion_aritmetica  (54)
+	sentencia_asignacion_unaria_error : VAR ID . expresion_aritmetica  (56)
+
+	error  shift 41
+	TWO_POINTS_ASSIGNATION  shift 117
+	CTE_INT  shift 46
+	CTE_FLOAT  shift 47
+	ID  shift 6
+	TOI  shift 48
+	FUN  shift 49
+	.  error
+
+	expresion_aritmetica  goto 118
+	factor  goto 58
+	termino  goto 60
+	expresion_aritmetica_toi  goto 61
+	expresion_aritmetica_error  goto 62
+	termino_error  goto 63
+	variable  goto 64
+	expresion_aritmetica_toi_error  goto 65
+
+
+state 68
+	encabezado_iteracion : ID . FROM CTE_INT TO CTE_INT  (42)
+	encabezado_iteracion_error : ID . CTE_INT TO CTE_INT  (45)
+	encabezado_iteracion_error : ID . FROM TO CTE_INT  (46)
+	encabezado_iteracion_error : ID . FROM CTE_INT CTE_INT  (47)
+	encabezado_iteracion_error : ID . FROM CTE_INT TO  (48)
+
+	CTE_INT  shift 119
+	FROM  shift 120
+	.  error
+
+
+state 69
+	encabezado_iteracion_error : FROM . CTE_INT TO CTE_INT  (44)
+
+	CTE_INT  shift 121
+	.  error
+
+
+state 70
+	parametros_iteracion : '(' . encabezado_iteracion ')'  (37)
+	parametros_iteracion_error : '(' . encabezado_iteracion  (40)
+
+	ID  shift 68
+	FROM  shift 69
+	.  error
+
+	encabezado_iteracion  goto 122
+	encabezado_iteracion_error  goto 74
+
+
+state 71
+	sentencia_iteracion : FOR parametros_iteracion . cuerpo_iteracion  (36)
+
+	'{'  shift 123
+	.  error
+
+	cuerpo_iteracion  goto 124
+	cuerpo_iteracion_error  goto 125
+
+
+state 72
+	parametros_iteracion_error : encabezado_iteracion . ')'  (39)
+	parametros_iteracion_error : encabezado_iteracion .  (41)
+
+	')'  shift 126
+	'{'  reduce 41
+
+
+state 73
+	parametros_iteracion : parametros_iteracion_error .  (38)
+
+	.  reduce 38
+
+
+state 74
+	encabezado_iteracion : encabezado_iteracion_error .  (43)
+
+	.  reduce 43
+
+
+state 75
+	prog : ID '{' cuerpo . '}'  (1)
+	prog_error : ID '{' cuerpo .  (6)
+	cuerpo : cuerpo . sentencia  (8)
+
+	STRING  shift 5
+	ID  shift 6
+	IF  shift 7
+	PRINT  shift 8
+	VAR  shift 9
+	FOR  shift 10
+	INT  shift 11
+	FLOAT  shift 12
+	'}'  shift 127
+	'('  shift 38
+	$end  reduce 6
+
+	sentencia  goto 79
+	sentencia_declarativa  goto 17
+	sentencia_ejecucion  goto 18
+	sentencia_ejecucion_sin_coma  goto 19
+	funcion  goto 20
+	sentencia_print  goto 21
+	sentencia_seleccion  goto 22
+	sentencia_iteracion  goto 23
+	sentencia_asignacion  goto 24
+	sentencia_print_error  goto 25
+	sentencia_seleccion_sin_endif  goto 26
+	sentencia_asignacion_unaria  goto 27
+	sentencia_asignacion_multiple  goto 28
+	sentencia_asignacion_unaria_error  goto 29
+	lista_variables  goto 30
+	lista_tipos  goto 31
+	sentencia_lambda  goto 32
+	funcion_error  goto 33
+	parametro_lambda  goto 34
+	tipo  goto 35
+	variable  goto 36
+	lista_variables_error  goto 37
+
+
+state 76
+	prog_error : ID '(' cuerpo . ')'  (4)
+	cuerpo : cuerpo . sentencia  (8)
+
+	STRING  shift 5
+	ID  shift 6
+	IF  shift 7
+	PRINT  shift 8
+	VAR  shift 9
+	FOR  shift 10
+	INT  shift 11
+	FLOAT  shift 12
+	'('  shift 38
+	')'  shift 128
+	.  error
+
+	sentencia  goto 79
+	sentencia_declarativa  goto 17
+	sentencia_ejecucion  goto 18
+	sentencia_ejecucion_sin_coma  goto 19
+	funcion  goto 20
+	sentencia_print  goto 21
+	sentencia_seleccion  goto 22
+	sentencia_iteracion  goto 23
+	sentencia_asignacion  goto 24
+	sentencia_print_error  goto 25
+	sentencia_seleccion_sin_endif  goto 26
+	sentencia_asignacion_unaria  goto 27
+	sentencia_asignacion_multiple  goto 28
+	sentencia_asignacion_unaria_error  goto 29
+	lista_variables  goto 30
+	lista_tipos  goto 31
+	sentencia_lambda  goto 32
+	funcion_error  goto 33
+	parametro_lambda  goto 34
+	tipo  goto 35
+	variable  goto 36
+	lista_variables_error  goto 37
+
+
+state 77
+	parametro_lambda : '(' tipo . ID ')'  (63)
+	lista_tipos : tipo .  (110)
+
+	ID  shift 129
+	FUN  reduce 110
+	'('  reduce 110
+	','  reduce 110
+
+
+state 78
+	prog_error : ID cuerpo '}' .  (7)
+
+	.  reduce 7
+
+
+state 79
+	cuerpo : cuerpo sentencia .  (8)
+
+	.  reduce 8
+
+
+state 80
+	sentencia : sentencia_ejecucion ';' .  (11)
+
+	.  reduce 11
+
+
+state 81
+	sentencia_asignacion_multiple : lista_variables '=' . lista_exp_aritmeticas  (57)
+
+	error  shift 41
+	CTE_INT  shift 46
+	CTE_FLOAT  shift 47
+	ID  shift 6
+	TOI  shift 48
+	FUN  shift 49
+	.  error
+
+	lista_exp_aritmeticas  goto 130
+	expresion_aritmetica  goto 115
+	factor  goto 58
+	termino  goto 60
+	expresion_aritmetica_toi  goto 61
+	expresion_aritmetica_error  goto 62
+	termino_error  goto 63
+	variable  goto 64
+	expresion_aritmetica_toi_error  goto 65
+	lista_exp_aritmeticas_error  goto 116
+
+
+state 82
+	lista_variables : lista_variables ',' . variable  (113)
+
+	ID  shift 6
+	.  error
+
+	variable  goto 131
+
+
+state 83
+	lista_variables_error : lista_variables variable .  (116)
+
+	.  reduce 116
+
+
+state 84
+	funcion : lista_tipos FUN . '(' lista_param_formales ')' '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' ';'  (58)
+
+	'('  shift 132
+	.  error
+
+
+state 85
+	funcion_error : lista_tipos '(' . lista_param_formales ')' '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' ';'  (61)
+
+	STRING  shift 5
+	ID  shift 133
+	CR  shift 134
+	SE  shift 135
+	LE  shift 136
+	INT  shift 11
+	FLOAT  shift 12
+	.  error
+
+	lista_param_formales  goto 137
+	tipo  goto 138
+	parametro_formal  goto 139
+	semantica_pasaje  goto 140
+	parametro_formal_error  goto 141
+	semantica_pasaje_error  goto 142
+
+
+state 86
+	lista_tipos : lista_tipos ',' . tipo  (109)
+
+	STRING  shift 5
+	INT  shift 11
+	FLOAT  shift 12
+	.  error
+
+	tipo  goto 143
+
+
+state 87
+	cuerpo_lambda : '{' . cuerpo '}'  (64)
+
+	STRING  shift 5
+	ID  shift 6
+	IF  shift 7
+	PRINT  shift 8
+	VAR  shift 9
+	FOR  shift 10
+	INT  shift 11
+	FLOAT  shift 12
+	'('  shift 38
+	.  error
+
+	cuerpo  goto 144
+	sentencia  goto 16
+	sentencia_declarativa  goto 17
+	sentencia_ejecucion  goto 18
+	sentencia_ejecucion_sin_coma  goto 19
+	funcion  goto 20
+	sentencia_print  goto 21
+	sentencia_seleccion  goto 22
+	sentencia_iteracion  goto 23
+	sentencia_asignacion  goto 24
+	sentencia_print_error  goto 25
+	sentencia_seleccion_sin_endif  goto 26
+	sentencia_asignacion_unaria  goto 27
+	sentencia_asignacion_multiple  goto 28
+	sentencia_asignacion_unaria_error  goto 29
+	lista_variables  goto 30
+	lista_tipos  goto 31
+	sentencia_lambda  goto 32
+	funcion_error  goto 33
+	parametro_lambda  goto 34
+	tipo  goto 35
+	variable  goto 36
+	lista_variables_error  goto 37
+
+
+state 88
+	sentencia_lambda : parametro_lambda cuerpo_lambda . argumento_lambda  (62)
+
+	'('  shift 145
+	.  error
+
+	argumento_lambda  goto 146
+
+
+state 89
+	parametro_lambda : '(' tipo . ID ')'  (63)
+
+	ID  shift 129
+	.  error
+
+
+state 90
+	prog_error : '{' cuerpo '}' .  (3)
+
+	.  reduce 3
+
+
+state 91
+	variable : ID '.' ID .  (118)
+
+	.  reduce 118
+
+
+state 92
+	expresion_aritmetica_error : error '+' . termino  (78)
+
+	error  shift 104
+	CTE_INT  shift 46
+	CTE_FLOAT  shift 47
+	ID  shift 6
+	FUN  shift 49
+	.  error
+
+	factor  goto 58
+	termino  goto 147
+	termino_error  goto 63
+	variable  goto 64
+
+
+state 93
+	expresion_aritmetica_error : error '-' . termino  (79)
+
+	error  shift 104
+	CTE_INT  shift 46
+	CTE_FLOAT  shift 47
+	ID  shift 6
+	FUN  shift 49
+	.  error
+
+	factor  goto 58
+	termino  goto 148
+	termino_error  goto 63
+	variable  goto 64
+
+
+state 94
+	termino_error : error '*' . factor  (88)
+
+	CTE_INT  shift 46
+	CTE_FLOAT  shift 47
+	ID  shift 6
+	FUN  shift 49
+	.  error
+
+	factor  goto 149
+	variable  goto 64
+
+
+state 95
+	termino_error : error '/' . factor  (89)
+
+	CTE_INT  shift 46
+	CTE_FLOAT  shift 47
+	ID  shift 6
+	FUN  shift 49
+	.  error
+
+	factor  goto 150
+	variable  goto 64
+
+
+state 96
+	expresion_aritmetica_toi_error : TOI error . expresion_aritmetica ')'  (96)
+	expresion_aritmetica_toi_error : TOI error . expresion_aritmetica error  (98)
+
+	error  shift 41
+	CTE_INT  shift 46
+	CTE_FLOAT  shift 47
+	ID  shift 6
+	TOI  shift 48
+	FUN  shift 49
+	.  error
+
+	expresion_aritmetica  goto 151
+	factor  goto 58
+	termino  goto 60
+	expresion_aritmetica_toi  goto 61
+	expresion_aritmetica_error  goto 62
+	termino_error  goto 63
+	variable  goto 64
+	expresion_aritmetica_toi_error  goto 65
+
+
+state 97
+	expresion_aritmetica_toi : TOI '(' . expresion_aritmetica ')'  (94)
+	expresion_aritmetica_toi_error : TOI '(' . expresion_aritmetica error  (97)
+
+	error  shift 41
+	CTE_INT  shift 46
+	CTE_FLOAT  shift 47
+	ID  shift 6
+	TOI  shift 48
+	FUN  shift 49
+	.  error
+
+	expresion_aritmetica  goto 152
+	factor  goto 58
+	termino  goto 60
+	expresion_aritmetica_toi  goto 61
+	expresion_aritmetica_error  goto 62
+	termino_error  goto 63
+	variable  goto 64
+	expresion_aritmetica_toi_error  goto 65
+
+
+state 98
+	factor : FUN '(' . lista_param_reales ')'  (92)
+
+	error  shift 41
+	CTE_INT  shift 46
+	CTE_FLOAT  shift 47
+	ID  shift 6
+	TOI  shift 48
+	FUN  shift 49
+	.  error
+
+	expresion_aritmetica  goto 153
+	factor  goto 58
+	termino  goto 60
+	expresion_aritmetica_toi  goto 61
+	expresion_aritmetica_error  goto 62
+	termino_error  goto 63
+	lista_param_reales  goto 154
+	variable  goto 64
+	expresion_aritmetica_toi_error  goto 65
+	parametro_real  goto 155
+
+
+state 99
+	parametros_seleccion : '(' condicion . ')'  (28)
+	parametros_seleccion_error : '(' condicion .  (31)
+
+	')'  shift 156
+	'{'  reduce 31
+
+
+state 100
+	cuerpo_seleccion : '{' . cuerpo '}'  (33)
+	cuerpo_seleccion_error : '{' . '}'  (35)
+
+	STRING  shift 5
+	ID  shift 6
+	IF  shift 7
+	PRINT  shift 8
+	VAR  shift 9
+	FOR  shift 10
+	INT  shift 11
+	FLOAT  shift 12
+	'}'  shift 157
+	'('  shift 38
+	.  error
+
+	cuerpo  goto 158
+	sentencia  goto 16
+	sentencia_declarativa  goto 17
+	sentencia_ejecucion  goto 18
+	sentencia_ejecucion_sin_coma  goto 19
+	funcion  goto 20
+	sentencia_print  goto 21
+	sentencia_seleccion  goto 22
+	sentencia_iteracion  goto 23
+	sentencia_asignacion  goto 24
+	sentencia_print_error  goto 25
+	sentencia_seleccion_sin_endif  goto 26
+	sentencia_asignacion_unaria  goto 27
+	sentencia_asignacion_multiple  goto 28
+	sentencia_asignacion_unaria_error  goto 29
+	lista_variables  goto 30
+	lista_tipos  goto 31
+	sentencia_lambda  goto 32
+	funcion_error  goto 33
+	parametro_lambda  goto 34
+	tipo  goto 35
+	variable  goto 36
+	lista_variables_error  goto 37
+
+
+state 101
+	sentencia_seleccion : IF parametros_seleccion cuerpo_seleccion . ELSE cuerpo_seleccion ENDIF  (23)
+	sentencia_seleccion : IF parametros_seleccion cuerpo_seleccion . ENDIF  (24)
+	sentencia_seleccion_sin_endif : IF parametros_seleccion cuerpo_seleccion . ELSE cuerpo_seleccion  (26)
+	sentencia_seleccion_sin_endif : IF parametros_seleccion cuerpo_seleccion .  (27)
+
+	ELSE  shift 159
+	ENDIF  shift 160
+	$end  reduce 27
+	STRING  reduce 27
+	ID  reduce 27
+	IF  reduce 27
+	PRINT  reduce 27
+	VAR  reduce 27
+	FOR  reduce 27
+	INT  reduce 27
+	FLOAT  reduce 27
+	'}'  reduce 27
+	'('  reduce 27
+	')'  reduce 27
+	';'  reduce 27
+
+
+state 102
+	cuerpo_seleccion : cuerpo_seleccion_error .  (34)
+
+	.  reduce 34
+
+
+state 103
+	parametros_seleccion_error : condicion ')' .  (30)
+
+	.  reduce 30
+
+
+state 104
+	termino_error : error . '*' factor  (88)
+	termino_error : error . '/' factor  (89)
+
+	'*'  shift 94
+	'/'  shift 95
+	.  error
+
+
+state 105
+	expresion_aritmetica : expresion_aritmetica '+' . termino  (73)
+	expresion_aritmetica_error : expresion_aritmetica '+' . error  (80)
+
+	error  shift 161
+	CTE_INT  shift 46
+	CTE_FLOAT  shift 47
+	ID  shift 6
+	FUN  shift 49
+	.  error
+
+	factor  goto 58
+	termino  goto 162
+	termino_error  goto 63
+	variable  goto 64
+
+
+state 106
+	expresion_aritmetica : expresion_aritmetica '-' . termino  (74)
+	expresion_aritmetica_error : expresion_aritmetica '-' . error  (81)
+
+	error  shift 163
+	CTE_INT  shift 46
+	CTE_FLOAT  shift 47
+	ID  shift 6
+	FUN  shift 49
+	.  error
+
+	factor  goto 58
+	termino  goto 164
+	termino_error  goto 63
+	variable  goto 64
+
+
+state 107
+	condicion : expresion_aritmetica simbolo_comparador . factor  (68)
+	condicion_error : expresion_aritmetica simbolo_comparador .  (71)
+
+	CTE_INT  shift 46
+	CTE_FLOAT  shift 47
+	ID  shift 6
+	FUN  shift 49
+	'{'  reduce 71
+	')'  reduce 71
+
+	factor  goto 165
+	variable  goto 64
+
+
+state 108
+	condicion_error : expresion_aritmetica termino .  (70)
+	termino : termino . '*' factor  (82)
+	termino : termino . '/' factor  (83)
+	termino_error : termino . '*' error  (86)
+	termino_error : termino . '/' error  (87)
+
+	'*'  shift 110
+	'/'  shift 111
+	'{'  reduce 70
+	')'  reduce 70
+
+
+state 109
+	condicion_error : simbolo_comparador termino .  (72)
+	termino : termino . '*' factor  (82)
+	termino : termino . '/' factor  (83)
+	termino_error : termino . '*' error  (86)
+	termino_error : termino . '/' error  (87)
+
+	'*'  shift 110
+	'/'  shift 111
+	'{'  reduce 72
+	')'  reduce 72
+
+
+state 110
+	termino : termino '*' . factor  (82)
+	termino_error : termino '*' . error  (86)
+
+	error  shift 166
+	CTE_INT  shift 46
+	CTE_FLOAT  shift 47
+	ID  shift 6
+	FUN  shift 49
+	.  error
+
+	factor  goto 167
+	variable  goto 64
+
+
+state 111
+	termino : termino '/' . factor  (83)
+	termino_error : termino '/' . error  (87)
+
+	error  shift 168
+	CTE_INT  shift 46
+	CTE_FLOAT  shift 47
+	ID  shift 6
+	FUN  shift 49
+	.  error
+
+	factor  goto 169
+	variable  goto 64
+
+
+state 112
+	sentencia_print : PRINT '(' STRING . ')'  (19)
+
+	')'  shift 170
+	.  error
+
+
+state 113
+	sentencia_print_error : PRINT '(' ')' .  (22)
+
+	.  reduce 22
+
+
+state 114
+	sentencia_print : PRINT '(' lista_exp_aritmeticas . ')'  (20)
+	lista_exp_aritmeticas : lista_exp_aritmeticas . ',' expresion_aritmetica  (105)
+	lista_exp_aritmeticas_error : lista_exp_aritmeticas . error expresion_aritmetica  (108)
+
+	error  shift 171
+	')'  shift 172
+	','  shift 173
+	.  error
+
+
+state 115
+	expresion_aritmetica : expresion_aritmetica . '+' termino  (73)
+	expresion_aritmetica : expresion_aritmetica . '-' termino  (74)
+	expresion_aritmetica_error : expresion_aritmetica . '+' error  (80)
+	expresion_aritmetica_error : expresion_aritmetica . '-' error  (81)
+	lista_exp_aritmeticas : expresion_aritmetica .  (106)
+
+	'+'  shift 105
+	'-'  shift 106
+	$end  reduce 106
+	error  reduce 106
+	STRING  reduce 106
+	ID  reduce 106
+	IF  reduce 106
+	PRINT  reduce 106
+	VAR  reduce 106
+	FOR  reduce 106
+	INT  reduce 106
+	FLOAT  reduce 106
+	'}'  reduce 106
+	'('  reduce 106
+	')'  reduce 106
+	';'  reduce 106
+	','  reduce 106
+
+
+state 116
+	lista_exp_aritmeticas : lista_exp_aritmeticas_error .  (107)
+
+	.  reduce 107
+
+
+state 117
+	sentencia_asignacion_unaria : VAR ID TWO_POINTS_ASSIGNATION . expresion_aritmetica  (54)
+
+	error  shift 41
+	CTE_INT  shift 46
+	CTE_FLOAT  shift 47
+	ID  shift 6
+	TOI  shift 48
+	FUN  shift 49
+	.  error
+
+	expresion_aritmetica  goto 174
+	factor  goto 58
+	termino  goto 60
+	expresion_aritmetica_toi  goto 61
+	expresion_aritmetica_error  goto 62
+	termino_error  goto 63
+	variable  goto 64
+	expresion_aritmetica_toi_error  goto 65
+
+
+state 118
+	sentencia_asignacion_unaria_error : VAR ID expresion_aritmetica .  (56)
+	expresion_aritmetica : expresion_aritmetica . '+' termino  (73)
+	expresion_aritmetica : expresion_aritmetica . '-' termino  (74)
+	expresion_aritmetica_error : expresion_aritmetica . '+' error  (80)
+	expresion_aritmetica_error : expresion_aritmetica . '-' error  (81)
+
+	'+'  shift 105
+	'-'  shift 106
+	$end  reduce 56
+	STRING  reduce 56
+	ID  reduce 56
+	IF  reduce 56
+	PRINT  reduce 56
+	VAR  reduce 56
+	FOR  reduce 56
+	INT  reduce 56
+	FLOAT  reduce 56
+	'}'  reduce 56
+	'('  reduce 56
+	')'  reduce 56
+	';'  reduce 56
+
+
+state 119
+	encabezado_iteracion_error : ID CTE_INT . TO CTE_INT  (45)
+
+	TO  shift 175
+	.  error
+
+
+state 120
+	encabezado_iteracion : ID FROM . CTE_INT TO CTE_INT  (42)
+	encabezado_iteracion_error : ID FROM . TO CTE_INT  (46)
+	encabezado_iteracion_error : ID FROM . CTE_INT CTE_INT  (47)
+	encabezado_iteracion_error : ID FROM . CTE_INT TO  (48)
+
+	CTE_INT  shift 176
+	TO  shift 177
+	.  error
+
+
+state 121
+	encabezado_iteracion_error : FROM CTE_INT . TO CTE_INT  (44)
+
+	TO  shift 178
+	.  error
+
+
+state 122
+	parametros_iteracion : '(' encabezado_iteracion . ')'  (37)
+	parametros_iteracion_error : '(' encabezado_iteracion .  (40)
+
+	')'  shift 179
+	'{'  reduce 40
+
+
+state 123
+	cuerpo_iteracion : '{' . cuerpo '}'  (49)
+	cuerpo_iteracion_error : '{' . '}'  (51)
+
+	STRING  shift 5
+	ID  shift 6
+	IF  shift 7
+	PRINT  shift 8
+	VAR  shift 9
+	FOR  shift 10
+	INT  shift 11
+	FLOAT  shift 12
+	'}'  shift 180
+	'('  shift 38
+	.  error
+
+	cuerpo  goto 181
+	sentencia  goto 16
+	sentencia_declarativa  goto 17
+	sentencia_ejecucion  goto 18
+	sentencia_ejecucion_sin_coma  goto 19
+	funcion  goto 20
+	sentencia_print  goto 21
+	sentencia_seleccion  goto 22
+	sentencia_iteracion  goto 23
+	sentencia_asignacion  goto 24
+	sentencia_print_error  goto 25
+	sentencia_seleccion_sin_endif  goto 26
+	sentencia_asignacion_unaria  goto 27
+	sentencia_asignacion_multiple  goto 28
+	sentencia_asignacion_unaria_error  goto 29
+	lista_variables  goto 30
+	lista_tipos  goto 31
+	sentencia_lambda  goto 32
+	funcion_error  goto 33
+	parametro_lambda  goto 34
+	tipo  goto 35
+	variable  goto 36
+	lista_variables_error  goto 37
+
+
+state 124
+	sentencia_iteracion : FOR parametros_iteracion cuerpo_iteracion .  (36)
+
+	.  reduce 36
+
+
+state 125
+	cuerpo_iteracion : cuerpo_iteracion_error .  (50)
+
+	.  reduce 50
+
+
+state 126
+	parametros_iteracion_error : encabezado_iteracion ')' .  (39)
+
+	.  reduce 39
+
+
+state 127
+	prog : ID '{' cuerpo '}' .  (1)
+
+	.  reduce 1
+
+
+state 128
+	prog_error : ID '(' cuerpo ')' .  (4)
+
+	.  reduce 4
+
+
+state 129
+	parametro_lambda : '(' tipo ID . ')'  (63)
+
+	')'  shift 182
+	.  error
+
+
+state 130
+	sentencia_asignacion_multiple : lista_variables '=' lista_exp_aritmeticas .  (57)
+	lista_exp_aritmeticas : lista_exp_aritmeticas . ',' expresion_aritmetica  (105)
+	lista_exp_aritmeticas_error : lista_exp_aritmeticas . error expresion_aritmetica  (108)
+
+	error  shift 171
+	','  shift 173
+	$end  reduce 57
+	STRING  reduce 57
+	ID  reduce 57
+	IF  reduce 57
+	PRINT  reduce 57
+	VAR  reduce 57
+	FOR  reduce 57
+	INT  reduce 57
+	FLOAT  reduce 57
+	'}'  reduce 57
+	'('  reduce 57
+	')'  reduce 57
+	';'  reduce 57
+
+
+state 131
+	lista_variables : lista_variables ',' variable .  (113)
+
+	.  reduce 113
+
+
+state 132
+	funcion : lista_tipos FUN '(' . lista_param_formales ')' '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' ';'  (58)
+
+	STRING  shift 5
+	ID  shift 133
+	CR  shift 134
+	SE  shift 135
+	LE  shift 136
+	INT  shift 11
+	FLOAT  shift 12
+	.  error
+
+	lista_param_formales  goto 183
+	tipo  goto 138
+	parametro_formal  goto 139
+	semantica_pasaje  goto 140
+	parametro_formal_error  goto 141
+	semantica_pasaje_error  goto 142
+
+
+state 133
+	parametro_formal_error : ID .  (128)
+
+	.  reduce 128
+
+
+state 134
+	semantica_pasaje : CR . SE  (131)
+	semantica_pasaje : CR . LE  (132)
+	semantica_pasaje_error : CR .  (134)
+
+	SE  shift 184
+	LE  shift 185
+	STRING  reduce 134
+	ID  reduce 134
+	INT  reduce 134
+	FLOAT  reduce 134
+
+
+state 135
+	semantica_pasaje_error : SE .  (135)
+
+	.  reduce 135
+
+
+state 136
+	semantica_pasaje_error : LE .  (136)
+
+	.  reduce 136
+
+
+state 137
+	funcion_error : lista_tipos '(' lista_param_formales . ')' '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' ';'  (61)
+	lista_param_formales : lista_param_formales . ',' parametro_formal  (111)
+
+	')'  shift 186
+	','  shift 187
+	.  error
+
+
+state 138
+	parametro_formal : tipo . ID  (123)
+	parametro_formal_error : tipo .  (126)
+
+	ID  shift 188
+	')'  reduce 126
+	','  reduce 126
+
+
+state 139
+	lista_param_formales : parametro_formal .  (112)
+
+	.  reduce 112
+
+
+state 140
+	parametro_formal : semantica_pasaje . tipo ID  (122)
+	parametro_formal_error : semantica_pasaje . tipo  (125)
+	parametro_formal_error : semantica_pasaje . ID  (127)
+
+	STRING  shift 5
+	ID  shift 189
+	INT  shift 11
+	FLOAT  shift 12
+	.  error
+
+	tipo  goto 190
+
+
+state 141
+	parametro_formal : parametro_formal_error .  (124)
+
+	.  reduce 124
+
+
+state 142
+	semantica_pasaje : semantica_pasaje_error .  (133)
+
+	.  reduce 133
+
+
+state 143
+	lista_tipos : lista_tipos ',' tipo .  (109)
+
+	.  reduce 109
+
+
+state 144
+	cuerpo : cuerpo . sentencia  (8)
+	cuerpo_lambda : '{' cuerpo . '}'  (64)
+
+	STRING  shift 5
+	ID  shift 6
+	IF  shift 7
+	PRINT  shift 8
+	VAR  shift 9
+	FOR  shift 10
+	INT  shift 11
+	FLOAT  shift 12
+	'}'  shift 191
+	'('  shift 38
+	.  error
+
+	sentencia  goto 79
+	sentencia_declarativa  goto 17
+	sentencia_ejecucion  goto 18
+	sentencia_ejecucion_sin_coma  goto 19
+	funcion  goto 20
+	sentencia_print  goto 21
+	sentencia_seleccion  goto 22
+	sentencia_iteracion  goto 23
+	sentencia_asignacion  goto 24
+	sentencia_print_error  goto 25
+	sentencia_seleccion_sin_endif  goto 26
+	sentencia_asignacion_unaria  goto 27
+	sentencia_asignacion_multiple  goto 28
+	sentencia_asignacion_unaria_error  goto 29
+	lista_variables  goto 30
+	lista_tipos  goto 31
+	sentencia_lambda  goto 32
+	funcion_error  goto 33
+	parametro_lambda  goto 34
+	tipo  goto 35
+	variable  goto 36
+	lista_variables_error  goto 37
+
+
+state 145
+	argumento_lambda : '(' . ID ')'  (65)
+	argumento_lambda : '(' . CTE_INT ')'  (66)
+	argumento_lambda : '(' . CTE_FLOAT ')'  (67)
+
+	CTE_INT  shift 192
+	CTE_FLOAT  shift 193
+	ID  shift 194
+	.  error
+
+
+state 146
+	sentencia_lambda : parametro_lambda cuerpo_lambda argumento_lambda .  (62)
+
+	.  reduce 62
+
+
+state 147
+	expresion_aritmetica_error : error '+' termino .  (78)
+	termino : termino . '*' factor  (82)
+	termino : termino . '/' factor  (83)
+	termino_error : termino . '*' error  (86)
+	termino_error : termino . '/' error  (87)
+
+	'*'  shift 110
+	'/'  shift 111
+	$end  reduce 78
+	error  reduce 78
+	STRING  reduce 78
+	GREATER_OR_EQUAL  reduce 78
+	LESS_OR_EQUAL  reduce 78
+	EQUAL  reduce 78
+	NOT_EQUAL  reduce 78
+	CTE_INT  reduce 78
+	CTE_FLOAT  reduce 78
+	ID  reduce 78
+	IF  reduce 78
+	PRINT  reduce 78
+	VAR  reduce 78
+	FOR  reduce 78
+	INT  reduce 78
+	FLOAT  reduce 78
+	ARROW  reduce 78
+	FUN  reduce 78
+	'}'  reduce 78
+	'('  reduce 78
+	')'  reduce 78
+	';'  reduce 78
+	'+'  reduce 78
+	'-'  reduce 78
+	'>'  reduce 78
+	'<'  reduce 78
+	','  reduce 78
+
+
+state 148
+	expresion_aritmetica_error : error '-' termino .  (79)
+	termino : termino . '*' factor  (82)
+	termino : termino . '/' factor  (83)
+	termino_error : termino . '*' error  (86)
+	termino_error : termino . '/' error  (87)
+
+	'*'  shift 110
+	'/'  shift 111
+	$end  reduce 79
+	error  reduce 79
+	STRING  reduce 79
+	GREATER_OR_EQUAL  reduce 79
+	LESS_OR_EQUAL  reduce 79
+	EQUAL  reduce 79
+	NOT_EQUAL  reduce 79
+	CTE_INT  reduce 79
+	CTE_FLOAT  reduce 79
+	ID  reduce 79
+	IF  reduce 79
+	PRINT  reduce 79
+	VAR  reduce 79
+	FOR  reduce 79
+	INT  reduce 79
+	FLOAT  reduce 79
+	ARROW  reduce 79
+	FUN  reduce 79
+	'}'  reduce 79
+	'('  reduce 79
+	')'  reduce 79
+	';'  reduce 79
+	'+'  reduce 79
+	'-'  reduce 79
+	'>'  reduce 79
+	'<'  reduce 79
+	','  reduce 79
+
+
+state 149
+	termino_error : error '*' factor .  (88)
+
+	.  reduce 88
+
+
+state 150
+	termino_error : error '/' factor .  (89)
+
+	.  reduce 89
+
+
+state 151
+	expresion_aritmetica : expresion_aritmetica . '+' termino  (73)
+	expresion_aritmetica : expresion_aritmetica . '-' termino  (74)
+	expresion_aritmetica_error : expresion_aritmetica . '+' error  (80)
+	expresion_aritmetica_error : expresion_aritmetica . '-' error  (81)
+	expresion_aritmetica_toi_error : TOI error expresion_aritmetica . ')'  (96)
+	expresion_aritmetica_toi_error : TOI error expresion_aritmetica . error  (98)
+
+	error  shift 195
+	')'  shift 196
+	'+'  shift 105
+	'-'  shift 106
+	.  error
+
+
+state 152
+	expresion_aritmetica : expresion_aritmetica . '+' termino  (73)
+	expresion_aritmetica : expresion_aritmetica . '-' termino  (74)
+	expresion_aritmetica_error : expresion_aritmetica . '+' error  (80)
+	expresion_aritmetica_error : expresion_aritmetica . '-' error  (81)
+	expresion_aritmetica_toi : TOI '(' expresion_aritmetica . ')'  (94)
+	expresion_aritmetica_toi_error : TOI '(' expresion_aritmetica . error  (97)
+
+	error  shift 197
+	')'  shift 198
+	'+'  shift 105
+	'-'  shift 106
+	.  error
+
+
+state 153
+	expresion_aritmetica : expresion_aritmetica . '+' termino  (73)
+	expresion_aritmetica : expresion_aritmetica . '-' termino  (74)
+	expresion_aritmetica_error : expresion_aritmetica . '+' error  (80)
+	expresion_aritmetica_error : expresion_aritmetica . '-' error  (81)
+	parametro_real : expresion_aritmetica . ARROW ID  (137)
+
+	ARROW  shift 199
+	'+'  shift 105
+	'-'  shift 106
+	.  error
+
+
+state 154
+	factor : FUN '(' lista_param_reales . ')'  (92)
+	lista_param_reales : lista_param_reales . ',' parametro_real  (129)
+
+	')'  shift 200
+	','  shift 201
+	.  error
+
+
+state 155
+	lista_param_reales : parametro_real .  (130)
+
+	.  reduce 130
+
+
+state 156
+	parametros_seleccion : '(' condicion ')' .  (28)
+
+	.  reduce 28
+
+
+state 157
+	cuerpo_seleccion_error : '{' '}' .  (35)
+
+	.  reduce 35
+
+
+state 158
+	cuerpo : cuerpo . sentencia  (8)
+	cuerpo_seleccion : '{' cuerpo . '}'  (33)
+
+	STRING  shift 5
+	ID  shift 6
+	IF  shift 7
+	PRINT  shift 8
+	VAR  shift 9
+	FOR  shift 10
+	INT  shift 11
+	FLOAT  shift 12
+	'}'  shift 202
+	'('  shift 38
+	.  error
+
+	sentencia  goto 79
+	sentencia_declarativa  goto 17
+	sentencia_ejecucion  goto 18
+	sentencia_ejecucion_sin_coma  goto 19
+	funcion  goto 20
+	sentencia_print  goto 21
+	sentencia_seleccion  goto 22
+	sentencia_iteracion  goto 23
+	sentencia_asignacion  goto 24
+	sentencia_print_error  goto 25
+	sentencia_seleccion_sin_endif  goto 26
+	sentencia_asignacion_unaria  goto 27
+	sentencia_asignacion_multiple  goto 28
+	sentencia_asignacion_unaria_error  goto 29
+	lista_variables  goto 30
+	lista_tipos  goto 31
+	sentencia_lambda  goto 32
+	funcion_error  goto 33
+	parametro_lambda  goto 34
+	tipo  goto 35
+	variable  goto 36
+	lista_variables_error  goto 37
+
+
+state 159
+	sentencia_seleccion : IF parametros_seleccion cuerpo_seleccion ELSE . cuerpo_seleccion ENDIF  (23)
+	sentencia_seleccion_sin_endif : IF parametros_seleccion cuerpo_seleccion ELSE . cuerpo_seleccion  (26)
+
+	'{'  shift 100
+	.  error
+
+	cuerpo_seleccion  goto 203
+	cuerpo_seleccion_error  goto 102
+
+
+state 160
+	sentencia_seleccion : IF parametros_seleccion cuerpo_seleccion ENDIF .  (24)
+
+	.  reduce 24
+
+
+state 161
+	expresion_aritmetica_error : expresion_aritmetica '+' error .  (80)
+	termino_error : error . '*' factor  (88)
+	termino_error : error . '/' factor  (89)
+
+	'*'  shift 94
+	'/'  shift 95
+	$end  reduce 80
+	error  reduce 80
+	STRING  reduce 80
+	GREATER_OR_EQUAL  reduce 80
+	LESS_OR_EQUAL  reduce 80
+	EQUAL  reduce 80
+	NOT_EQUAL  reduce 80
+	CTE_INT  reduce 80
+	CTE_FLOAT  reduce 80
+	ID  reduce 80
+	IF  reduce 80
+	PRINT  reduce 80
+	VAR  reduce 80
+	FOR  reduce 80
+	INT  reduce 80
+	FLOAT  reduce 80
+	ARROW  reduce 80
+	FUN  reduce 80
+	'}'  reduce 80
+	'('  reduce 80
+	')'  reduce 80
+	';'  reduce 80
+	'+'  reduce 80
+	'-'  reduce 80
+	'>'  reduce 80
+	'<'  reduce 80
+	','  reduce 80
+
+
+state 162
+	expresion_aritmetica : expresion_aritmetica '+' termino .  (73)
+	termino : termino . '*' factor  (82)
+	termino : termino . '/' factor  (83)
+	termino_error : termino . '*' error  (86)
+	termino_error : termino . '/' error  (87)
+
+	'*'  shift 110
+	'/'  shift 111
+	$end  reduce 73
+	error  reduce 73
+	STRING  reduce 73
+	GREATER_OR_EQUAL  reduce 73
+	LESS_OR_EQUAL  reduce 73
+	EQUAL  reduce 73
+	NOT_EQUAL  reduce 73
+	CTE_INT  reduce 73
+	CTE_FLOAT  reduce 73
+	ID  reduce 73
+	IF  reduce 73
+	PRINT  reduce 73
+	VAR  reduce 73
+	FOR  reduce 73
+	INT  reduce 73
+	FLOAT  reduce 73
+	ARROW  reduce 73
+	FUN  reduce 73
+	'}'  reduce 73
+	'('  reduce 73
+	')'  reduce 73
+	';'  reduce 73
+	'+'  reduce 73
+	'-'  reduce 73
+	'>'  reduce 73
+	'<'  reduce 73
+	','  reduce 73
+
+
+state 163
+	expresion_aritmetica_error : expresion_aritmetica '-' error .  (81)
+	termino_error : error . '*' factor  (88)
+	termino_error : error . '/' factor  (89)
+
+	'*'  shift 94
+	'/'  shift 95
+	$end  reduce 81
+	error  reduce 81
+	STRING  reduce 81
+	GREATER_OR_EQUAL  reduce 81
+	LESS_OR_EQUAL  reduce 81
+	EQUAL  reduce 81
+	NOT_EQUAL  reduce 81
+	CTE_INT  reduce 81
+	CTE_FLOAT  reduce 81
+	ID  reduce 81
+	IF  reduce 81
+	PRINT  reduce 81
+	VAR  reduce 81
+	FOR  reduce 81
+	INT  reduce 81
+	FLOAT  reduce 81
+	ARROW  reduce 81
+	FUN  reduce 81
+	'}'  reduce 81
+	'('  reduce 81
+	')'  reduce 81
+	';'  reduce 81
+	'+'  reduce 81
+	'-'  reduce 81
+	'>'  reduce 81
+	'<'  reduce 81
+	','  reduce 81
+
+
+state 164
+	expresion_aritmetica : expresion_aritmetica '-' termino .  (74)
+	termino : termino . '*' factor  (82)
+	termino : termino . '/' factor  (83)
+	termino_error : termino . '*' error  (86)
+	termino_error : termino . '/' error  (87)
+
+	'*'  shift 110
+	'/'  shift 111
+	$end  reduce 74
+	error  reduce 74
+	STRING  reduce 74
+	GREATER_OR_EQUAL  reduce 74
+	LESS_OR_EQUAL  reduce 74
+	EQUAL  reduce 74
+	NOT_EQUAL  reduce 74
+	CTE_INT  reduce 74
+	CTE_FLOAT  reduce 74
+	ID  reduce 74
+	IF  reduce 74
+	PRINT  reduce 74
+	VAR  reduce 74
+	FOR  reduce 74
+	INT  reduce 74
+	FLOAT  reduce 74
+	ARROW  reduce 74
+	FUN  reduce 74
+	'}'  reduce 74
+	'('  reduce 74
+	')'  reduce 74
+	';'  reduce 74
+	'+'  reduce 74
+	'-'  reduce 74
+	'>'  reduce 74
+	'<'  reduce 74
+	','  reduce 74
+
+
+state 165
+	condicion : expresion_aritmetica simbolo_comparador factor .  (68)
+
+	.  reduce 68
+
+
+state 166
+	termino_error : termino '*' error .  (86)
+
+	.  reduce 86
+
+
+state 167
+	termino : termino '*' factor .  (82)
+
+	.  reduce 82
+
+
+state 168
+	termino_error : termino '/' error .  (87)
+
+	.  reduce 87
+
+
+state 169
+	termino : termino '/' factor .  (83)
+
+	.  reduce 83
+
+
+state 170
+	sentencia_print : PRINT '(' STRING ')' .  (19)
+
+	.  reduce 19
+
+
+state 171
+	lista_exp_aritmeticas_error : lista_exp_aritmeticas error . expresion_aritmetica  (108)
+
+	error  shift 41
+	CTE_INT  shift 46
+	CTE_FLOAT  shift 47
+	ID  shift 6
+	TOI  shift 48
+	FUN  shift 49
+	.  error
+
+	expresion_aritmetica  goto 204
+	factor  goto 58
+	termino  goto 60
+	expresion_aritmetica_toi  goto 61
+	expresion_aritmetica_error  goto 62
+	termino_error  goto 63
+	variable  goto 64
+	expresion_aritmetica_toi_error  goto 65
+
+
+state 172
+	sentencia_print : PRINT '(' lista_exp_aritmeticas ')' .  (20)
+
+	.  reduce 20
+
+
+state 173
+	lista_exp_aritmeticas : lista_exp_aritmeticas ',' . expresion_aritmetica  (105)
+
+	error  shift 41
+	CTE_INT  shift 46
+	CTE_FLOAT  shift 47
+	ID  shift 6
+	TOI  shift 48
+	FUN  shift 49
+	.  error
+
+	expresion_aritmetica  goto 205
+	factor  goto 58
+	termino  goto 60
+	expresion_aritmetica_toi  goto 61
+	expresion_aritmetica_error  goto 62
+	termino_error  goto 63
+	variable  goto 64
+	expresion_aritmetica_toi_error  goto 65
+
+
+state 174
+	sentencia_asignacion_unaria : VAR ID TWO_POINTS_ASSIGNATION expresion_aritmetica .  (54)
+	expresion_aritmetica : expresion_aritmetica . '+' termino  (73)
+	expresion_aritmetica : expresion_aritmetica . '-' termino  (74)
+	expresion_aritmetica_error : expresion_aritmetica . '+' error  (80)
+	expresion_aritmetica_error : expresion_aritmetica . '-' error  (81)
+
+	'+'  shift 105
+	'-'  shift 106
+	$end  reduce 54
+	STRING  reduce 54
+	ID  reduce 54
+	IF  reduce 54
+	PRINT  reduce 54
+	VAR  reduce 54
+	FOR  reduce 54
+	INT  reduce 54
+	FLOAT  reduce 54
+	'}'  reduce 54
+	'('  reduce 54
+	')'  reduce 54
+	';'  reduce 54
+
+
+state 175
+	encabezado_iteracion_error : ID CTE_INT TO . CTE_INT  (45)
+
+	CTE_INT  shift 206
+	.  error
+
+
+state 176
+	encabezado_iteracion : ID FROM CTE_INT . TO CTE_INT  (42)
+	encabezado_iteracion_error : ID FROM CTE_INT . CTE_INT  (47)
+	encabezado_iteracion_error : ID FROM CTE_INT . TO  (48)
+
+	CTE_INT  shift 207
+	TO  shift 208
+	.  error
+
+
+state 177
+	encabezado_iteracion_error : ID FROM TO . CTE_INT  (46)
+
+	CTE_INT  shift 209
+	.  error
+
+
+state 178
+	encabezado_iteracion_error : FROM CTE_INT TO . CTE_INT  (44)
+
+	CTE_INT  shift 210
+	.  error
+
+
+state 179
+	parametros_iteracion : '(' encabezado_iteracion ')' .  (37)
+
+	.  reduce 37
+
+
+state 180
+	cuerpo_iteracion_error : '{' '}' .  (51)
+
+	.  reduce 51
+
+
+state 181
+	cuerpo : cuerpo . sentencia  (8)
+	cuerpo_iteracion : '{' cuerpo . '}'  (49)
+
+	STRING  shift 5
+	ID  shift 6
+	IF  shift 7
+	PRINT  shift 8
+	VAR  shift 9
+	FOR  shift 10
+	INT  shift 11
+	FLOAT  shift 12
+	'}'  shift 211
+	'('  shift 38
+	.  error
+
+	sentencia  goto 79
+	sentencia_declarativa  goto 17
+	sentencia_ejecucion  goto 18
+	sentencia_ejecucion_sin_coma  goto 19
+	funcion  goto 20
+	sentencia_print  goto 21
+	sentencia_seleccion  goto 22
+	sentencia_iteracion  goto 23
+	sentencia_asignacion  goto 24
+	sentencia_print_error  goto 25
+	sentencia_seleccion_sin_endif  goto 26
+	sentencia_asignacion_unaria  goto 27
+	sentencia_asignacion_multiple  goto 28
+	sentencia_asignacion_unaria_error  goto 29
+	lista_variables  goto 30
+	lista_tipos  goto 31
+	sentencia_lambda  goto 32
+	funcion_error  goto 33
+	parametro_lambda  goto 34
+	tipo  goto 35
+	variable  goto 36
+	lista_variables_error  goto 37
+
+
+state 182
+	parametro_lambda : '(' tipo ID ')' .  (63)
+
+	.  reduce 63
+
+
+state 183
+	funcion : lista_tipos FUN '(' lista_param_formales . ')' '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' ';'  (58)
+	lista_param_formales : lista_param_formales . ',' parametro_formal  (111)
+
+	')'  shift 212
+	','  shift 187
+	.  error
+
+
+state 184
+	semantica_pasaje : CR SE .  (131)
+
+	.  reduce 131
+
+
+state 185
+	semantica_pasaje : CR LE .  (132)
+
+	.  reduce 132
+
+
+state 186
+	funcion_error : lista_tipos '(' lista_param_formales ')' . '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' ';'  (61)
+
+	'{'  shift 213
+	.  error
+
+
+state 187
+	lista_param_formales : lista_param_formales ',' . parametro_formal  (111)
+
+	STRING  shift 5
+	ID  shift 133
+	CR  shift 134
+	SE  shift 135
+	LE  shift 136
+	INT  shift 11
+	FLOAT  shift 12
+	.  error
+
+	tipo  goto 138
+	parametro_formal  goto 214
+	semantica_pasaje  goto 140
+	parametro_formal_error  goto 141
+	semantica_pasaje_error  goto 142
+
+
+state 188
+	parametro_formal : tipo ID .  (123)
+
+	.  reduce 123
+
+
+state 189
+	parametro_formal_error : semantica_pasaje ID .  (127)
+
+	.  reduce 127
+
+
+state 190
+	parametro_formal : semantica_pasaje tipo . ID  (122)
+	parametro_formal_error : semantica_pasaje tipo .  (125)
+
+	ID  shift 215
+	')'  reduce 125
+	','  reduce 125
+
+
+state 191
+	cuerpo_lambda : '{' cuerpo '}' .  (64)
+
+	.  reduce 64
+
+
+state 192
+	argumento_lambda : '(' CTE_INT . ')'  (66)
+
+	')'  shift 216
+	.  error
+
+
+state 193
+	argumento_lambda : '(' CTE_FLOAT . ')'  (67)
+
+	')'  shift 217
+	.  error
+
+
+state 194
+	argumento_lambda : '(' ID . ')'  (65)
+
+	')'  shift 218
+	.  error
+
+
+state 195
+	expresion_aritmetica_toi_error : TOI error expresion_aritmetica error .  (98)
+
+	.  reduce 98
+
+
+state 196
+	expresion_aritmetica_toi_error : TOI error expresion_aritmetica ')' .  (96)
+
+	.  reduce 96
+
+
+state 197
+	expresion_aritmetica_toi_error : TOI '(' expresion_aritmetica error .  (97)
+
+	.  reduce 97
+
+
+state 198
+	expresion_aritmetica_toi : TOI '(' expresion_aritmetica ')' .  (94)
+
+	.  reduce 94
+
+
+state 199
+	parametro_real : expresion_aritmetica ARROW . ID  (137)
+
+	ID  shift 219
+	.  error
+
+
+state 200
+	factor : FUN '(' lista_param_reales ')' .  (92)
+
+	.  reduce 92
+
+
+state 201
+	lista_param_reales : lista_param_reales ',' . parametro_real  (129)
+
+	error  shift 41
+	CTE_INT  shift 46
+	CTE_FLOAT  shift 47
+	ID  shift 6
+	TOI  shift 48
+	FUN  shift 49
+	.  error
+
+	expresion_aritmetica  goto 153
+	factor  goto 58
+	termino  goto 60
+	expresion_aritmetica_toi  goto 61
+	expresion_aritmetica_error  goto 62
+	termino_error  goto 63
+	variable  goto 64
+	expresion_aritmetica_toi_error  goto 65
+	parametro_real  goto 220
+
+
+state 202
+	cuerpo_seleccion : '{' cuerpo '}' .  (33)
+
+	.  reduce 33
+
+
+state 203
+	sentencia_seleccion : IF parametros_seleccion cuerpo_seleccion ELSE cuerpo_seleccion . ENDIF  (23)
+	sentencia_seleccion_sin_endif : IF parametros_seleccion cuerpo_seleccion ELSE cuerpo_seleccion .  (26)
+
+	ENDIF  shift 221
+	$end  reduce 26
+	STRING  reduce 26
+	ID  reduce 26
+	IF  reduce 26
+	PRINT  reduce 26
+	VAR  reduce 26
+	FOR  reduce 26
+	INT  reduce 26
+	FLOAT  reduce 26
+	'}'  reduce 26
+	'('  reduce 26
+	')'  reduce 26
+	';'  reduce 26
+
+
+state 204
+	expresion_aritmetica : expresion_aritmetica . '+' termino  (73)
+	expresion_aritmetica : expresion_aritmetica . '-' termino  (74)
+	expresion_aritmetica_error : expresion_aritmetica . '+' error  (80)
+	expresion_aritmetica_error : expresion_aritmetica . '-' error  (81)
+	lista_exp_aritmeticas_error : lista_exp_aritmeticas error expresion_aritmetica .  (108)
+
+	'+'  shift 105
+	'-'  shift 106
+	$end  reduce 108
+	error  reduce 108
+	STRING  reduce 108
+	ID  reduce 108
+	IF  reduce 108
+	PRINT  reduce 108
+	VAR  reduce 108
+	FOR  reduce 108
+	INT  reduce 108
+	FLOAT  reduce 108
+	'}'  reduce 108
+	'('  reduce 108
+	')'  reduce 108
+	';'  reduce 108
+	','  reduce 108
+
+
+state 205
+	expresion_aritmetica : expresion_aritmetica . '+' termino  (73)
+	expresion_aritmetica : expresion_aritmetica . '-' termino  (74)
+	expresion_aritmetica_error : expresion_aritmetica . '+' error  (80)
+	expresion_aritmetica_error : expresion_aritmetica . '-' error  (81)
+	lista_exp_aritmeticas : lista_exp_aritmeticas ',' expresion_aritmetica .  (105)
+
+	'+'  shift 105
+	'-'  shift 106
+	$end  reduce 105
+	error  reduce 105
+	STRING  reduce 105
+	ID  reduce 105
+	IF  reduce 105
+	PRINT  reduce 105
+	VAR  reduce 105
+	FOR  reduce 105
+	INT  reduce 105
+	FLOAT  reduce 105
+	'}'  reduce 105
+	'('  reduce 105
+	')'  reduce 105
+	';'  reduce 105
+	','  reduce 105
+
+
+state 206
+	encabezado_iteracion_error : ID CTE_INT TO CTE_INT .  (45)
+
+	.  reduce 45
+
+
+state 207
+	encabezado_iteracion_error : ID FROM CTE_INT CTE_INT .  (47)
+
+	.  reduce 47
+
+
+state 208
+	encabezado_iteracion : ID FROM CTE_INT TO . CTE_INT  (42)
+	encabezado_iteracion_error : ID FROM CTE_INT TO .  (48)
+
+	CTE_INT  shift 222
+	'{'  reduce 48
+	')'  reduce 48
+
+
+state 209
+	encabezado_iteracion_error : ID FROM TO CTE_INT .  (46)
+
+	.  reduce 46
+
+
+state 210
+	encabezado_iteracion_error : FROM CTE_INT TO CTE_INT .  (44)
+
+	.  reduce 44
+
+
+state 211
+	cuerpo_iteracion : '{' cuerpo '}' .  (49)
+
+	.  reduce 49
+
+
+state 212
+	funcion : lista_tipos FUN '(' lista_param_formales ')' . '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' ';'  (58)
+
+	'{'  shift 223
+	.  error
+
+
+state 213
+	funcion_error : lista_tipos '(' lista_param_formales ')' '{' . cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' ';'  (61)
+
+	STRING  shift 5
+	ID  shift 6
+	IF  shift 7
+	PRINT  shift 8
+	VAR  shift 9
+	FOR  shift 10
+	INT  shift 11
+	FLOAT  shift 12
+	'('  shift 38
+	.  error
+
+	cuerpo  goto 224
+	sentencia  goto 16
+	sentencia_declarativa  goto 17
+	sentencia_ejecucion  goto 18
+	sentencia_ejecucion_sin_coma  goto 19
+	funcion  goto 20
+	sentencia_print  goto 21
+	sentencia_seleccion  goto 22
+	sentencia_iteracion  goto 23
+	sentencia_asignacion  goto 24
+	sentencia_print_error  goto 25
+	sentencia_seleccion_sin_endif  goto 26
+	sentencia_asignacion_unaria  goto 27
+	sentencia_asignacion_multiple  goto 28
+	sentencia_asignacion_unaria_error  goto 29
+	lista_variables  goto 30
+	lista_tipos  goto 31
+	sentencia_lambda  goto 32
+	funcion_error  goto 33
+	parametro_lambda  goto 34
+	tipo  goto 35
+	variable  goto 36
+	lista_variables_error  goto 37
+
+
+state 214
+	lista_param_formales : lista_param_formales ',' parametro_formal .  (111)
+
+	.  reduce 111
+
+
+state 215
+	parametro_formal : semantica_pasaje tipo ID .  (122)
+
+	.  reduce 122
+
+
+state 216
+	argumento_lambda : '(' CTE_INT ')' .  (66)
+
+	.  reduce 66
+
+
+state 217
+	argumento_lambda : '(' CTE_FLOAT ')' .  (67)
+
+	.  reduce 67
+
+
+state 218
+	argumento_lambda : '(' ID ')' .  (65)
+
+	.  reduce 65
+
+
+state 219
+	parametro_real : expresion_aritmetica ARROW ID .  (137)
+
+	.  reduce 137
+
+
+state 220
+	lista_param_reales : lista_param_reales ',' parametro_real .  (129)
+
+	.  reduce 129
+
+
+state 221
+	sentencia_seleccion : IF parametros_seleccion cuerpo_seleccion ELSE cuerpo_seleccion ENDIF .  (23)
+
+	.  reduce 23
+
+
+state 222
+	encabezado_iteracion : ID FROM CTE_INT TO CTE_INT .  (42)
+
+	.  reduce 42
+
+
+state 223
+	funcion : lista_tipos FUN '(' lista_param_formales ')' '{' . cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' ';'  (58)
+
+	STRING  shift 5
+	ID  shift 6
+	IF  shift 7
+	PRINT  shift 8
+	VAR  shift 9
+	FOR  shift 10
+	INT  shift 11
+	FLOAT  shift 12
+	'('  shift 38
+	.  error
+
+	cuerpo  goto 225
+	sentencia  goto 16
+	sentencia_declarativa  goto 17
+	sentencia_ejecucion  goto 18
+	sentencia_ejecucion_sin_coma  goto 19
+	funcion  goto 20
+	sentencia_print  goto 21
+	sentencia_seleccion  goto 22
+	sentencia_iteracion  goto 23
+	sentencia_asignacion  goto 24
+	sentencia_print_error  goto 25
+	sentencia_seleccion_sin_endif  goto 26
+	sentencia_asignacion_unaria  goto 27
+	sentencia_asignacion_multiple  goto 28
+	sentencia_asignacion_unaria_error  goto 29
+	lista_variables  goto 30
+	lista_tipos  goto 31
+	sentencia_lambda  goto 32
+	funcion_error  goto 33
+	parametro_lambda  goto 34
+	tipo  goto 35
+	variable  goto 36
+	lista_variables_error  goto 37
+
+
+state 224
+	cuerpo : cuerpo . sentencia  (8)
+	funcion_error : lista_tipos '(' lista_param_formales ')' '{' cuerpo . '}' RETURN '(' lista_exp_aritmeticas ')' ';'  (61)
+
+	STRING  shift 5
+	ID  shift 6
+	IF  shift 7
+	PRINT  shift 8
+	VAR  shift 9
+	FOR  shift 10
+	INT  shift 11
+	FLOAT  shift 12
+	'}'  shift 226
+	'('  shift 38
+	.  error
+
+	sentencia  goto 79
+	sentencia_declarativa  goto 17
+	sentencia_ejecucion  goto 18
+	sentencia_ejecucion_sin_coma  goto 19
+	funcion  goto 20
+	sentencia_print  goto 21
+	sentencia_seleccion  goto 22
+	sentencia_iteracion  goto 23
+	sentencia_asignacion  goto 24
+	sentencia_print_error  goto 25
+	sentencia_seleccion_sin_endif  goto 26
+	sentencia_asignacion_unaria  goto 27
+	sentencia_asignacion_multiple  goto 28
+	sentencia_asignacion_unaria_error  goto 29
+	lista_variables  goto 30
+	lista_tipos  goto 31
+	sentencia_lambda  goto 32
+	funcion_error  goto 33
+	parametro_lambda  goto 34
+	tipo  goto 35
+	variable  goto 36
+	lista_variables_error  goto 37
+
+
+state 225
+	cuerpo : cuerpo . sentencia  (8)
+	funcion : lista_tipos FUN '(' lista_param_formales ')' '{' cuerpo . '}' RETURN '(' lista_exp_aritmeticas ')' ';'  (58)
+
+	STRING  shift 5
+	ID  shift 6
+	IF  shift 7
+	PRINT  shift 8
+	VAR  shift 9
+	FOR  shift 10
+	INT  shift 11
+	FLOAT  shift 12
+	'}'  shift 227
+	'('  shift 38
+	.  error
+
+	sentencia  goto 79
+	sentencia_declarativa  goto 17
+	sentencia_ejecucion  goto 18
+	sentencia_ejecucion_sin_coma  goto 19
+	funcion  goto 20
+	sentencia_print  goto 21
+	sentencia_seleccion  goto 22
+	sentencia_iteracion  goto 23
+	sentencia_asignacion  goto 24
+	sentencia_print_error  goto 25
+	sentencia_seleccion_sin_endif  goto 26
+	sentencia_asignacion_unaria  goto 27
+	sentencia_asignacion_multiple  goto 28
+	sentencia_asignacion_unaria_error  goto 29
+	lista_variables  goto 30
+	lista_tipos  goto 31
+	sentencia_lambda  goto 32
+	funcion_error  goto 33
+	parametro_lambda  goto 34
+	tipo  goto 35
+	variable  goto 36
+	lista_variables_error  goto 37
+
+
+state 226
+	funcion_error : lista_tipos '(' lista_param_formales ')' '{' cuerpo '}' . RETURN '(' lista_exp_aritmeticas ')' ';'  (61)
+
+	RETURN  shift 228
+	.  error
+
+
+state 227
+	funcion : lista_tipos FUN '(' lista_param_formales ')' '{' cuerpo '}' . RETURN '(' lista_exp_aritmeticas ')' ';'  (58)
+
+	RETURN  shift 229
+	.  error
+
+
+state 228
+	funcion_error : lista_tipos '(' lista_param_formales ')' '{' cuerpo '}' RETURN . '(' lista_exp_aritmeticas ')' ';'  (61)
+
+	'('  shift 230
+	.  error
+
+
+state 229
+	funcion : lista_tipos FUN '(' lista_param_formales ')' '{' cuerpo '}' RETURN . '(' lista_exp_aritmeticas ')' ';'  (58)
+
+	'('  shift 231
+	.  error
+
+
+state 230
+	funcion_error : lista_tipos '(' lista_param_formales ')' '{' cuerpo '}' RETURN '(' . lista_exp_aritmeticas ')' ';'  (61)
+
+	error  shift 41
+	CTE_INT  shift 46
+	CTE_FLOAT  shift 47
+	ID  shift 6
+	TOI  shift 48
+	FUN  shift 49
+	.  error
+
+	lista_exp_aritmeticas  goto 232
+	expresion_aritmetica  goto 115
+	factor  goto 58
+	termino  goto 60
+	expresion_aritmetica_toi  goto 61
+	expresion_aritmetica_error  goto 62
+	termino_error  goto 63
+	variable  goto 64
+	expresion_aritmetica_toi_error  goto 65
+	lista_exp_aritmeticas_error  goto 116
+
+
+state 231
+	funcion : lista_tipos FUN '(' lista_param_formales ')' '{' cuerpo '}' RETURN '(' . lista_exp_aritmeticas ')' ';'  (58)
+
+	error  shift 41
+	CTE_INT  shift 46
+	CTE_FLOAT  shift 47
+	ID  shift 6
+	TOI  shift 48
+	FUN  shift 49
+	.  error
+
+	lista_exp_aritmeticas  goto 233
+	expresion_aritmetica  goto 115
+	factor  goto 58
+	termino  goto 60
+	expresion_aritmetica_toi  goto 61
+	expresion_aritmetica_error  goto 62
+	termino_error  goto 63
+	variable  goto 64
+	expresion_aritmetica_toi_error  goto 65
+	lista_exp_aritmeticas_error  goto 116
+
+
+state 232
+	funcion_error : lista_tipos '(' lista_param_formales ')' '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas . ')' ';'  (61)
+	lista_exp_aritmeticas : lista_exp_aritmeticas . ',' expresion_aritmetica  (105)
+	lista_exp_aritmeticas_error : lista_exp_aritmeticas . error expresion_aritmetica  (108)
+
+	error  shift 171
+	')'  shift 234
+	','  shift 173
+	.  error
+
+
+state 233
+	funcion : lista_tipos FUN '(' lista_param_formales ')' '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas . ')' ';'  (58)
+	lista_exp_aritmeticas : lista_exp_aritmeticas . ',' expresion_aritmetica  (105)
+	lista_exp_aritmeticas_error : lista_exp_aritmeticas . error expresion_aritmetica  (108)
+
+	error  shift 171
+	')'  shift 235
+	','  shift 173
+	.  error
+
+
+state 234
+	funcion_error : lista_tipos '(' lista_param_formales ')' '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' . ';'  (61)
+
+	';'  shift 236
+	.  error
+
+
+state 235
+	funcion : lista_tipos FUN '(' lista_param_formales ')' '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' . ';'  (58)
+
+	';'  shift 237
+	.  error
+
+
+state 236
+	funcion_error : lista_tipos '(' lista_param_formales ')' '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' ';' .  (61)
+
+	.  reduce 61
+
+
+state 237
+	funcion : lista_tipos FUN '(' lista_param_formales ')' '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' ';' .  (58)
+
+	.  reduce 58
+
+
+43 terminals, 57 nonterminals
+138 grammar rules, 238 states
