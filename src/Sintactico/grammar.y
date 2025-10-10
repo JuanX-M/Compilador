@@ -14,8 +14,6 @@
 %token TWO_POINTS_ASSIGNATION STRING GREATER_OR_EQUAL LESS_OR_EQUAL EQUAL NOT_EQUAL CTE_INT CTE_FLOAT ID IF ELSE ENDIF PRINT RETURN VAR FOR FROM TO CR SE LE TOI INT FLOAT ARROW FUN
 
 %right TWO_POINTS_ASSIGNATION
-%left '+' '-'
-%left '*' '/'
 %right UMINUS
 
 %start  prog
@@ -191,53 +189,62 @@ argumento_lambda
     |   '(' CTE_FLOAT ')'
     ;
 
-expresion_aritmetica
-    :   expresion_aritmetica_convencional
-    |   expresion_aritmetica_to_integer
-    |   expresion_aritmetica_negativa
-    |   operando
-    ;
-
-expresion_aritmetica_convencional
-    :   expresion_aritmetica simbolo_operador operando
-//    |   expresion_aritmetica_convencional_error
-    ;
-
-//expresion_aritmetica_convencional_error
-//    :   simbolo_operador operando {Logger.logError(cursor.getCurrentLine(), "Falta de operando en expresion aritmetica");}
-//    ;
-
-simbolo_operador
-    :   '+'
-    |   '-'
-    |   '*'
-    |   '/'
-    ;
-
-expresion_aritmetica_to_integer
-    :   TOI '(' expresion_aritmetica ')'
-//    |   expresion_aritmetica_to_integer_error
-    ;
-
-//expresion_aritmetica_to_integer_error
-//    :   TOI expresion_aritmetica ')'
-//    |   TOI '(' expresion_aritmetica
-//    |   TOI expresion_aritmetica
-//    ;
-
-expresion_aritmetica_negativa
-    :   '-' expresion_aritmetica %prec UMINUS
-    ;
-
 condicion
-    :   expresion_aritmetica simbolo_comparador operando
+    :   expresion_aritmetica simbolo_comparador factor
     |   condicion_error
     ;
 
 condicion_error
-    :   expresion_aritmetica operando               {Logger.logError(cursor.getCurrentLine(), "Falta de simbolo comparador en condicion");}
-    |   expresion_aritmetica simbolo_comparador     {Logger.logError(cursor.getCurrentLine(), "Falta de argumento derecho en condicion");}
-    |   simbolo_comparador operando                 {Logger.logError(cursor.getCurrentLine(), "Falta de argumento izquierdo en condicion");}
+    :   expresion_aritmetica termino               {Logger.logError(cursor.getCurrentLine(), "Falta de simbolo comparador en condicion");}
+    |   expresion_aritmetica simbolo_comparador    {Logger.logError(cursor.getCurrentLine(), "Falta de argumento derecho en condicion");}
+    |   simbolo_comparador termino                 {Logger.logError(cursor.getCurrentLine(), "Falta de argumento izquierdo en condicion");}
+    ;
+
+expresion_aritmetica
+    :   expresion_aritmetica '+' termino
+    |   expresion_aritmetica '-' termino
+    |   expresion_aritmetica_toi
+    |   termino
+    |   expresion_aritmetica_error
+    ;
+
+expresion_aritmetica_error
+    :   error '+' termino               {Logger.logError(cursor.getCurrentLine(), "Falta de operando izquierdo en expresion_aritmetica con '+''");}
+    |   error '-' termino               {Logger.logError(cursor.getCurrentLine(), "Falta de operando izquierdo en expresion_aritmetica con '-'");}
+    |   expresion_aritmetica '+' error  {Logger.logError(cursor.getCurrentLine(), "Falta de operando derecho en expresion_aritmetica con '+'");}
+    |   expresion_aritmetica '-' error  {Logger.logError(cursor.getCurrentLine(), "Falta de operando derecho en expresion_aritmetica con '-'");}
+    ;
+
+termino
+    :   termino '*' factor
+    |   termino '/' factor
+    |   factor
+    |   termino_error
+    ;
+
+termino_error
+    :   termino '*' error   {Logger.logError(cursor.getCurrentLine(), "Falta de operando izquierdo en expresion_aritmetica con '*'");}
+    |   termino '/' error   {Logger.logError(cursor.getCurrentLine(), "Falta de operando izquierdo en expresion_aritmetica con '/'");}
+    |   error '*' factor    {Logger.logError(cursor.getCurrentLine(), "Falta de operando derecho en expresion_aritmetica con '*'");}
+    |   error '/' factor    {Logger.logError(cursor.getCurrentLine(), "Falta de operando derecho en expresion_aritmetica con '-'");}
+    ;
+
+factor
+    :   CTE_INT
+    |   CTE_FLOAT
+    |   ID '(' lista_param_reales ')'
+    |   variable
+    ;
+
+expresion_aritmetica_toi
+    :   TOI '(' expresion_aritmetica ')'
+    |   expresion_aritmetica_toi_error
+    ;
+
+expresion_aritmetica_toi_error
+    :   TOI error expresion_aritmetica ')'      {Logger.logError(cursor.getCurrentLine(), "Falta de '(' en expresion_aritmetica TOI");}
+    |   TOI '(' expresion_aritmetica error      {Logger.logError(cursor.getCurrentLine(), "Falta de ')' en expresion_aritmetica TOI");}
+    |   TOI error expresion_aritmetica error    {Logger.logError(cursor.getCurrentLine(), "Falta de '()' en expresion_aritmetica TOI");}
     ;
 
 simbolo_comparador
@@ -261,13 +268,6 @@ lista_tipos
 lista_param_formales
     :   lista_param_formales ',' parametro_formal
     |   parametro_formal
-    ;
-
-operando
-    :   CTE_INT
-    |   CTE_FLOAT
-    |   ID '(' lista_param_reales ')'
-    |   variable
     ;
 
 lista_variables
@@ -354,7 +354,7 @@ public static void main (String [] args) {
     System.out.println("TablaSimbolos: " + TablaSimbolos.TABLA_SIMBOLOS);
     System.out.println(Logger.generateLog());
 
-    System.out.println("Fin compilación");
+    System.out.println("\nFin compilación");
 }
 
 

@@ -39,7 +39,7 @@ public final class Logger {
     public static String generateLog() {
         String out = null;
 
-        out = "\n>>>    LOG \n";
+        out = "\n>>>    LOG \n\n";
 
         for (String s : warnings) {
             out += s;
@@ -53,6 +53,8 @@ public final class Logger {
             out += s;
         }
 
+        out += "\nCantidad de errores totales: " + errors.size();
+        out += "\nCantidad de warnings totales: " + warnings.size();
 
         return out;
     }
