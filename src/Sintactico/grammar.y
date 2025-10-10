@@ -254,10 +254,16 @@ simbolo_comparador
     |   NOT_EQUAL
     |   '>'
     |   '<'
+    ;
 
 lista_exp_aritmeticas
     :   lista_exp_aritmeticas ',' expresion_aritmetica
     |   expresion_aritmetica
+    |   lista_exp_aritmeticas_error
+    ;
+
+lista_exp_aritmeticas_error
+    :   lista_exp_aritmeticas error expresion_aritmetica    {Logger.logError(cursor.getCurrentLine(), "Falta de ',' en declaracion de variables (lado derecho)");}
     ;
 
 lista_tipos
@@ -277,16 +283,12 @@ lista_variables
     ;
 
 lista_variables_error
-    :   variable_error variable_error    {Logger.logError(cursor.getCurrentLine(), "Falta de ',' en declaracion de variables (lado izquierdo)");}
+    :   lista_variables variable    {Logger.logError(cursor.getCurrentLine(), "Falta de ',' en declaracion de variables (lado izquierdo)");}
     ;
 
 variable
     :   ID
     |   ID '.' ID
-    ;
-
-variable_error
-    :   variable
     ;
 
 tipo
