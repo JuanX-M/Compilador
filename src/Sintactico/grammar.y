@@ -13,8 +13,11 @@
 
 %token TWO_POINTS_ASSIGNATION STRING GREATER_OR_EQUAL LESS_OR_EQUAL EQUAL NOT_EQUAL CTE_INT CTE_FLOAT ID IF ELSE ENDIF PRINT RETURN VAR FOR FROM TO CR SE LE TOI INT FLOAT ARROW FUN
 
+%nonassoc SENTENCIA_ASIGNACION_PREC
+
+%left ID
 %right TWO_POINTS_ASSIGNATION
-%right UMINUS
+
 
 %start  prog
 
@@ -46,7 +49,6 @@ sentencia
 //    |   sentencia_lambda
 //    |   sentencia_error
     ;
-
 //sentencia_error
 //    :   error {Logger.logError(cursor.getCurrentLine(), "Hay errores lexicos o sintaticos no identificados");}
 //    ;
@@ -63,7 +65,7 @@ sentencia_ejecucion
     ;
 
 sentencia_ejecucion_sin_coma
-    :   sentencia_ejecucion     {Logger.logError(cursor.getCurrentLine(), "Falta de ';' al final de las sentencias.");}
+    :   sentencia_ejecucion  {Logger.logError(cursor.getCurrentLine(), "Falta de ';' al final de las sentencias.");}
     ;
 
 sentencia_print
@@ -151,14 +153,14 @@ sentencia_asignacion
 sentencia_asignacion_unaria
     :   VAR ID TWO_POINTS_ASSIGNATION expresion_aritmetica
     |   sentencia_asignacion_unaria_error
-
+    ;
 
 sentencia_asignacion_unaria_error
     :   VAR ID expresion_aritmetica     {Logger.logError(cursor.getCurrentLine(), "Falta de asignacion luego de var");}
     ;
 
 sentencia_asignacion_multiple
-    :   lista_variables '=' lista_exp_aritmeticas
+    :   lista_variables '=' lista_exp_aritmeticas %prec SENTENCIA_ASIGNACION_PREC
     ;
 
 funcion
