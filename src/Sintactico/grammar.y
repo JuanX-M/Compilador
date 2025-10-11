@@ -351,7 +351,7 @@ public static void main (String [] args) {
 
     lex = new AnalizadorLexico (programa) ;
     cursor = lex.getCursor();
-    par = new Parser (false);
+    par = new Parser (true);
 
     par.run () ;
 
