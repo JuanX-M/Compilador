@@ -263,7 +263,7 @@ lista_exp_aritmeticas
     ;
 
 lista_exp_aritmeticas_error
-    :   lista_exp_aritmeticas error expresion_aritmetica    {Logger.logError(cursor.getCurrentLine(), "Falta de ',' en declaracion de variables (lado derecho)");}
+    :   lista_exp_aritmeticas  expresion_aritmetica    {Logger.logError(cursor.getCurrentLine(), "Falta de ',' en declaracion de variables (lado derecho)");}
     ;
 
 lista_tipos
