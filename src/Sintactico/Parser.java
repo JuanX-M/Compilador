@@ -191,7 +191,8 @@ public final static short INT=279;
 public final static short FLOAT=280;
 public final static short ARROW=281;
 public final static short FUN=282;
-public final static short SENTENCIA_ASIGNACION_PREC=283;
+public final static short CTE_INT_NEGATIVE=283;
+public final static short SENTENCIA_ASIGNACION_PREC=284;
 public final static short YYERRCODE=256;
 final static short yylhs[] = {                           -1,
     0,    0,    2,    2,    2,    2,    2,    1,    1,    3,
@@ -606,7 +607,7 @@ yycheck = new short[] {                         43,
 };
 }
 final static short YYFINAL=3;
-final static short YYMAXTOKEN=283;
+final static short YYMAXTOKEN=284;
 final static String yyname[] = {
 "end-of-file",null,null,null,null,null,null,null,null,null,null,null,null,null,
 null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,
@@ -627,7 +628,8 @@ null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,
 null,null,null,null,null,null,null,"TWO_POINTS_ASSIGNATION","STRING",
 "GREATER_OR_EQUAL","LESS_OR_EQUAL","EQUAL","NOT_EQUAL","CTE_INT","CTE_FLOAT",
 "ID","IF","ELSE","ENDIF","PRINT","RETURN","VAR","FOR","FROM","TO","CR","SE",
-"LE","TOI","INT","FLOAT","ARROW","FUN","SENTENCIA_ASIGNACION_PREC",
+"LE","TOI","INT","FLOAT","ARROW","FUN","CTE_INT_NEGATIVE",
+"SENTENCIA_ASIGNACION_PREC",
 };
 final static String yyrule[] = {
 "$accept : prog",
@@ -776,7 +778,7 @@ final static String yyrule[] = {
 "parametro_real_error : expresion_aritmetica ARROW",
 };
 
-//#line 348 "grammar.y"
+//#line 350 "grammar.y"
 
 private static int yylval_recognition = 0;
 
@@ -819,7 +821,7 @@ int yylex() {
 void yyerror (String s) {
     System.out.println(s);
 }
-//#line 751 "Parser.java"
+//#line 753 "Parser.java"
 //###############################################################
 // method: yylexdebug : check lexer state
 //###############################################################
@@ -1061,115 +1063,135 @@ case 56:
 //#line 159 "grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de asignacion luego de var");}
 break;
+case 57:
+//#line 164 "grammar.y"
+{if (val_peek(2).ival != val_peek(0).ival) {Logger.logError(cursor.getCurrentLine(), "La cantidad de variables (" + val_peek(2).ival + ") no coincide con la cantidad de expresiones (" + val_peek(0).ival + ") en la asignación múltiple.");}}
+break;
 case 61:
-//#line 173 "grammar.y"
+//#line 174 "grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de nombre en funcion");}
 break;
 case 66:
-//#line 189 "grammar.y"
+//#line 190 "grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta delimitador izquierdo '{' del cuerpo lambda");}
 break;
 case 72:
-//#line 205 "grammar.y"
+//#line 206 "grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de simbolo comparador en condicion");}
 break;
 case 73:
-//#line 206 "grammar.y"
+//#line 207 "grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de argumento derecho en condicion");}
 break;
 case 74:
-//#line 207 "grammar.y"
+//#line 208 "grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de argumento izquierdo en condicion");}
 break;
 case 80:
-//#line 219 "grammar.y"
+//#line 221 "grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de operando izquierdo en expresion_aritmetica con '+''");}
 break;
 case 81:
-//#line 220 "grammar.y"
+//#line 222 "grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de operando izquierdo en expresion_aritmetica con '-'");}
 break;
 case 82:
-//#line 221 "grammar.y"
+//#line 223 "grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de operando derecho en expresion_aritmetica con '+'");}
 break;
 case 83:
-//#line 222 "grammar.y"
+//#line 224 "grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de operando derecho en expresion_aritmetica con '-'");}
 break;
 case 88:
-//#line 233 "grammar.y"
+//#line 235 "grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de operando izquierdo en expresion_aritmetica con '*'");}
 break;
 case 89:
-//#line 234 "grammar.y"
+//#line 236 "grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de operando izquierdo en expresion_aritmetica con '/'");}
 break;
 case 90:
-//#line 235 "grammar.y"
+//#line 237 "grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de operando derecho en expresion_aritmetica con '*'");}
 break;
 case 91:
-//#line 236 "grammar.y"
+//#line 238 "grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de operando derecho en expresion_aritmetica con '-'");}
 break;
 case 98:
-//#line 252 "grammar.y"
+//#line 254 "grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de '(' en expresion_aritmetica TOI");}
 break;
 case 99:
-//#line 253 "grammar.y"
+//#line 255 "grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de ')' en expresion_aritmetica TOI");}
 break;
 case 100:
-//#line 254 "grammar.y"
+//#line 256 "grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de '()' en expresion_aritmetica TOI");}
 break;
+case 107:
+//#line 269 "grammar.y"
+{yyval.ival = val_peek(2).ival + 1;}
+break;
+case 108:
+//#line 270 "grammar.y"
+{yyval.ival = 1;}
+break;
 case 110:
-//#line 273 "grammar.y"
+//#line 275 "grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de ',' en declaracion de variables (lado derecho)");}
 break;
 case 114:
-//#line 282 "grammar.y"
+//#line 284 "grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de ',' en declaracion de tipos)");}
 break;
+case 117:
+//#line 292 "grammar.y"
+{yyval.ival = val_peek(2).ival + 1;}
+break;
+case 118:
+//#line 293 "grammar.y"
+{yyval.ival = 1; }
+break;
 case 120:
-//#line 296 "grammar.y"
+//#line 298 "grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de ',' en declaracion de variables (lado izquierdo)");}
 break;
 case 129:
-//#line 317 "grammar.y"
+//#line 319 "grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta el nombre de parametro formal en declaracion de funcion");}
 break;
 case 130:
-//#line 318 "grammar.y"
+//#line 320 "grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta el nombre de parametro formal en declaracion de funcion");}
 break;
 case 131:
-//#line 319 "grammar.y"
+//#line 321 "grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de tipo en parametro formal en declaracion de funcion");}
 break;
 case 132:
-//#line 320 "grammar.y"
+//#line 322 "grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de tipo en parametro formal en declaracion de funcion");}
 break;
 case 138:
-//#line 335 "grammar.y"
+//#line 337 "grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de LE o SE despues de CR");}
 break;
 case 139:
-//#line 336 "grammar.y"
+//#line 338 "grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de CR antes de SE");}
 break;
 case 140:
-//#line 337 "grammar.y"
+//#line 339 "grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de CR antes de LE");}
 break;
 case 143:
-//#line 345 "grammar.y"
+//#line 347 "grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta especificacion del parametro formal");}
 break;
-//#line 1096 "Parser.java"
+//#line 1118 "Parser.java"
 //########## END OF USER-SUPPLIED ACTIONS ##########
     }//switch
     //#### Now let's reduce... ####

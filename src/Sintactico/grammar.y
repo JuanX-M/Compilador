@@ -11,7 +11,7 @@
 
 %}
 
-%token TWO_POINTS_ASSIGNATION STRING GREATER_OR_EQUAL LESS_OR_EQUAL EQUAL NOT_EQUAL CTE_INT CTE_FLOAT ID IF ELSE ENDIF PRINT RETURN VAR FOR FROM TO CR SE LE TOI INT FLOAT ARROW FUN
+%token TWO_POINTS_ASSIGNATION STRING GREATER_OR_EQUAL LESS_OR_EQUAL EQUAL NOT_EQUAL CTE_INT CTE_FLOAT ID IF ELSE ENDIF PRINT RETURN VAR FOR FROM TO CR SE LE TOI INT FLOAT ARROW FUN CTE_INT_NEGATIVE
 
 %nonassoc SENTENCIA_ASIGNACION_PREC
 
@@ -161,6 +161,7 @@ sentencia_asignacion_unaria_error
 
 sentencia_asignacion_multiple
     :   lista_variables '=' lista_exp_aritmeticas %prec SENTENCIA_ASIGNACION_PREC
+            {if ($1.ival != $3.ival) {Logger.logError(cursor.getCurrentLine(), "La cantidad de variables (" + $1.ival + ") no coincide con la cantidad de expresiones (" + $3.ival + ") en la asignación múltiple.");}}
     ;
 
 funcion
@@ -212,6 +213,7 @@ expresion_aritmetica
     |   expresion_aritmetica '-' termino
     |   expresion_aritmetica_toi
     |   termino
+
     |   expresion_aritmetica_error
     ;
 
@@ -264,8 +266,8 @@ simbolo_comparador
     ;
 
 lista_exp_aritmeticas
-    :   lista_exp_aritmeticas ',' expresion_aritmetica
-    |   expresion_aritmetica
+    :   lista_exp_aritmeticas ',' expresion_aritmetica {$$.ival = $1.ival + 1;}
+    |   expresion_aritmetica  {$$.ival = 1;}
     |   lista_exp_aritmeticas_error
     ;
 
@@ -287,8 +289,8 @@ lista_param_formales
     ;
 
 lista_variables
-    :   lista_variables ',' variable
-    |   variable
+    :   lista_variables ',' variable        {$$.ival = $1.ival + 1;}
+    |   variable                            {$$.ival = 1; }
     |   lista_variables_error
     ;
 
