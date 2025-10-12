@@ -13,12 +13,13 @@ public class ASEntregarLiterales extends AccionSemantica {
     @Override
     public Pair<String, Integer> run(Character simbolo, Cursor cursor) {
 
-        String aux = BUFFER.append(simbolo).toString();
-        if (aux.contains("->") && aux.length() == 2) {
+        String aux = BUFFER.toString();
+        if (aux.contains("-") && simbolo =='>') {
 
             BUFFER.setLength(0);
-            return new Pair<>(aux, TABLA_PALABRAS_RESERVADAS.get(aux));
+            return new Pair<>(aux, TABLA_PALABRAS_RESERVADAS.get("->"));
         } else {
+            //System.out.println("AUX : "+aux);
             BUFFER.setLength(0);
             switch (simbolo) {
                 // int 'literal' tranformas a codigo ASCII
@@ -43,6 +44,10 @@ public class ASEntregarLiterales extends AccionSemantica {
                 case '*':
                     return new Pair<>("*", (int) '*');
                 default:
+                    if (aux.contains("-")) {
+                        cursor.gobackCharacter();
+                        return new Pair<>("-", (int) '-');
+                    }
                     return null;
             }
 
