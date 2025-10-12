@@ -183,6 +183,11 @@ parametro_lambda
 
 cuerpo_lambda
     :   '{' cuerpo '}'
+    |   cuerpo_lambda_error
+    ;
+cuerpo_lambda_error
+    :   cuerpo '}' {Logger.logError(cursor.getCurrentLine(), "Falta delimitador izquierdo '{' del cuerpo lambda");}
+    //|   '{' cuerpo error {Logger.logError(cursor.getCurrentLine(), "Falta delimitador derecho '}' del cuerpo lambda");}
     ;
 
 argumento_lambda
@@ -271,8 +276,11 @@ lista_exp_aritmeticas_error
 lista_tipos
     :   lista_tipos ',' tipo
     |   tipo
+    |   lista_tipos_error
     ;
-
+lista_tipos_error
+    :   lista_tipos tipo {Logger.logError(cursor.getCurrentLine(), "Falta de ',' en declaracion de tipos)");}
+    ;
 lista_param_formales
     :   lista_param_formales ',' parametro_formal
     |   parametro_formal
@@ -331,8 +339,11 @@ semantica_pasaje_error
 
 parametro_real
     :   expresion_aritmetica ARROW ID
+    |   parametro_real_error
     ;
-
+parametro_real_error
+    :   expresion_aritmetica ARROW  {Logger.logError(cursor.getCurrentLine(), "Falta especificacion del parametro formal");}
+    ;
 %%
 
 private static int yylval_recognition = 0;
@@ -351,7 +362,7 @@ public static void main (String [] args) {
 
     lex = new AnalizadorLexico (programa) ;
     cursor = lex.getCursor();
-    par = new Parser (true);
+    par = new Parser (false);
 
     par.run () ;
 
