@@ -107,11 +107,13 @@ sentencia_ejecucion_sin_coma
     ;
 
 sentencia_print
-    :   PRINT '(' STRING ')'
-    |   PRINT '(' lista_exp_aritmeticas ')'
+    :   PRINT '(' cuerpo_print ')'
     |   sentencia_print_error
     ;
-
+cuerpo_print
+    :   STRING
+    |  lista_exp_aritmeticas
+    ;
 sentencia_print_error
     :   PRINT '(' ')'       {Logger.logError(cursor.getCurrentLine(), "Falta argumento en sentencia PRINT");}
     ;
@@ -220,6 +222,7 @@ sentencia_funcion
     |   sentencia_ejecucion_retorno
     |   sentencia_retorno
     ;
+
 sentencia_retorno
     : RETURN '(' lista_exp_aritmeticas ')' ';'
     ;
