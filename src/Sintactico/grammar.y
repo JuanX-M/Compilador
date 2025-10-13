@@ -215,7 +215,7 @@ encabezado_funcion
 cuerpo_funcion
     :   cuerpo_funcion cuerpo
     |   cuerpo_funcion cuerpo_funcion_retorno
-    |   cuerpo
+    |   cuerpo //hay error con esto
     |   cuerpo_funcion_retorno
     ;
 
