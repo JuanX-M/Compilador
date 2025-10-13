@@ -165,9 +165,22 @@ sentencia_asignacion_multiple
     ;
 
 funcion
-    :   lista_tipos FUN '(' lista_param_formales ')' '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' ';'
+    :   encabezado_funcion '{' cuerpo_funcion  '}'
     |   sentencia_lambda
     |   funcion_error
+    ;
+
+encabezado_funcion
+    : lista_tipos  FUN '(' lista_param_formales ')'
+    ;
+
+
+
+
+cuerpo_funcion
+    : cuerpo_funcion cuerpo  RETURN '(' lista_exp_aritmeticas ')' ';'
+    | cuerpo  RETURN '(' lista_exp_aritmeticas ')' ';'
+    | RETURN '(' lista_exp_aritmeticas ')' ';'
     ;
 
 funcion_error
