@@ -64,6 +64,44 @@ sentencia_ejecucion
     |   sentencia_asignacion
     ;
 
+sentencia_ejecucion_retorno
+    :   sentencia_print_retorno
+    |   sentencia_seleccion_retorno
+    |   sentencia_iteracion_retorno
+    |   sentencia_asignacion_retorno
+    ;
+
+sentencia_print_retorno
+    :   PRINT '(' STRING ')' RETURN '(' lista_exp_aritmeticas ')' ';'
+    |   PRINT '(' lista_exp_aritmeticas ')' RETURN '(' lista_exp_aritmeticas ')' ';'
+//    |   sentencia_print_error //falta algo?
+    ;
+
+sentencia_seleccion_retorno
+    :   IF parametros_seleccion cuerpo_seleccion_retorno ELSE cuerpo_seleccion_retorno ENDIF
+    |   IF parametros_seleccion cuerpo_seleccion_retorno ENDIF
+//    |   sentencia_seleccion_sin_endif  {Logger.logError(cursor.getCurrentLine(), "Falta de endif");}
+    ;
+
+cuerpo_seleccion_retorno
+    :   '{' cuerpo RETURN '(' lista_exp_aritmeticas ')' ';' '}'
+//    |   cuerpo_seleccion_error
+    ;
+
+sentencia_iteracion_retorno
+    :   FOR parametros_iteracion cuerpo_iteracion_retorno
+    ;
+
+cuerpo_iteracion_retorno
+    :   '{' cuerpo RETURN '(' lista_exp_aritmeticas ')' ';' '}'
+//    |   cuerpo_iteracion_error
+    ;
+
+sentencia_asignacion_retorno
+    :   sentencia_asignacion_unaria RETURN '(' lista_exp_aritmeticas ')' ';'
+    |   sentencia_asignacion_multiple RETURN '(' lista_exp_aritmeticas ')' ';'
+    ;
+
 sentencia_ejecucion_sin_coma
     :   sentencia_ejecucion  {Logger.logError(cursor.getCurrentLine(), "Falta de ';' al final de las sentencias.");}
     ;
@@ -160,12 +198,12 @@ sentencia_asignacion_unaria_error
     ;
 
 sentencia_asignacion_multiple
-    :   lista_variables '=' lista_exp_aritmeticas %prec SENTENCIA_ASIGNACION_PREC
-            {if ($1.ival != $3.ival) {Logger.logError(cursor.getCurrentLine(), "La cantidad de variables (" + $1.ival + ") no coincide con la cantidad de expresiones (" + $3.ival + ") en la asignación múltiple.");}}
+    :   lista_variables '=' lista_exp_aritmeticas %prec SENTENCIA_ASIGNACION_PREC   {if ($1.ival != $3.ival) {Logger.logError(cursor.getCurrentLine(), "La cantidad de variables (" + $1.ival + ") no coincide con la cantidad de expresiones (" + $3.ival + ") en la asignación múltiple.");}}
     ;
 
 funcion
-    :   encabezado_funcion '{' cuerpo_funcion  '}'
+    :   encabezado_funcion '{' cuerpo_funcion '}'
+    |   encabezado_funcion '{' cuerpo_funcion_retorno '}'
     |   sentencia_lambda
     |   funcion_error
     ;
@@ -174,13 +212,17 @@ encabezado_funcion
     : lista_tipos  FUN '(' lista_param_formales ')'
     ;
 
-
-
-
 cuerpo_funcion
-    : cuerpo_funcion cuerpo  RETURN '(' lista_exp_aritmeticas ')' ';'
-    | cuerpo  RETURN '(' lista_exp_aritmeticas ')' ';'
-    | RETURN '(' lista_exp_aritmeticas ')' ';'
+    :   cuerpo_funcion cuerpo
+    |   cuerpo_funcion cuerpo_funcion_retorno
+    |   cuerpo
+    |   cuerpo_funcion_retorno
+    ;
+
+cuerpo_funcion_retorno
+    :   cuerpo_funcion_retorno sentencia_ejecucion_retorno
+    |   sentencia_ejecucion_retorno
+    |   RETURN '(' lista_exp_aritmeticas ')' ';'
     ;
 
 funcion_error
