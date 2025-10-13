@@ -72,19 +72,19 @@ sentencia_ejecucion_retorno
     ;
 
 sentencia_print_retorno
-    :   PRINT '(' STRING ')' RETURN '(' lista_exp_aritmeticas ')' ';'
-    |   PRINT '(' lista_exp_aritmeticas ')' RETURN '(' lista_exp_aritmeticas ')' ';'
-//    |   sentencia_print_error //falta algo?
+    :   sentencia_print ';' sentencia_retorno
     ;
 
 sentencia_seleccion_retorno
     :   IF parametros_seleccion cuerpo_seleccion_retorno ELSE cuerpo_seleccion_retorno ENDIF
+    |   IF parametros_seleccion cuerpo_seleccion_retorno ELSE cuerpo_seleccion ENDIF
+    |   IF parametros_seleccion cuerpo_seleccion ELSE cuerpo_seleccion_retorno ENDIF
     |   IF parametros_seleccion cuerpo_seleccion_retorno ENDIF
 //    |   sentencia_seleccion_sin_endif  {Logger.logError(cursor.getCurrentLine(), "Falta de endif");}
     ;
 
 cuerpo_seleccion_retorno
-    :   '{' cuerpo RETURN '(' lista_exp_aritmeticas ')' ';' '}'
+    :   '{' cuerpo sentencia_retorno ';' '}'
 //    |   cuerpo_seleccion_error
     ;
 
@@ -93,13 +93,13 @@ sentencia_iteracion_retorno
     ;
 
 cuerpo_iteracion_retorno
-    :   '{' cuerpo RETURN '(' lista_exp_aritmeticas ')' ';' '}'
+    :   '{' cuerpo sentencia_retorno ';' '}'
 //    |   cuerpo_iteracion_error
     ;
 
 sentencia_asignacion_retorno
-    :   sentencia_asignacion_unaria RETURN '(' lista_exp_aritmeticas ')' ';'
-    |   sentencia_asignacion_multiple RETURN '(' lista_exp_aritmeticas ')' ';'
+    :   sentencia_asignacion_unaria ';' sentencia_retorno ';'
+    |   sentencia_asignacion_multiple ';' sentencia_retorno ';'
     ;
 
 sentencia_ejecucion_sin_coma
@@ -203,7 +203,6 @@ sentencia_asignacion_multiple
 
 funcion
     :   encabezado_funcion '{' cuerpo_funcion '}'
-    |   encabezado_funcion '{' cuerpo_funcion_retorno '}'
     |   sentencia_lambda
     |   funcion_error
     ;
@@ -213,16 +212,16 @@ encabezado_funcion
     ;
 
 cuerpo_funcion
-    :   cuerpo_funcion cuerpo
-    |   cuerpo_funcion cuerpo_funcion_retorno
-    |   cuerpo //hay error con esto
-    |   cuerpo_funcion_retorno
+    :   cuerpo_funcion  sentencia_funcion
+    |   sentencia_funcion
     ;
-
-cuerpo_funcion_retorno
-    :   cuerpo_funcion_retorno sentencia_ejecucion_retorno
+sentencia_funcion
+    :   sentencia
     |   sentencia_ejecucion_retorno
-    |   RETURN '(' lista_exp_aritmeticas ')' ';'
+    |   sentencia_retorno
+    ;
+sentencia_retorno
+    : RETURN '(' lista_exp_aritmeticas ')' ';'
     ;
 
 funcion_error
