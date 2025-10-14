@@ -23,7 +23,6 @@ public class ASError extends AccionSemantica{
                 break;
             case 10:
                 Logger.logError(cursor.getCurrentLine(), "Debe ingresar un #");
-                System.out.println("Entra oirehvjnoierv");
                 break;
             case 15:
                 Logger.logError(cursor.getCurrentLine(), "Debe ingresar un =");

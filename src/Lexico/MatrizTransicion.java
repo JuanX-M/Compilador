@@ -1,5 +1,6 @@
 package Lexico;
 import Lexico.AccionesSemanticas.ASError;
+import Tools.Logger;
 import Tools.Pair;
 import Lexico.AccionesSemanticas.AccionSemantica;
 
@@ -7,7 +8,7 @@ import java.util.ArrayList;
 
 public final class MatrizTransicion {
 
-    private final Pair<Integer, AccionSemantica>[][] MATRIZ = new Pair[18][28];
+    private final Pair<Integer, AccionSemantica>[][] MATRIZ = new Pair[18][29];
 
     public MatrizTransicion() {
     }
@@ -76,7 +77,7 @@ public final class MatrizTransicion {
                 char aux2 = '\r';
                 if(c == aux1 || c == aux2)
                     return 2;
-                return null;
+                return 28;
         }
     }
 
@@ -90,8 +91,11 @@ public final class MatrizTransicion {
 
     public int getEstado(int estado, char simbolo) {
         int aux = convertir(simbolo);
-        if (estado == -1) { // TODO: buscar como detectar el error lexico
+        if (aux == -1) { // TODO: buscar como detectar el error lexico
             return 0;
+        }
+        if (aux == 28) {
+            return 28;
         }
         Pair<Integer, AccionSemantica> cell = MATRIZ[estado][aux];
         return cell.getFirst();
@@ -101,9 +105,12 @@ public final class MatrizTransicion {
         //System.out.println("Estado: " + estado + ", Simbolo: '" + simbolo + "'");
         //System.out.println("Columna convertida: " + aux);
         int aux = convertir(simbolo);
-        if (estado == -1) { // TODO: buscar como detectar el error lexico
-            return new ASError();
+        if (aux == -1) { // TODO: buscar como detectar el error lexico
+            return null;
+        }else if (aux == 28) {
+            return null;
         }
+        System.out.println("falla");
         Pair<Integer, AccionSemantica> cell = MATRIZ[estado][aux];
         return cell.getSecond();
     }

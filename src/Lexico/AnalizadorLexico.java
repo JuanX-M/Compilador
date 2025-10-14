@@ -3,6 +3,7 @@ import java.util.ArrayList;
 import Lexico.AccionesSemanticas.*;
 import Tools.LectorArchivo;
 import Tools.Cursor;
+import Tools.Logger;
 import Tools.Pair;
 
 import java.util.stream.Collectors;
@@ -77,10 +78,16 @@ public Pair<String, Integer> generarToken(){
         as = matrizTransicion.getAccionSemantica(estado, caracter);
         ESTADO_ANTERIOR = estado;
         estado = matrizTransicion.getEstado(estado, caracter);
+        System.out.println("Estado: " + estado);
         //System.out.println("Accion:  " + as + "  Estado:  " + estado);
         if (estado == -1){
+            System.out.println("Entra");
             AccionSemantica auxAccion = new ASError();
             auxAccion.run(caracter, cursor);
+            estado = 0;
+        }
+        else if (estado == 28){
+            Logger.logWarning(cursor.getCurrentLine(), "Simbolo '" + cursor.getCharacter() + "' invalido, borrado para continuar con compilacion");
             estado = 0;
         }
         else
