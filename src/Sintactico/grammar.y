@@ -209,7 +209,7 @@ cuerpo_funcion
     |   sentencia_funcion
     ;
 sentencia_funcion
-    :   sentencia_ejecucion_retorno
+    :   sentencia_ejecucion_retorno ';'
     |   sentencia_retorno
     ;
 sentencia_retorno
