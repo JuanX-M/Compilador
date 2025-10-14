@@ -17,25 +17,70 @@ public class ASEntregarPalabras extends AccionSemantica{
 
     @Override
     public Pair<String, Integer> run(Character simbolo, Cursor cursor) {
-
         String aux = BUFFER.toString();
         cursor.gobackCharacter();
         BUFFER.setLength(0);
         //ArrayList<String> auxPalabrasReservadas = new ArrayList<>(transformarArraylist());
-
         try {
-
             if (TABLA_PALABRAS_RESERVADAS.containsKey(aux)) {
                 return new Pair<>(aux, TABLA_PALABRAS_RESERVADAS.get(aux));
-            } else {
-                throw new IllegalArgumentException("Palabra reservada '" + aux + "' no existe");
             }
-        }
-        catch (IllegalArgumentException e) {
-            Logger.logError(cursor.getCurrentLine(), e.getMessage());
+            // Buscar palabra reservada más parecida
+            String sugerida = palabraReservadaMasParecida(aux);
+            if (sugerida != null) {
+                // Registrar warning y devolver token corregido
+                Logger.logWarning(cursor.getCurrentLine(), "Palabra reservada '" + aux + "' no reconocida. " + "Se reemplazó automáticamente por '" + sugerida + "'.");
+                return new Pair<>(sugerida, TABLA_PALABRAS_RESERVADAS.get(sugerida));
+            } else // No se encontró ninguna palabra razonablemente parecida
+                throw new IllegalAccessException("Palabra reservada " + aux + " no existe ni se encontro una semenjante");
+            } catch (IllegalAccessException e) {
+                Logger.logError(cursor.getCurrentLine(), e.getMessage());
         }
         return null;
     }
+
+    // Estos metodos siguientes los sacamos de internet, solo se nos ocurrio la idea del Warning con la palabra mal escrita
+
+    private String palabraReservadaMasParecida(String palabra) {
+        int minDistancia = Integer.MAX_VALUE;
+        String masParecida = null;
+        for (String reservada : TABLA_PALABRAS_RESERVADAS.keySet()) {
+            int distancia = distanciaLevenshtein(palabra.toLowerCase(), reservada.toLowerCase());
+            if (distancia < minDistancia) {
+                minDistancia = distancia;
+                masParecida = reservada;
+            }
+        }
+        // Solo sugerir si es razonablemente parecida (≤2 cambios)
+        return (minDistancia <= 2) ? masParecida : null;
+    }
+
+    private int distanciaLevenshtein(String s1, String s2) {
+        int len1 = s1.length();
+        int len2 = s2.length();
+        int[] prev = new int[len2 + 1];
+        int[] curr = new int[len2 + 1];
+        for (int j = 0; j <= len2; j++)
+            prev[j] = j;
+        for (int i = 1; i <= len1; i++) {
+            curr[0] = i;
+            for (int j = 1; j <= len2; j++) {
+                int costo = (s1.charAt(i - 1) == s2.charAt(j - 1)) ? 0 : 1;
+                curr[j] = Math.min(
+                        Math.min(prev[j] + 1, curr[j - 1] + 1),
+                        prev[j - 1] + costo
+                );
+            }
+            // Intercambio de buffers
+            int[] temp = prev;
+            prev = curr;
+            curr = temp;
+        }
+        return prev[len2];
+    }
+
+}
+
 
     /*private ArrayList<String> transformarArraylist(){ //convierte el doble array list de caracter a un array list de String
         ArrayList<String> salida = new ArrayList<>();
@@ -50,4 +95,4 @@ public class ASEntregarPalabras extends AccionSemantica{
         }
         return salida;
     }*/
-}
+
