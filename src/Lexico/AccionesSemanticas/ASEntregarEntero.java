@@ -25,11 +25,9 @@ public class ASEntregarEntero extends AccionSemantica {
             else
                 Logger.logError(cursor.getCurrentLine(), "El número entero es demasiado grande");
             BUFFER.setLength(0);
-            // si no esta BUFFER.setLength(0)  hay error para todos los enteros porque se van concatenando
-            // en el mismo buffer
+            // si no esta BUFFER.setLength(0)  hay error para todos los enteros porque se van concatenando en el mismo buffer
             return null;
         }
-        System.out.println("Dentro de ASEntregarEntero, El simbolo es  " + simbolo);
         BUFFER.append(simbolo);
         if(TABLA_SIMBOLOS.containsKey(aux)) {
             return new Pair<String,Integer>(aux,TABLA_PALABRAS_RESERVADAS.get("CTE_INT"));

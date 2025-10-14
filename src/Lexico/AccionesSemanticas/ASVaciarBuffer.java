@@ -7,7 +7,6 @@ public class ASVaciarBuffer extends AccionSemantica{
 
     public ASVaciarBuffer() {
         super(13);
-        //this.palabrasReservadas = transformarArraylist();
     }
 
     @Override
@@ -15,5 +14,4 @@ public class ASVaciarBuffer extends AccionSemantica{
         BUFFER.setLength(0);
         return new Pair<>(null,0);
     }
-
 }

@@ -87,18 +87,19 @@ public class AnalizadorLexico {
                 estado = 0;
                 reiniciar = true;
             }
-            else if (as != null) {
+            else
+                if (as != null) {
                 Pair<String, Integer> posibleToken = as.run(caracter, cursor);
-                if (posibleToken == null) {
-                    Logger.logWarning(cursor.getCurrentLine(),
-                            "Token inválido descartado. Reiniciando análisis léxico...");
-                    new ASVaciarBuffer().run(caracter, cursor);
-                    estado = 0;
-                    reiniciar = true;
-                } else {
-                    token = posibleToken;
+                    if (posibleToken == null) {
+                        Logger.logWarning(cursor.getCurrentLine(),
+                                "Token inválido descartado. Reiniciando análisis léxico...");
+                        new ASVaciarBuffer().run(caracter, cursor);
+                        estado = 0;
+                        reiniciar = true;
+                    } else {
+                        token = posibleToken;
+                    }
                 }
-            }
             if (reiniciar) {
                 new ASVaciarBuffer().run(caracter, cursor);
                 cursor.next();

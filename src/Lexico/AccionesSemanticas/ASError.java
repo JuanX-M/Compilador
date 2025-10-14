@@ -10,7 +10,6 @@ public class ASError extends AccionSemantica{
     @Override
     public Pair<String, Integer> run(Character simbolo, Cursor cursor) {
         int aux = AnalizadorLexico.ESTADO_ANTERIOR;
-        //System.out.println(aux);
         switch (aux) {
             case 1:
                 Logger.logError(cursor.getCurrentLine(), "Debe ingresar un digito, un punto o una I");

@@ -12,14 +12,11 @@ public class ASEntregarLiterales extends AccionSemantica {
 
     @Override
     public Pair<String, Integer> run(Character simbolo, Cursor cursor) {
-
         String aux = BUFFER.toString();
         if (aux.contains("-") && simbolo =='>') {
-
             BUFFER.setLength(0);
             return new Pair<>(aux, TABLA_PALABRAS_RESERVADAS.get("->"));
         } else {
-            //System.out.println("AUX : "+aux);
             BUFFER.setLength(0);
             switch (simbolo) {
                 // int 'literal' tranformas a codigo ASCII
@@ -50,8 +47,6 @@ public class ASEntregarLiterales extends AccionSemantica {
                     }
                     return null;
             }
-
-
         }
     }
 }
