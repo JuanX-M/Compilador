@@ -25,13 +25,7 @@ public class ASEntregarPalabras extends AccionSemantica{
             if (TABLA_PALABRAS_RESERVADAS.containsKey(aux)) {
                 return new Pair<>(aux, TABLA_PALABRAS_RESERVADAS.get(aux));
             }
-            // Buscar palabra reservada más parecida
-            String sugerida = palabraReservadaMasParecida(aux);
-            if (sugerida != null) {
-                // Registrar warning y devolver token corregido
-                Logger.logWarning(cursor.getCurrentLine(), "Palabra reservada '" + aux + "' no reconocida. " + "Se reemplazó automáticamente por '" + sugerida + "'.");
-                return new Pair<>(sugerida, TABLA_PALABRAS_RESERVADAS.get(sugerida));
-            } else // No se encontró ninguna palabra razonablemente parecida
+             else
                 throw new IllegalAccessException("Palabra reservada " + aux + " no existe ni se encontro una semenjante");
             } catch (IllegalAccessException e) {
                 Logger.logError(cursor.getCurrentLine(), e.getMessage());
@@ -41,7 +35,7 @@ public class ASEntregarPalabras extends AccionSemantica{
 
     // Estos metodos siguientes los sacamos de internet, solo se nos ocurrio la idea del Warning con la palabra mal escrita
 
-    private String palabraReservadaMasParecida(String palabra) {
+    /*private String palabraReservadaMasParecida(String palabra) {
         int minDistancia = Integer.MAX_VALUE;
         String masParecida = null;
         for (String reservada : TABLA_PALABRAS_RESERVADAS.keySet()) {
@@ -77,7 +71,7 @@ public class ASEntregarPalabras extends AccionSemantica{
             curr = temp;
         }
         return prev[len2];
-    }
+    }*/
 
 }
 

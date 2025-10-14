@@ -42,13 +42,13 @@ public class ASEntregarFlotante extends AccionSemantica{
                     (result.signum() < 0 && result.compareTo(BigDecimal.valueOf(MAX_VALUE_NEG)) > 0)) {
                 BUFFER.setLength(0);
                 Logger.logError(cursor.getCurrentLine(), "El número flotante es demasiado pequeño");
-                return null;
+                return new Pair<>(null, -1);
             }
             if ((result.signum() > 0 && result.compareTo(BigDecimal.valueOf(MAX_VALUE_POS)) > 0) ||
                     (result.signum() < 0 && result.compareTo(BigDecimal.valueOf(MIN_VALUE_NEG)) < 0)) {
                 BUFFER.setLength(0);
                 Logger.logError(cursor.getCurrentLine(), "El número flotante es demasiado grande");
-                return null;
+                return new Pair<>(null, -1);
             }
 
             aux = aux.replace('F', 'E'); //Formateamos para meter en variable
@@ -63,7 +63,7 @@ public class ASEntregarFlotante extends AccionSemantica{
             } catch (NumberFormatException e) {
                 BUFFER.setLength(0);
                 Logger.logError(cursor.getCurrentLine(), "Excede cantidad de bits");
-                return null;
+                return new Pair<>(null, -1);
         }
     BUFFER.setLength(0);
     cursor.gobackCharacter();

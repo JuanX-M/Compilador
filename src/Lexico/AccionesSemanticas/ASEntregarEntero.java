@@ -27,7 +27,7 @@ public class ASEntregarEntero extends AccionSemantica {
             BUFFER.setLength(0);
             // si no esta BUFFER.setLength(0)  hay error para todos los enteros porque se van concatenando
             // en el mismo buffer
-            return null;
+            return new Pair<>(null,-1);
         }
         BUFFER.append(simbolo);
         if(TABLA_SIMBOLOS.containsKey(aux)) {
