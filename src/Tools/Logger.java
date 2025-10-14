@@ -46,6 +46,7 @@ public final class Logger {
         for (String s : rules) {
             out += s;
         }
+
         for (String s : warnings) {
             out += s;
         }
