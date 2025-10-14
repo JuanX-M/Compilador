@@ -106,11 +106,10 @@ public final class MatrizTransicion {
         //System.out.println("Columna convertida: " + aux);
         int aux = convertir(simbolo);
         if (aux == -1) { // TODO: buscar como detectar el error lexico
-            return null;
+            return new ASError();
         }else if (aux == 28) {
             return null;
         }
-        System.out.println("falla");
         Pair<Integer, AccionSemantica> cell = MATRIZ[estado][aux];
         return cell.getSecond();
     }
