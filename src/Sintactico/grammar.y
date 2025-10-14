@@ -14,9 +14,11 @@
 %token TWO_POINTS_ASSIGNATION STRING GREATER_OR_EQUAL LESS_OR_EQUAL EQUAL NOT_EQUAL CTE_INT CTE_FLOAT ID IF ELSE ENDIF PRINT RETURN VAR FOR FROM TO CR SE LE TOI INT FLOAT ARROW FUN CTE_INT_NEGATIVE
 
 %nonassoc SENTENCIA_ASIGNACION_PREC
-
-%left ID
+%nonassoc SENTENCIA_SIN_RETORNO
 %right TWO_POINTS_ASSIGNATION
+%left ';'
+%left ID
+
 
 
 %start  prog
@@ -58,10 +60,10 @@ sentencia_declarativa
     ;
 
 sentencia_ejecucion
-    :   sentencia_print
+    :   sentencia_print       %prec SENTENCIA_SIN_RETORNO
     |   sentencia_seleccion
     |   sentencia_iteracion
-    |   sentencia_asignacion
+    |   sentencia_asignacion  %prec SENTENCIA_SIN_RETORNO
     ;
 
 sentencia_ejecucion_retorno
@@ -104,16 +106,14 @@ sentencia_asignacion_retorno
 
 sentencia_ejecucion_sin_coma
     :   sentencia_ejecucion  {Logger.logError(cursor.getCurrentLine(), "Falta de ';' al final de las sentencias.");}
-    ;
+  //  ;
 
 sentencia_print
-    :   PRINT '(' cuerpo_print ')'
+    :   PRINT '(' STRING ')'
+    |   PRINT '(' lista_exp_aritmeticas ')'
     |   sentencia_print_error
     ;
-cuerpo_print
-    :   STRING
-    |  lista_exp_aritmeticas
-    ;
+
 sentencia_print_error
     :   PRINT '(' ')'       {Logger.logError(cursor.getCurrentLine(), "Falta argumento en sentencia PRINT");}
     ;
@@ -186,8 +186,8 @@ cuerpo_iteracion_error
     ;
 
 sentencia_asignacion
-    :   sentencia_asignacion_unaria
-    |   sentencia_asignacion_multiple
+    :   sentencia_asignacion_unaria  %prec SENTENCIA_SIN_RETORNO
+    |   sentencia_asignacion_multiple  %prec SENTENCIA_SIN_RETORNO
     ;
 
 sentencia_asignacion_unaria
@@ -222,7 +222,6 @@ sentencia_funcion
     |   sentencia_ejecucion_retorno
     |   sentencia_retorno
     ;
-
 sentencia_retorno
     : RETURN '(' lista_exp_aritmeticas ')' ';'
     ;
