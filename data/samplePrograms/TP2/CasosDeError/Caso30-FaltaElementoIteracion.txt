@@ -1,0 +1,25 @@
+##Caso error cuando  falta cuerpo en iteracion##
+##Este caso por ahora no anda por##
+FALTA%CUERPO{
+ for ( from 0I to 5I) {
+     print("prueba");
+     };
+
+ for ( ID  0I to 5I) {
+      print("prueba");
+      };
+
+ for ( ID from  to 5I) {
+       print("prueba");
+       };
+##Para caso cuando falta to tira error##
+ ##for ( ID from  0I  5I) {
+       print("prueba");
+       };##
+
+
+ for ( ID from 0I to ) {
+       print("prueba");
+       };
+
+}

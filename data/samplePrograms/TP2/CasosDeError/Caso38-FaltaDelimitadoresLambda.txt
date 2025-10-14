@@ -1,0 +1,5 @@
+##Prueba error cuando no se especifica delimiatores en funcion lambda
+,solo funciona cuando no hay lado { lado izq##
+FALTADELIMITADORESLAMBDA{
+    (int A)  var RESULTADO := VALOR * 2I;} (R)
+}

@@ -1,0 +1,6 @@
+##Falta de cuerpo en iteracion##
+FALTACUERPO{
+for ( ID from  to 5I) {
+       print("prueba");
+       };
+}

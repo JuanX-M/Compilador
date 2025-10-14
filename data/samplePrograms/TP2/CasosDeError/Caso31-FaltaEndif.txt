@@ -1,0 +1,17 @@
+##Falta de endif en sentencia if##
+FALTA%ENDIF{
+    if (X<1I){
+        print("prueba");
+    };
+
+    if (X<1I){
+        print("prueba");
+    }else {
+
+        print("prueba");
+
+    };
+
+
+
+}

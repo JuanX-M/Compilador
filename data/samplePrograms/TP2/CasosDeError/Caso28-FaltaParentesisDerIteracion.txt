@@ -1,0 +1,7 @@
+##Caso error cuando  faltan parentesis en iteracion##
+##Este caso por ahora no anda por##
+FALTA%PARENTESIS%DER%{
+ for J from 0I to 5I {
+     print("prueba");
+     };
+}

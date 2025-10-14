@@ -1,0 +1,4 @@
+##Caso error cuando  en invocacion de funcion no se le asocia un parametro formal a un parametro real##
+FALTA%ESPECIFICACION%PARAMETRO%FORMAL%{
+  var X:= fun F1(A->);
+}

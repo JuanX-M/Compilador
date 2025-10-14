@@ -1,0 +1,4 @@
+##Caso error cuando Falta ; en una sentencia##
+FALTA%PUNTO%Y%COMA%{
+    var X:= A
+}

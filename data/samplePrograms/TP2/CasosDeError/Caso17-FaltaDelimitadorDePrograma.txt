@@ -1,0 +1,4 @@
+##Caso error cuando Falta Delimitador de Programa##
+
+FALTANDELIMITADORES
+     var X:=A;

@@ -1,0 +1,8 @@
+##Prueba error cuando no se especifica delimiatores en
+TOI##
+FALTADELIMITADORESTOI{
+    var X:= toi A+1I;
+
+    var X:= toi (A+1I;
+    var X:= toi A+1I);
+}

@@ -1,0 +1,10 @@
+##Caso de error cuando falta , en ambos lados de una asignacion##
+FALTACOMAS{
+A,B = X Y+1I toi(Z);
+
+A B = X,Y+1I,toi(Z);
+
+A B C = X Y Z;
+
+A,B,C = X,Y,Z;
+}

@@ -1,0 +1,12 @@
+##Caso error cuando Falta ID en una Funcion##
+FALTA%NOMBRE%FUNCION%{
+ ##Invocacion Funcion sin nombre##
+
+    var A:= A + fun (A->X);
+ ##Declaracion Funcion sin nombre##
+     int fun (int X){
+
+     return(X);
+     }
+
+}

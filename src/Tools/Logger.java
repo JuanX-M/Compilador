@@ -33,14 +33,19 @@ public final class Logger {
     }
 
     public static void logRule(int line, Object message) {
+
         rules.add("Se encontro un " + LogType.RULE + " en la linea [" + line + "] : " + message + "\n");
     }
+
 
     public static String generateLog() {
         String out = null;
 
         out = "\n>>>    LOG \n\n";
 
+        for (String s : rules) {
+            out += s;
+        }
         for (String s : warnings) {
             out += s;
         }

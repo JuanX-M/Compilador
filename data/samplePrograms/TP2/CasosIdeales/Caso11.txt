@@ -1,0 +1,18 @@
+RETORNOS%IF%ELSE{
+int fun F1(int Y){
+    var J:= 1I;
+    if (X < A){
+        var X2 := X1;
+        return (X2);
+    }else{
+        int fun F11(int X1, int X2){
+            var X2 := X1;
+            return (X2);
+        }
+        var X := fun F11(Y->X1, 0I->X2);
+        return (X);
+    }endif;
+    }
+var Z:=fun F1(3I+1I-> Y);
+print(Z);
+}

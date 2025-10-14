@@ -1,0 +1,4 @@
+##Caso error cuando Falta Delimitador DER de Programa##
+FALTADELIMITADORDERECHO{
+    var X:= A;
+

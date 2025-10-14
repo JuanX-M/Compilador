@@ -1,0 +1,4 @@
+##Caso error cuando  falta argumento en sentencia print##
+FALTA%ARGUMENTO%PRINT%{
+  print();
+}
