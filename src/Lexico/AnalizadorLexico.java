@@ -94,6 +94,7 @@ public Pair<String, Integer> generarToken(){
                 if (token == null){
                     //TODO:Logger error de Accion Semantica
                     cursor.next();
+                    System.out.println("aca2");
                     return null;
                 }
                 if (token.getSecond() != null && estado ==17){ // MIRAR ACCIONES SEMNATICAS PARA ENTENDER EJEMPLOS DE RETURN DE LITERALES POR EJEMPLO

@@ -62,6 +62,19 @@ public class Cursor {
         return currentLine + 1;
     }
 
+    public int getPreviousLine() {
+        // Si estamos al inicio del archivo, no hay anterior
+        if (currentLine == 0 && currentColumn == 0)
+            return 1; // o 0, según como numeres las líneas
+        // Si no estamos en la primera columna, seguimos en la misma línea
+        if (currentColumn > 0)
+            return currentLine + 1; // getCurrentLine() suma +1, así que mantenemos coherencia
+        // Si estamos en la primera columna pero no en la primera línea,
+        // el carácter anterior pertenece a la línea anterior
+        return currentLine; // línea anterior (ya que currentLine está 0-based)
+    }
+
+
     public int getCurrentColumn() {
         return currentColumn;
     }
