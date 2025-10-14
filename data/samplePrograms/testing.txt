@@ -1,5 +1,5 @@
-
 TESTING{
-
-
+    var X := "offafdasdf
+    as
+    lfasfsfas";
 }
