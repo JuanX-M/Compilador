@@ -34,11 +34,8 @@ public class AnalizadorLexico {
         int e1 = -1; // simbolo
         int e2 = -1; //siguiente estado
         int acc = -1; //numero de accion semantica
-
-
         for (ArrayList<Character> l : data) {
             String[] linea = l.stream().map(Object::toString).collect(Collectors.joining("")).split("\\s*;\\s*");
-
             try {
                 e0 = Integer.parseInt(linea[0]);
                 e1 = Integer.parseInt(linea[1]);
@@ -72,14 +69,15 @@ public Pair<String, Integer> generarToken(){
     //TODO:generarToken() debe entregar Nro de Token solamente, info de lexema por yylval que es un objeto ParselVal
     int estado=0;
     AccionSemantica as;
-    Pair<String, Integer> token;
-    while (!cursor.hasFinished() &&  !matrizTransicion.isEstadoFinal(estado)){
+    Pair<String, Integer> token = new Pair<>(null, null);
+    while (!cursor.hasFinished() && !matrizTransicion.isEstadoFinal(estado)){
         char caracter = cursor.getCharacter();
         as = matrizTransicion.getAccionSemantica(estado, caracter);
         ESTADO_ANTERIOR = estado;
         estado = matrizTransicion.getEstado(estado, caracter);
         //System.out.println("Accion:  " + as + "  Estado:  " + estado);
         if (estado == -1){
+            System.out.println();
             AccionSemantica auxAccion = new ASError();
             auxAccion.run(caracter, cursor);
             estado = 0;
@@ -94,19 +92,17 @@ public Pair<String, Integer> generarToken(){
                 if (token == null){
                     //TODO:Logger error de Accion Semantica
                     cursor.next();
-                    System.out.println("aca2");
                     return null;
                 }
-                if (token.getSecond() != null && estado ==17){ // MIRAR ACCIONES SEMNATICAS PARA ENTENDER EJEMPLOS DE RETURN DE LITERALES POR EJEMPLO
-                    cursor.next();
-                    return token;
-                }
+        }
+        if (token.getSecond() != null && estado ==17){ // MIRAR ACCIONES SEMNATICAS PARA ENTENDER EJEMPLOS DE RETURN DE LITERALES POR EJEMPLO
+            cursor.next();
+            return token;
         }
         cursor.next();
-    }
+        }
     if (cursor.hasFinished())
         return new Pair<>("Fin de programa", 0);
-
     return null;
 }
 
@@ -120,6 +116,4 @@ public Pair<String, Integer> generarToken(){
         }
         return salida;
     }
-
-
 }

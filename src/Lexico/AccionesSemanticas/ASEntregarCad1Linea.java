@@ -16,10 +16,8 @@ public class ASEntregarCad1Linea extends AccionSemantica{
         String aux = BUFFER.toString();
         BUFFER.setLength(0);
         try {
-            if (aux.contains("\r") || aux.contains("\n") || aux.contains("\r\n")){
-                System.out.println("entra aca");
+            if (aux.contains("\r") || aux.contains("\n") || aux.contains("\r\n"))
                 throw new IllegalArgumentException();
-            }
         }
         catch (IllegalArgumentException i){
             Logger.logError(cursor.getCurrentLine(), "Cadena contenia salto de linea ");

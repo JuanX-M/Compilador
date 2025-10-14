@@ -7,19 +7,19 @@ public class TablaSimbolos {
 
     public static final HashMap<String, Info> TABLA_SIMBOLOS = new HashMap<>();
 
-    public void addSimboloTabla(String lexema, Info i) {
+    public static void addSimboloTabla(String lexema, Info i) {
         TABLA_SIMBOLOS.putIfAbsent(lexema, i);
     }
 
-    public Info getSimbolo(String lexema) {
+    public static Info getSimbolo(String lexema) {
         return TABLA_SIMBOLOS.get(lexema);
     }
 
-    public boolean containsSymbol(String lexema) {
+    public static boolean containsSymbol(String lexema) {
         return TABLA_SIMBOLOS.containsKey(lexema);
     }
 
-    public void printTabla() {
+    public static void printTabla() {
         System.out.println("------ Contenido de la Tabla de Símbolos ------");
         for (Map.Entry<String, Info> entry : TABLA_SIMBOLOS.entrySet()) {
             System.out.println("Lexema: '" + entry.getKey() + "' -> " + entry.getValue().toString());

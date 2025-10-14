@@ -13,7 +13,6 @@ public class Cursor {
         this.currentLine = 0; //numero de linea arranca en 1 TODO:Preguntar a Marcela
         this.currentColumn = 0;
     }
-
     public Character getCharacter() {
         if (hasFinished()) {
             return null; // Evita IndexOutOfBounds
