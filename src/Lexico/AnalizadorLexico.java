@@ -63,7 +63,6 @@ public class AnalizadorLexico {
             case 10 -> new ASBorrarComentariosML();
             case 11 -> new ASEntregarAsignacion();
             case 12 -> new ASEntregarPalabras();
-            case 13 -> new ASEntregarIDFuncion();
             default -> null;
         };
     }

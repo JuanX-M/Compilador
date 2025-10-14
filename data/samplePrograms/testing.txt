@@ -1,3 +1,5 @@
-TESTING {
-    var X:= B(X->A) + C.B;
+
+TESTING{
+
+
 }

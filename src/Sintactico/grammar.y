@@ -34,7 +34,7 @@ prog_error
     |   ID cuerpo           {Logger.logError(cursor.getCurrentLine(), "Faltan los delimitadores de programa");}
     |   ID '{' cuerpo       {Logger.logError(cursor.getCurrentLine(), "Falta el delimitador de programa '}'");}
     |   ID cuerpo '}'       {Logger.logError(cursor.getCurrentLine(), "Falta el delimitador de programa '{'");}
-    //|   error               {Logger.logError(cursor.getCurrentLine(), "Hay errores lexicos o sintaticos no identificados");}
+    |   error               {Logger.logError(cursor.getCurrentLine(), "Hay errores lexicos o sintaticos no identificados");}
     ;
 
 cuerpo
@@ -198,7 +198,7 @@ funcion
     ;
 
 encabezado_funcion
-    : lista_tipos  FUN '(' lista_param_formales ')'
+    : lista_tipos  FUN ID '(' lista_param_formales ')'
     ;
 
 cuerpo_funcion
@@ -217,7 +217,7 @@ sentencia_retorno
     ;
 
 funcion_error
-    :   lista_tipos '(' lista_param_formales ')' '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' ';'     {Logger.logError(cursor.getCurrentLine(), "Falta de nombre en funcion");}
+    :   lista_tipos FUN '(' lista_param_formales ')' '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' ';'     {Logger.logError(cursor.getCurrentLine(), "Falta de nombre en funcion");}
     ;
 
 sentencia_lambda
@@ -287,7 +287,7 @@ termino_error
 factor
     :   CTE_INT
     |   CTE_FLOAT
-    |   FUN '(' lista_param_reales ')'
+    |   FUN ID '(' lista_param_reales ')'
     |   variable
     ;
 
