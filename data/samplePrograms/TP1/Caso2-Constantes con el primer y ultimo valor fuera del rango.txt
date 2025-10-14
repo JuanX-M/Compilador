@@ -1,0 +1,10 @@
+## Constantes con el primer y ultimo valor fuera del rango (Para cada tipo de datos asignado). ##
+
+TESTING{
+    var A := -32769I;
+    var B := 32768I;
+    var C := 1.17549436F-39;
+    var D := 3.40282346F+39;
+    var E := -3.40282346F+39;
+    var F := -1.17549434F-39;
+}

@@ -1,4 +1,5 @@
-##Este es un comentario bien escrito##;
+## Comentarios bien y mal escritos ##
 
+##Este es un comentario bien escrito##;
 #Este es un comentario mal escrito 1##;
 ##Este es un comentario mal escrito 2#;

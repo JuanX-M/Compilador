@@ -1,0 +1,6 @@
+## Identificadores de menos y mas de 20 caracteres. ##
+
+TESTING{
+    var NICOLASORTIZ := 1I;
+    var LAUTAROGARCIAPAGADIZABAL := 2.;
+}

@@ -1,0 +1,5 @@
+## Intento de incluir en el nombre de un identificador un caracter que no sea letra, digito o % ##
+
+TESTING{
+    var COMPI?LADORES := 0.0;
+}

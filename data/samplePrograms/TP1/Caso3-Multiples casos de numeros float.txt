@@ -1,0 +1,14 @@
+## Para numeros de punto flotante: parte entera con y sin parte decimal, parte decimal con y sin parte entera, con y
+sin exponente, con exponente positivo y negativo. ##
+
+TESTING{
+    var A := 1.;
+    var B := .6;
+    var C := -1.2;
+    var D := 3.F-5;
+    var E := 2.0F+34;
+    var F := 2.5F-1;
+    var G := 15.0;
+    var H := 0.0;
+    var I := .2F+10;
+}

@@ -1,0 +1,6 @@
+## Identificadores con letras, digitos y "%" ##
+
+TESTING{
+    var JUAN2001% := 1I;
+    var J%2001UAN := 2.;
+}
