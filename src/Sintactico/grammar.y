@@ -226,7 +226,7 @@ sentencia_retorno
 sentencia_lambda
     :   parametro_lambda cuerpo_lambda argumento_lambda
     ;
-
+//
 parametro_lambda
     :    '(' tipo ID ')'
     ;
