@@ -194,13 +194,16 @@ sentencia_asignacion_multiple
 funcion
     :   encabezado_funcion '{' cuerpo_funcion '}'
     |   sentencia_lambda
-    |   funcion_error
+    //|   funcion_error
     ;
 
 encabezado_funcion
     : lista_tipos  FUN ID '(' lista_param_formales ')'
+    | encabezado_funcion_error
     ;
-
+encabezado_funcion_error
+    : lista_tipos FUN '(' lista_param_formales ')' '{' cuerpo_funcion '}'  {Logger.logError(cursor.getCurrentLine(), "Falta de nombre en declaracion de funcion");}
+    ;
 cuerpo_funcion
     :   cuerpo  sentencia_funcion
     |   sentencia_funcion cuerpo
@@ -209,21 +212,21 @@ cuerpo_funcion
     |   sentencia_funcion
     ;
 sentencia_funcion
-    :   sentencia_ejecucion_retorno
+    :   sentencia_ejecucion_retorno ';'
     |   sentencia_retorno
     ;
 sentencia_retorno
     : RETURN '(' lista_exp_aritmeticas ')' ';'
     ;
 
-funcion_error
-    :   lista_tipos FUN '(' lista_param_formales ')' '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' ';'     {Logger.logError(cursor.getCurrentLine(), "Falta de nombre en funcion");}
-    ;
+//funcion_error
+//    :   lista_tipos FUN '(' lista_param_formales ')' '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' ';'     {Logger.logError(cursor.getCurrentLine(), "Falta de nombre en funcion");}
+//    ;
 
 sentencia_lambda
     :   parametro_lambda cuerpo_lambda argumento_lambda
     ;
-
+//
 parametro_lambda
     :    '(' tipo ID ')'
     ;
@@ -287,10 +290,16 @@ termino_error
 factor
     :   CTE_INT
     |   CTE_FLOAT
-    |   FUN ID '(' lista_param_reales ')'
+    |   invocacion_funcion
     |   variable
     ;
-
+invocacion_funcion
+    : FUN ID '(' lista_param_reales ')'
+    | invocacion_funcion_error
+    ;
+invocacion_funcion_error
+    : FUN '(' lista_param_reales ')' {Logger.logError(cursor.getCurrentLine(), "Falta de nombre en funcion en invocacion de funcion");}
+    ;
 expresion_aritmetica_toi
     :   TOI '(' expresion_aritmetica ')'
     |   expresion_aritmetica_toi_error
