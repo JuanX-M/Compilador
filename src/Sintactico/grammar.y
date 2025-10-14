@@ -34,6 +34,7 @@ prog_error
     |   ID cuerpo           {Logger.logError(cursor.getCurrentLine(), "Faltan los delimitadores de programa");}
     |   ID '{' cuerpo       {Logger.logError(cursor.getCurrentLine(), "Falta el delimitador de programa '}'");}
     |   ID cuerpo '}'       {Logger.logError(cursor.getCurrentLine(), "Falta el delimitador de programa '{'");}
+    |   ID '{' '}'          {Logger.logError(cursor.getCurrentLine(), "Falta el cuerpo del programa");}
     |   error               {Logger.logError(cursor.getCurrentLine(), "Hay errores lexicos o sintaticos no identificados");}
     ;
 
@@ -51,7 +52,7 @@ sentencia
     ;
 //sentencia_error
 //    :   error {Logger.logError(cursor.getCurrentLine(), "Hay errores lexicos o sintaticos no identificados");}
-//    ;
+    ;
 
 sentencia_declarativa
     :   funcion
