@@ -69,23 +69,17 @@ public class AnalizadorLexico {
         int estado = 0;
         AccionSemantica as;
         Pair<String, Integer> token = new Pair<>(null, null);
-
         while (!cursor.hasFinished() && !matrizTransicion.isEstadoFinal(estado)) {
             char caracter = cursor.getCharacter();
             as = matrizTransicion.getAccionSemantica(estado, caracter);
             ESTADO_ANTERIOR = estado;
             estado = matrizTransicion.getEstado(estado, caracter);
-
-            boolean reiniciar = false; // bandera para reinicio del análisis
-
-            // 🔹 Caso 1: transición inválida
+            boolean reiniciar = false;
             if (estado == -1) {
                 new ASError().run(caracter, cursor);
                 estado = 0;
                 reiniciar = true;
             }
-
-            // 🔹 Caso 2: símbolo inválido
             else if (estado == 28) {
                 Logger.logWarning(cursor.getCurrentLine(),
                         "Símbolo '" + cursor.getCharacter() + "' inválido, descartado.");
@@ -93,52 +87,39 @@ public class AnalizadorLexico {
                 estado = 0;
                 reiniciar = true;
             }
-
-            // 🔹 Caso 3: ejecutar acción semántica (si corresponde)
-            else if (as != null) {
+            else
+                if (as != null) {
                 Pair<String, Integer> posibleToken = as.run(caracter, cursor);
-
-                if (posibleToken == null) {
-                    // Acción semántica devolvió null → descartar token y reiniciar
-                    Logger.logWarning(cursor.getCurrentLine(),
-                            "Token inválido descartado. Reiniciando análisis léxico...");
-                    new ASVaciarBuffer().run(caracter, cursor);
-                    estado = 0;
-                    reiniciar = true;
-                } else {
-                    token = posibleToken;
+                    if (posibleToken == null) {
+                        Logger.logWarning(cursor.getCurrentLine(),
+                                "Token inválido descartado. Reiniciando análisis léxico...");
+                        new ASVaciarBuffer().run(caracter, cursor);
+                        estado = 0;
+                        reiniciar = true;
+                    } else {
+                        token = posibleToken;
+                    }
                 }
-            }
-
-            // 🔹 Si se debe reiniciar, limpiar buffer y avanzar
             if (reiniciar) {
                 new ASVaciarBuffer().run(caracter, cursor);
                 cursor.next();
-                reiniciar = false; // listo para siguiente iteración
+                reiniciar = false;
             }
             else {
-                // 🔹 Caso 4: token completo
                 if (token != null && token.getSecond() != null && estado == 17) {
                     cursor.next();
                     return token;
                 }
-                // Avanzo al siguiente carácter si no hubo reinicio
                 cursor.next();
             }
         }
-
-        // 🔚 Caso 5: fin de archivo
         if (cursor.hasFinished()) {
             new ASVaciarBuffer().run(' ', cursor);
             return new Pair<>("EOF", 0);
         }
-
-        // 🔄 Caso 6: no se reconoció token, limpiar y volver a intentar
         new ASVaciarBuffer().run(' ', cursor);
         return generarToken();
     }
-
-
 
     public ArrayList<Pair<String,Integer>> getTodosLosTokens() {
         ArrayList<Pair<String,Integer>> salida = new ArrayList<>();

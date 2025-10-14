@@ -15,9 +15,9 @@ public class ASEntregarAsignacion extends AccionSemantica{
             BUFFER.append(simbolo);
             String salida = BUFFER.toString();
             BUFFER.setLength(0);
-
             return new Pair<>(salida, TABLA_PALABRAS_RESERVADAS.get(salida));
-        } else {
+        }
+        else {
             String salida = BUFFER.toString();
             BUFFER.setLength(0);
             cursor.gobackCharacter();

@@ -25,19 +25,13 @@ public class ASEntregarFlotante extends AccionSemantica{
 
     @Override
     public Pair<String, Integer> run(Character simbolo, Tools.Cursor cursor) {
-
         String aux = BUFFER.toString();
         String aDevolver = BUFFER.toString();
         if (aux.contains("F")){
             String[] parts = aux.split("F");
-
             base = Float.parseFloat(parts[0]);
             exponente = Integer.parseInt(parts[1]);
-
             BigDecimal result = BigDecimal.valueOf(base).multiply(BigDecimal.valueOf(Math.pow(10, exponente)));
-
-            //System.out.println(result);
-
             if ((result.signum() > 0 && result.compareTo(BigDecimal.valueOf(MIN_VALUE_POS)) < 0) ||
                     (result.signum() < 0 && result.compareTo(BigDecimal.valueOf(MAX_VALUE_NEG)) > 0)) {
                 BUFFER.setLength(0);
@@ -50,7 +44,6 @@ public class ASEntregarFlotante extends AccionSemantica{
                 Logger.logError(cursor.getCurrentLine(), "El número flotante es demasiado grande");
                 return null;
             }
-
             aux = aux.replace('F', 'E'); //Formateamos para meter en variable
         }
         try {
@@ -60,14 +53,13 @@ public class ASEntregarFlotante extends AccionSemantica{
             if(!TABLA_SIMBOLOS.containsKey(aux)){
                 TABLA_SIMBOLOS.put(aux,new Info(aux,TABLA_PALABRAS_RESERVADAS.get("CTE_FLOAT")));
             }
-            } catch (NumberFormatException e) {
-                BUFFER.setLength(0);
-                Logger.logError(cursor.getCurrentLine(), "Excede cantidad de bits");
-                return null;
+        } catch (NumberFormatException e) {
+            BUFFER.setLength(0);
+            Logger.logError(cursor.getCurrentLine(), "Excede cantidad de bits");
+            return null;
         }
     BUFFER.setLength(0);
     cursor.gobackCharacter();
-    // retornamons el numero y el token float
     return new Pair<>(aDevolver, TABLA_PALABRAS_RESERVADAS.get("CTE_FLOAT"));
     }
 }

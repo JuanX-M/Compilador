@@ -1,10 +1,7 @@
 package Lexico;
 import Lexico.AccionesSemanticas.ASError;
-import Tools.Logger;
 import Tools.Pair;
 import Lexico.AccionesSemanticas.AccionSemantica;
-
-import java.util.ArrayList;
 
 public final class MatrizTransicion {
 
@@ -91,19 +88,15 @@ public final class MatrizTransicion {
 
     public int getEstado(int estado, char simbolo) {
         int aux = convertir(simbolo);
-        if (aux == -1) { // TODO: buscar como detectar el error lexico
+        if (aux == -1) // TODO: buscar como detectar el error lexico
             return 0;
-        }
-        if (aux == 28) {
+        if (aux == 28)
             return 28;
-        }
         Pair<Integer, AccionSemantica> cell = MATRIZ[estado][aux];
         return cell.getFirst();
     }
 
     public AccionSemantica getAccionSemantica(int estado, char simbolo) {
-        //System.out.println("Estado: " + estado + ", Simbolo: '" + simbolo + "'");
-        //System.out.println("Columna convertida: " + aux);
         int aux = convertir(simbolo);
         if (aux == -1) { // TODO: buscar como detectar el error lexico
             return new ASError();
@@ -123,24 +116,19 @@ public final class MatrizTransicion {
         // Recorremos toda la matriz
         for (int i = 0; i < MATRIZ.length; i++) { // 'i' es el Estado
             for (int j = 0; j < MATRIZ[i].length; j++) { // 'j' es el Símbolo/Columna
-
                 Pair<Integer, AccionSemantica> cell = MATRIZ[i][j];
-
                 // Solo actuamos si la celda tiene contenido (no es nula)
                 if (cell != null) {
-
                     // Formateamos el contenido de la celda como antes
                     Integer nextState = cell.getFirst();
                     AccionSemantica action = cell.getSecond();
                     String cellStr;
                     String stateStr = String.valueOf(nextState);
-
                     if (action == null) {
                         cellStr = stateStr;
                     } else {
                         cellStr = stateStr + "/" + action.getClass().getSimpleName();
                     }
-
                     // Creamos la línea con el formato [Estado, Simbolo] -> Contenido
                     sb.append(String.format("[%d, %d] -> %s\n", i, j, cellStr));
                 }

@@ -16,8 +16,7 @@ public abstract class AccionSemantica {
 
     public static final StringBuilder BUFFER = new StringBuilder();
 
-    public AccionSemantica() {
-    }
+    public AccionSemantica() {}
 
     public abstract Pair<String, Integer> run(Character simbolo,Cursor cursor);
 
