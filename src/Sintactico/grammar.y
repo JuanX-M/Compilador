@@ -14,9 +14,7 @@
 %token TWO_POINTS_ASSIGNATION STRING GREATER_OR_EQUAL LESS_OR_EQUAL EQUAL NOT_EQUAL CTE_INT CTE_FLOAT ID IF ELSE ENDIF PRINT RETURN VAR FOR FROM TO CR SE LE TOI INT FLOAT ARROW FUN CTE_INT_NEGATIVE
 
 %nonassoc SENTENCIA_ASIGNACION_PREC
-%nonassoc SENTENCIA_SIN_RETORNO
 %right TWO_POINTS_ASSIGNATION
-%left ';'
 %left ID
 
 
@@ -60,22 +58,17 @@ sentencia_declarativa
     ;
 
 sentencia_ejecucion
-    :   sentencia_print       %prec SENTENCIA_SIN_RETORNO
+    :   sentencia_print
     |   sentencia_seleccion
     |   sentencia_iteracion
-    |   sentencia_asignacion  %prec SENTENCIA_SIN_RETORNO
+    |   sentencia_asignacion
     ;
 
 sentencia_ejecucion_retorno
-    :   sentencia_print_retorno
-    |   sentencia_seleccion_retorno
+    :   sentencia_seleccion_retorno
     |   sentencia_iteracion_retorno
-    |   sentencia_asignacion_retorno
     ;
 
-sentencia_print_retorno
-    :   sentencia_print ';' sentencia_retorno
-    ;
 
 sentencia_seleccion_retorno
     :   IF parametros_seleccion cuerpo_seleccion_retorno ELSE cuerpo_seleccion_retorno ENDIF
@@ -86,7 +79,7 @@ sentencia_seleccion_retorno
     ;
 
 cuerpo_seleccion_retorno
-    :   '{' cuerpo sentencia_retorno ';' '}'
+    :   '{' cuerpo_funcion '}'
 //    |   cuerpo_seleccion_error
     ;
 
@@ -95,13 +88,8 @@ sentencia_iteracion_retorno
     ;
 
 cuerpo_iteracion_retorno
-    :   '{' cuerpo sentencia_retorno ';' '}'
+    :   '{' cuerpo_funcion '}'
 //    |   cuerpo_iteracion_error
-    ;
-
-sentencia_asignacion_retorno
-    :   sentencia_asignacion_unaria ';' sentencia_retorno ';'
-    |   sentencia_asignacion_multiple ';' sentencia_retorno ';'
     ;
 
 sentencia_ejecucion_sin_coma
@@ -186,8 +174,8 @@ cuerpo_iteracion_error
     ;
 
 sentencia_asignacion
-    :   sentencia_asignacion_unaria  %prec SENTENCIA_SIN_RETORNO
-    |   sentencia_asignacion_multiple  %prec SENTENCIA_SIN_RETORNO
+    :   sentencia_asignacion_unaria
+    |   sentencia_asignacion_multiple
     ;
 
 sentencia_asignacion_unaria
@@ -214,12 +202,14 @@ encabezado_funcion
     ;
 
 cuerpo_funcion
-    :   cuerpo_funcion  sentencia_funcion
+    :   cuerpo  sentencia_funcion
+    |   sentencia_funcion cuerpo
+    |   cuerpo sentencia_funcion cuerpo
+    |   sentencia_funcion cuerpo sentencia_funcion
     |   sentencia_funcion
     ;
 sentencia_funcion
-    :   sentencia
-    |   sentencia_ejecucion_retorno
+    :   sentencia_ejecucion_retorno
     |   sentencia_retorno
     ;
 sentencia_retorno
