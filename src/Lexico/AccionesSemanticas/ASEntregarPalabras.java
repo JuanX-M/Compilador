@@ -36,7 +36,7 @@ public class ASEntregarPalabras extends AccionSemantica{
             } catch (IllegalAccessException e) {
                 Logger.logError(cursor.getCurrentLine(), e.getMessage());
         }
-        return null;
+        return new Pair<>(null,-1);
     }
 
     // Estos metodos siguientes los sacamos de internet, solo se nos ocurrio la idea del Warning con la palabra mal escrita

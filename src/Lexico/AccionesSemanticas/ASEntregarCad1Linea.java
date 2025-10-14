@@ -22,11 +22,9 @@ public class ASEntregarCad1Linea extends AccionSemantica{
             }
         }
         catch (IllegalArgumentException i){
-            aux.replace("\n","");
-            Logger.logWarning(cursor.getCurrentLine(), "Cadena contenia salto de linea, y se transformo en 1 linea");
-            return new Pair<>(aux, TABLA_PALABRAS_RESERVADAS.get("STRING"));
+            Logger.logError(cursor.getCurrentLine(), "Cadena contenia salto de linea ");
+            return new Pair<>(null,-1);
         }
-        System.out.println("entra");
         return new Pair<>(aux, TABLA_PALABRAS_RESERVADAS.get("STRING"));
 
 
