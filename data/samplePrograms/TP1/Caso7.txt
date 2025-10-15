@@ -1,4 +1,0 @@
-if else;
-for;
-IF ELSE;
-FOR;
