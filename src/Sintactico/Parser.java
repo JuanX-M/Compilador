@@ -18,6 +18,7 @@
 
 //#line 2 "grammar.y"
     import java.io.*;
+    import java.util.Scanner;
 
     import Lexico.AnalizadorLexico;
 
@@ -839,20 +840,18 @@ static Cursor cursor = null;
 public static void main (String [] args) {
 
     System.out.println("Iniciando compilación ... ");
-    String programa = "samplePrograms/testing.txt";
-
+    Scanner lector = new Scanner(System.in);
+    System.out.println("Ingrese la ruta deseada");
+    String programa = lector.nextLine();
+    lector.close();
     TablaPalabrasReservadas tablaPalabrasReservadas = new TablaPalabrasReservadas();
     tablaPalabrasReservadas.cargarTabla();
-
     lex = new AnalizadorLexico (programa) ;
     cursor = lex.getCursor();
     par = new Parser (false);
-
     par.run () ;
-
     System.out.println("TablaSimbolos: " + TablaSimbolos.TABLA_SIMBOLOS);
     System.out.println(Logger.generateLog());
-
     System.out.println("\nFin compilación");
 }
 
