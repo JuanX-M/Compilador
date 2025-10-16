@@ -841,7 +841,8 @@ public static void main (String [] args) {
 
     System.out.println("Iniciando compilación ... ");
     Scanner lector = new Scanner(System.in);
-    System.out.println("Ingrese la ruta deseada");
+    System.out.println("Usted se encuentra en: " + System.getProperty("user.dir"));
+    System.out.println("Ingrese el archivo deseado, este debe estar dentro de data");
     String programa = lector.nextLine();
     lector.close();
     TablaPalabrasReservadas tablaPalabrasReservadas = new TablaPalabrasReservadas();
