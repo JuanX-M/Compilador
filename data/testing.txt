@@ -2,9 +2,9 @@
 
 TESTING{
     var A := -32768I;
-    var B := 32767I;
-    var C := 1.18F-38;
-    var D := 3.40282346F+38;
-    var E := -3.40282346F+38;
-    var F := -1.18F-38;
+    var J := 0I;
+    for (J from 2I to 4I){
+        var A := -32768I;
+        A := 1I;
+    };
 }

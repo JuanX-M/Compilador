@@ -88,7 +88,7 @@ public final class MatrizTransicion {
 
     public int getEstado(int estado, char simbolo) {
         int aux = convertir(simbolo);
-        if (aux == -1) // TODO: buscar como detectar el error lexico
+        if (aux == -1)
             return 0;
         if (aux == 28)
             return 28;
@@ -98,7 +98,7 @@ public final class MatrizTransicion {
 
     public AccionSemantica getAccionSemantica(int estado, char simbolo) {
         int aux = convertir(simbolo);
-        if (aux == -1) { // TODO: buscar como detectar el error lexico
+        if (aux == -1) {
             return new ASError();
         }else if (aux == 28) {
             return null;

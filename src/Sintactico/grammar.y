@@ -8,6 +8,8 @@
     import Tools.TablaPalabrasReservadas;
     import Tools.Logger;
     import Tools.Cursor;
+    import java.util.Scanner;
+
 
 %}
 
@@ -49,7 +51,6 @@ sentencia
     |   sentencia_ejecucion_sin_coma
     ;
 
-
 sentencia_declarativa
     :   funcion  {Logger.logRule(cursor.getCurrentLine(), "Sentencia DECLARACION FUNCION");}
     ;
@@ -65,7 +66,6 @@ sentencia_ejecucion_retorno
     :   sentencia_seleccion_retorno
     |   sentencia_iteracion_retorno
     ;
-
 
 sentencia_seleccion_retorno
     :   IF parametros_seleccion cuerpo_seleccion_retorno ELSE cuerpo_seleccion_retorno ENDIF {Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");}
@@ -176,7 +176,8 @@ sentencia_asignacion
     ;
 
 sentencia_asignacion_unaria
-    :   VAR ID TWO_POINTS_ASSIGNATION expresion_aritmetica
+    :   VAR ID TWO_POINTS_ASSIGNATION expresion_aritmetica  {if (TablaSimbolos.TABLA_SIMBOLOS.containsKey($2.sval)) {Logger.logError(cursor.getCurrentLine(), "Redeclaracion de variable");};} //TODO: Corregir esto
+    |   ID TWO_POINTS_ASSIGNATION expresion_aritmetica  {if (!(TablaSimbolos.TABLA_SIMBOLOS.containsKey($1.sval))) {Logger.logError(cursor.getCurrentLine(), "Variable sin declarar");};}
     |   sentencia_asignacion_unaria_error
     ;
 
@@ -223,7 +224,7 @@ sentencia_retorno
 sentencia_lambda
     :   parametro_lambda cuerpo_lambda argumento_lambda
     ;
-//
+
 parametro_lambda
     :    '(' tipo ID ')'
     ;
@@ -259,7 +260,6 @@ expresion_aritmetica
     |   expresion_aritmetica '-' termino  {Logger.logRule(cursor.getCurrentLine(), "Sentencia EXPRESION ARITMETICA");}
     |   expresion_aritmetica_toi          {Logger.logRule(cursor.getCurrentLine(), "Sentencia TOI");}
     |   termino
-
     |   expresion_aritmetica_error
     ;
 
@@ -290,9 +290,10 @@ factor
     |   invocacion_funcion   {Logger.logRule(cursor.getCurrentLine(), "Sentencia INVOCACION FUNCION");}
     |   variable
     ;
+
 invocacion_funcion
-    : FUN ID '(' lista_param_reales ')'
-    | invocacion_funcion_error
+    :   FUN ID '(' lista_param_reales ')'
+    |   invocacion_funcion_error
     ;
 invocacion_funcion_error
     : FUN '(' lista_param_reales ')' {Logger.logError(cursor.getCurrentLine(), "Falta de nombre en funcion en invocacion de funcion");}
@@ -409,7 +410,11 @@ static Cursor cursor = null;
 public static void main (String [] args) {
 
     System.out.println("Iniciando compilación ... ");
-    String programa = "samplePrograms/testing.txt";
+    Scanner lector = new Scanner(System.in);
+    System.out.println("Usted se encuentra en: " + System.getProperty("user.dir"));
+    System.out.println("Ingrese el archivo deseado, este debe estar dentro de data");
+    String programa = lector.nextLine();
+    lector.close();
 
     TablaPalabrasReservadas tablaPalabrasReservadas = new TablaPalabrasReservadas();
     tablaPalabrasReservadas.cargarTabla();
