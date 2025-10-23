@@ -30,6 +30,7 @@ public class ASEntregarEntero extends AccionSemantica {
         }
         BUFFER.append(simbolo);
         if(TABLA_SIMBOLOS.containsKey(aux)) {
+            BUFFER.setLength(0);
             return new Pair<String,Integer>(aux,TABLA_PALABRAS_RESERVADAS.get("CTE_INT"));
         }
         TABLA_SIMBOLOS.put(aux,new Info(aux,TABLA_PALABRAS_RESERVADAS.get("CTE_INT")));

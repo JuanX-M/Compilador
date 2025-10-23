@@ -8,7 +8,9 @@
     import Tools.TablaPalabrasReservadas;
     import Tools.Logger;
     import Tools.Cursor;
+    import Tools.Info;
     import java.util.Scanner;
+
 
 
 %}
@@ -176,8 +178,15 @@ sentencia_asignacion
     ;
 
 sentencia_asignacion_unaria
-    :   VAR ID TWO_POINTS_ASSIGNATION expresion_aritmetica  {if (TablaSimbolos.TABLA_SIMBOLOS.containsKey($2.sval)) {Logger.logError(cursor.getCurrentLine(), "Redeclaracion de variable");};} //TODO: Corregir esto
-    |   ID TWO_POINTS_ASSIGNATION expresion_aritmetica  {if (!(TablaSimbolos.TABLA_SIMBOLOS.containsKey($1.sval))) {Logger.logError(cursor.getCurrentLine(), "Variable sin declarar");};}
+    :   VAR ID TWO_POINTS_ASSIGNATION expresion_aritmetica
+            {if (TablaSimbolos.TABLA_SIMBOLOS.containsKey($2.sval)) {
+                Logger.logError(cursor.getCurrentLine(), "Redeclaracion de variable");}
+            else {
+                TablaSimbolos.TABLA_SIMBOLOS.put($2.sval,new Info($2.sval,TablaPalabrasReservadas.TABLA_PALABRAS_RESERVADAS.get("id")));
+            };} //TODO: Lexema o ID
+    |   ID TWO_POINTS_ASSIGNATION expresion_aritmetica
+            {if (!(TablaSimbolos.TABLA_SIMBOLOS.containsKey($1.sval))) {
+                Logger.logError(cursor.getCurrentLine(), "Variable sin declarar");};}
     |   sentencia_asignacion_unaria_error
     ;
 
@@ -196,7 +205,12 @@ funcion
     ;
 
 encabezado_funcion
-    : lista_tipos  FUN ID '(' lista_param_formales ')'
+    : lista_tipos  FUN ID '(' lista_param_formales ')' //put de funcion
+        {if (TablaSimbolos.TABLA_SIMBOLOS.containsKey($3.sval)) {
+            Logger.logError(cursor.getCurrentLine(), "Redeclaracion de funcion");
+        } else {
+            TablaSimbolos.TABLA_SIMBOLOS.put($3.sval,new Info($3.sval,TablaPalabrasReservadas.TABLA_PALABRAS_RESERVADAS.get("id")));
+        };}
     | encabezado_funcion_error
     ;
 encabezado_funcion_error
@@ -293,6 +307,8 @@ factor
 
 invocacion_funcion
     :   FUN ID '(' lista_param_reales ')'
+            {if (!(TablaSimbolos.TABLA_SIMBOLOS.containsKey($2.sval))) {
+                Logger.logError(cursor.getCurrentLine(), "Funcion sin declarar");};}
     |   invocacion_funcion_error
     ;
 invocacion_funcion_error
