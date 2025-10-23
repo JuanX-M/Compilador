@@ -221,7 +221,7 @@ sentencia_lambda_sin_var
     :    parametro_lambda cuerpo_lambda_sin_var argumento_lambda
     ;
 cuerpo_lambda_sin_var
-    :    cuerpo_sin_var
+    :    '{' cuerpo_sin_var '}'
     ;
 
 sentencia_ejecucion_sin_var
