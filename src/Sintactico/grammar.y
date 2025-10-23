@@ -183,6 +183,7 @@ sentencia_asignacion_unaria
                 Logger.logError(cursor.getCurrentLine(), "Redeclaracion de variable");}
             else {
                 TablaSimbolos.TABLA_SIMBOLOS.put($2.sval,new Info($2.sval,TablaPalabrasReservadas.TABLA_PALABRAS_RESERVADAS.get("id")));
+                System.out.println(TablaSimbolos.TABLA_SIMBOLOS.get($2.sval));
             };} //TODO: Lexema o ID
     |   ID TWO_POINTS_ASSIGNATION expresion_aritmetica
             {if (!(TablaSimbolos.TABLA_SIMBOLOS.containsKey($1.sval))) {
@@ -270,10 +271,12 @@ condicion_error
     ;
 
 expresion_aritmetica
-    :   expresion_aritmetica '+' termino  {Logger.logRule(cursor.getCurrentLine(), "Sentencia EXPRESION ARITMETICA");}
+    :   expresion_aritmetica '+' termino  {
+                            System.out.println("1er operando :" + $1.sval + "2do operando :"+ $3.sval);
+                            Logger.logRule(cursor.getCurrentLine(), "Sentencia EXPRESION ARITMETICA");}
     |   expresion_aritmetica '-' termino  {Logger.logRule(cursor.getCurrentLine(), "Sentencia EXPRESION ARITMETICA");}
     |   expresion_aritmetica_toi          {Logger.logRule(cursor.getCurrentLine(), "Sentencia TOI");}
-    |   termino
+    |   termino {$$.sval=$1.sval;}
     |   expresion_aritmetica_error
     ;
 
@@ -299,7 +302,9 @@ termino_error
     ;
 
 factor
-    :   CTE_INT
+    :   CTE_INT  {
+                    $$.sval=$1.sval;
+                    System.out.println( "cte_int "+ TablaSimbolos.TABLA_SIMBOLOS.get($1.sval));}
     |   CTE_FLOAT
     |   invocacion_funcion   {Logger.logRule(cursor.getCurrentLine(), "Sentencia INVOCACION FUNCION");}
     |   variable
