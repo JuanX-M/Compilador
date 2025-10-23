@@ -178,7 +178,7 @@ cuerpo_sin_var
 
 sentencia_sin_var
     :   sentencia_declarativa_sin_var
-    |   sentencia_ejecucion_sin_var
+    |   sentencia_ejecucion_sin_var ';'
     ;
 sentencia_declarativa_sin_var
     :   funcion_sin_var
@@ -235,7 +235,7 @@ sentencia_seleccion_sin_var
     |   IF parametros_seleccion cuerpo_seleccion_sin_var ENDIF                              {Logger.logRule(cursor.getCurrentLine(), "Sentencia IF");}
     ;
 cuerpo_seleccion_sin_var
-    :   {cuerpo_sin_var}
+    :   '{' cuerpo_sin_var'}'
     ;
 cuerpo_iteracion_error
     :   '{'  '}'    {Logger.logError(cursor.getCurrentLine(), "Falta de cuerpo en iteracion");}
