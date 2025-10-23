@@ -54,14 +54,19 @@ sentencia
 sentencia_declarativa
     :   funcion  {Logger.logRule(cursor.getCurrentLine(), "Sentencia DECLARACION FUNCION");}
     ;
-
-sentencia_ejecucion
+sentencia_simple
     :   sentencia_print  {Logger.logRule(cursor.getCurrentLine(), "Sentencia PRINT");}
-    |   sentencia_seleccion
-    |   sentencia_iteracion
     |   sentencia_asignacion
     ;
-
+sentencia_ejecucion
+    :   sentencia_simple
+    |   sentencia_seleccion
+    |   sentencia_asignacion_var
+    |   sentencia_iteracion
+    ;
+sentencia_asignacion_var
+    : VAR ID TWO_POINTS_ASSIGNATION expresion_aritmetica
+    ;
 sentencia_ejecucion_retorno
     :   sentencia_seleccion_retorno
     |   sentencia_iteracion_retorno
@@ -85,7 +90,7 @@ sentencia_iteracion_retorno
     ;
 
 cuerpo_iteracion_retorno
-    :   '{' cuerpo_funcion '}'
+    :   '{' cuerpo_funcion_sin_var '}'
 //    |   cuerpo_iteracion_error
     ;
 
@@ -162,10 +167,76 @@ encabezado_iteracion_error
     ;
 
 cuerpo_iteracion
-    :   '{' cuerpo '}'
+    :   '{' cuerpo_sin_var '}'
     |   cuerpo_iteracion_error
     ;
 
+cuerpo_sin_var
+    :   cuerpo_sin_var sentencia_sin_var
+    |   sentencia_sin_var
+    ;
+
+sentencia_sin_var
+    :   sentencia_declarativa_sin_var
+    |   sentencia_ejecucion_sin_var
+    ;
+sentencia_declarativa_sin_var
+    :   funcion_sin_var
+    ;
+
+funcion_sin_var
+    :   encabezado_funcion '{' cuerpo_funcion_sin_var '}' {Logger.logRule(cursor.getCurrentLine(), "Sentencia DECLARACION FUNCION");}
+    |   sentencia_lambda_sin_var    {Logger.logRule(cursor.getCurrentLine(), "Sentencia LAMBDA");}
+    ;
+
+
+cuerpo_funcion_sin_var
+    :   cuerpo_sin_var  sentencia_funcion_sin_var
+    |   sentencia_funcion_sin_var cuerpo_sin_var
+    |   cuerpo_sin_var sentencia_funcion_sin_var cuerpo_sin_var
+    |   sentencia_funcion_sin_var cuerpo_sin_var sentencia_funcion_sin_var
+    |   sentencia_funcion_sin_var
+    ;
+sentencia_funcion_sin_var
+    :   sentencia_ejecucion_retorno_sin_var ';'
+    |   sentencia_retorno
+    ;
+
+sentencia_ejecucion_retorno_sin_var
+    :   sentencia_seleccion_retorno_sin_var
+    |   sentencia_iteracion_retorno
+    ;
+sentencia_seleccion_retorno_sin_var
+    :   IF parametros_seleccion cuerpo_seleccion_retorno_sin_var ELSE cuerpo_seleccion_retorno_sin_var ENDIF {Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");}
+    |   IF parametros_seleccion cuerpo_seleccion_retorno_sin_var ELSE cuerpo_seleccion_sin_var ENDIF        {Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");}
+    |   IF parametros_seleccion cuerpo_seleccion_sin_var ELSE cuerpo_seleccion_retorno_sin_var ENDIF        {Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");}
+    |   IF parametros_seleccion cuerpo_seleccion_retorno_sin_var ENDIF                              {Logger.logRule(cursor.getCurrentLine(), "Sentencia IF");}
+//    |   sentencia_seleccion_sin_endif  {Logger.logError(cursor.getCurrentLine(), "Falta de endif");}
+    ;
+
+cuerpo_seleccion_retorno_sin_var
+    :  '{' cuerpo_funcion_sin_var'}'
+    ;
+sentencia_lambda_sin_var
+    :    parametro_lambda cuerpo_lambda_sin_var argumento_lambda
+    ;
+cuerpo_lambda_sin_var
+    :    cuerpo_sin_var
+    ;
+
+sentencia_ejecucion_sin_var
+    :   sentencia_simple
+    |   sentencia_iteracion
+    |   sentencia_seleccion_sin_var
+    ;
+
+sentencia_seleccion_sin_var
+    :   IF parametros_seleccion cuerpo_seleccion_sin_var ELSE cuerpo_seleccion_sin_var ENDIF        {Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");}
+    |   IF parametros_seleccion cuerpo_seleccion_sin_var ENDIF                              {Logger.logRule(cursor.getCurrentLine(), "Sentencia IF");}
+    ;
+cuerpo_seleccion_sin_var
+    :   {cuerpo_sin_var}
+    ;
 cuerpo_iteracion_error
     :   '{'  '}'    {Logger.logError(cursor.getCurrentLine(), "Falta de cuerpo en iteracion");}
     ;
@@ -176,8 +247,7 @@ sentencia_asignacion
     ;
 
 sentencia_asignacion_unaria
-    :   VAR ID TWO_POINTS_ASSIGNATION expresion_aritmetica  {if (TablaSimbolos.TABLA_SIMBOLOS.containsKey($2.sval)) {Logger.logError(cursor.getCurrentLine(), "Redeclaracion de variable");};} //TODO: Corregir esto
-    |   ID TWO_POINTS_ASSIGNATION expresion_aritmetica  {if (!(TablaSimbolos.TABLA_SIMBOLOS.containsKey($1.sval))) {Logger.logError(cursor.getCurrentLine(), "Variable sin declarar");};}
+    :   ID TWO_POINTS_ASSIGNATION expresion_aritmetica  {if (!(TablaSimbolos.TABLA_SIMBOLOS.containsKey($1.sval))) {Logger.logError(cursor.getCurrentLine(), "Variable sin declarar");};}
     |   sentencia_asignacion_unaria_error
     ;
 
