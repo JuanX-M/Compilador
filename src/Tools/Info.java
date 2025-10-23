@@ -7,24 +7,29 @@ package Tools;
 public class Info {
 
     //TODO: Verificar atributos privados de Info
-    private String lexema;
-    private String nombre; // ej: "ID", "CTE_INT"
-    private Integer token;
-    private String tipo;
-    private String uso;
+    private final String lexema;
+    private final String nombre; // ej: "ID", "CTE_INT"
+    private final String token;
+    private final String tipo;
+    private final String uso;
+    private final String ambito;
 
-    public Info(String nombre, Integer token) {
+    public Info(String nombre, String token, String tipo, String ambito) {
+        this.lexema = nombre + "." + tipo + "." + ambito;
         this.nombre = nombre;
         this.token = token; // creo que se calcula por lexico, cambiar esto
-        this.tipo = null;
+        this.tipo = tipo;
         this.uso = null;
+        this.ambito = ambito;
     }
 
-    public Info(String lexema, Integer token, String tipo, String uso) {
-        this.lexema = lexema;
-        this.token = token; // creo que se calcula por lexico, cambiar esto
+    public Info(String nombre, String token, String tipo, String uso, String ambito) {
+        this.lexema = nombre + "." + tipo + "." + ambito;
+        this.nombre = nombre;
+        this.token = token;
         this.tipo = tipo;
         this.uso = uso;
+        this.ambito = ambito;
     }
 
     @Override
@@ -38,7 +43,7 @@ public class Info {
     public String getLexema() {
         return lexema;
     }
-    public Integer getToken() {
+    public String getToken() {
         return token;
     }
 }

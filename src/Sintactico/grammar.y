@@ -28,7 +28,9 @@
 %%
 
 prog
-    :   ID '{' cuerpo '}' {Logger.logRule(cursor.getCurrentLine(), "Sentencia PROG");}
+    :   ID '{' cuerpo '}'
+            {Logger.logRule(cursor.getCurrentLine(), "Sentencia PROG");
+            ambito = $1.sval;}
     |   prog_error
     ;
 
@@ -182,8 +184,8 @@ sentencia_asignacion_unaria
             {if (TablaSimbolos.TABLA_SIMBOLOS.containsKey($2.sval)) {
                 Logger.logError(cursor.getCurrentLine(), "Redeclaracion de variable");}
             else {
-                TablaSimbolos.TABLA_SIMBOLOS.put($2.sval,new Info($2.sval,TablaPalabrasReservadas.TABLA_PALABRAS_RESERVADAS.get("id")));
-                System.out.println(TablaSimbolos.TABLA_SIMBOLOS.get($2.sval));
+                TablaSimbolos.TABLA_SIMBOLOS.put($2.sval + ".INT." + ambito,new Info($2.sval, "CTE_INT", "INT", "Variable", ambito));
+                System.out.println(TablaSimbolos.TABLA_SIMBOLOS.get($2.sval + ".INT." + ambito));
             };} //TODO: Lexema o ID
     |   ID TWO_POINTS_ASSIGNATION expresion_aritmetica
             {if (!(TablaSimbolos.TABLA_SIMBOLOS.containsKey($1.sval))) {
@@ -210,7 +212,8 @@ encabezado_funcion
         {if (TablaSimbolos.TABLA_SIMBOLOS.containsKey($3.sval)) {
             Logger.logError(cursor.getCurrentLine(), "Redeclaracion de funcion");
         } else {
-            TablaSimbolos.TABLA_SIMBOLOS.put($3.sval,new Info($3.sval,TablaPalabrasReservadas.TABLA_PALABRAS_RESERVADAS.get("id")));
+            System.out.println($1.sval);
+            //TablaSimbolos.TABLA_SIMBOLOS.put($3.sval,new Info($3.sval,$1, ));
         };}
     | encabezado_funcion_error
     ;
@@ -350,8 +353,8 @@ lista_exp_aritmeticas_error
     ;
 
 lista_tipos
-    :   lista_tipos ',' tipo
-    |   tipo
+    :   lista_tipos ',' tipo {$$.sval = $1.sval + (",") + $3.sval;}
+    |   tipo {$$.sval = $1.sval;}
     |   lista_tipos_error
     ;
 lista_tipos_error
@@ -378,8 +381,8 @@ variable
     ;
 
 tipo
-    :   INT
-    |   FLOAT
+    :   INT {$$.sval = "INT";}
+    |   FLOAT {$$.sval = "FLOAT";}
     |   STRING
     ;
 
@@ -427,6 +430,7 @@ private static int yylval_recognition = 0;
 static AnalizadorLexico lex = null;
 static Parser par = null;
 static Cursor cursor = null;
+static String ambito = null;
 
 public static void main (String [] args) {
 

@@ -21,7 +21,7 @@ public class ASEntregarID extends AccionSemantica {
             Logger.logWarning(cursor.getCurrentLine(),"Identificador " + BUFFER + " truncado");
         }
         String aux = BUFFER.toString();
-        //if(!TABLA_SIMBOLOS.containsKey(aux))
+        //if(!TABLA_SIMBOLOS.containsKey(aux)) put pasado a gramatica
         //    TABLA_SIMBOLOS.put(aux,new Info(aux,TABLA_PALABRAS_RESERVADAS.get("id")));
         cursor.gobackCharacter();
         BUFFER.setLength(0);
