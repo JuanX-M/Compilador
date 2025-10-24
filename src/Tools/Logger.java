@@ -39,7 +39,7 @@ public final class Logger {
     }
 
     public static void logTerceto(int line, Object message) {
-        tercetos.add("Se encontro un " + LogType.TERCETO + "en la linea [" + line + "]" + message + "\n");
+        tercetos.add("Se encontro un " + LogType.TERCETO + " en la linea [" + line + "] : " + message + "\n");
     }
 
 

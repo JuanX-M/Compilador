@@ -2,20 +2,20 @@ package Tools;
 
 public class Terceto {
 
-    private int numTerceto;
+    private static Integer numTerceto=0;
     private String first;
     private String second;
     private String third;
 
-    public Terceto(int numTerceto, String first, String second, String third) {
-        this.numTerceto = numTerceto;
+    public Terceto( String first, String second, String third) {
+        this.numTerceto = numTerceto +1;
         this.first = first;
         this.second = second;
         this.third =  third;
     }
 
-    public int getNumTerceto() {
-        return numTerceto;
+    public String getNumTerceto() {
+        return "(" + numTerceto.toString() + ")";
     }
 
     public String getFirst() {
@@ -42,4 +42,8 @@ public class Terceto {
         this.third = third;
     }
 
+    @Override
+    public String toString() {
+        return "{" + numTerceto + "}[" + first + "," + second + "," + third + "]";
+    }
 }

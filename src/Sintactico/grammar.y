@@ -182,15 +182,41 @@ sentencia_asignacion
 
 sentencia_asignacion_unaria
     :   VAR ID TWO_POINTS_ASSIGNATION expresion_aritmetica
-            {if (TablaSimbolos.TABLA_SIMBOLOS.containsKey($2.sval)) {
+            {
+            if (TablaSimbolos.TABLA_SIMBOLOS.containsKey($2.sval)) {
                 Logger.logError(cursor.getCurrentLine(), "Redeclaracion de variable");}
             else {
                 TablaSimbolos.TABLA_SIMBOLOS.put($2.sval + ".INT." + ambito,new Info($2.sval, "CTE_INT", "INT", "Variable", ambito));
                 System.out.println(TablaSimbolos.TABLA_SIMBOLOS.get($2.sval + ".INT." + ambito));
-            };} //TODO: Lexema o ID
+            };
+	   String aux;
+	   if ($4.obj != null) {
+
+		aux = ((Terceto) $4.obj).getNumTerceto();
+	    } else {
+		// valor simple (ID, CTE_INT, etc.)
+		aux = $4.sval;
+	    }
+
+            $$.obj = new Terceto($3.sval, $2.sval, aux);
+            Logger.logTerceto(cursor.getCurrentLine(),((Terceto) $$.obj));
+            } //TODO: Lexema o ID
     |   ID TWO_POINTS_ASSIGNATION expresion_aritmetica
             {if (!(TablaSimbolos.TABLA_SIMBOLOS.containsKey($1.sval))) {
-                Logger.logError(cursor.getCurrentLine(), "Variable sin declarar");};}
+                Logger.logError(cursor.getCurrentLine(), "Variable sin declarar");}
+            else{
+            	String aux;
+		   if ($3.obj != null) {
+
+			aux = ((Terceto) $3.obj).getNumTerceto();
+		    } else {
+			// $3 es un valor simple (ID, CTE_INT, etc.)
+			aux = $3.sval;
+		    }
+
+		    $$.obj = new Terceto($2.sval, $1.sval, aux);
+		    Logger.logTerceto(cursor.getCurrentLine(),((Terceto) $$.obj));
+            }}
     |   sentencia_asignacion_unaria_error
     ;
 
@@ -276,13 +302,56 @@ condicion_error
 
 expresion_aritmetica
     :   expresion_aritmetica '+' termino  {
-                            System.out.println("1er operando :" + $1.sval + "2do operando :"+ $3.sval);
-                            terceto = new Terceto($2.sval,$1.sval,$3.sval);
-                            Logger.logTerceto(cursor.getCurrentLine(),terceto);
-                            Logger.logRule(cursor.getCurrentLine(), "Sentencia EXPRESION ARITMETICA");}
-    |   expresion_aritmetica '-' termino  {Logger.logRule(cursor.getCurrentLine(), "Sentencia EXPRESION ARITMETICA");}
+
+                            // Vamos a guardar los operandos izquierdo y derecho
+                                String operandoIzquierdo;
+                                String operandoDerecho;
+
+                                // --- 1. Definir Operando Izquierdo ($1) ---
+                                if ($1.obj != null) {
+                                    // $1 es un Terceto (complejo)
+                                    operandoIzquierdo = ((Terceto) $1.obj).getNumTerceto();
+                                } else {
+                                    // $1 es un valor simple (ID, CTE_INT, etc.)
+                                    operandoIzquierdo = $1.sval;
+                                }
+
+                                // --- 2. Definir Operando Derecho ($3) ---
+                                if ($3.obj != null) {
+                                    // $3 es un Terceto (complejo)
+                                    operandoDerecho = ((Terceto) $3.obj).getNumTerceto();
+                                } else {
+                                    // $3 es un valor simple (ID, CTE_INT, etc.)
+                                    operandoDerecho = $3.sval;
+                                }
+
+                                // --- 3. Crear el nuevo Terceto ---
+                                $$.obj = new Terceto($2.sval, operandoIzquierdo, operandoDerecho);
+
+                                // ¡Importante! Limpiamos sval para que la siguiente regla
+                                // sepa que ESTE resultado ($$) es un objeto complejo.
+                                $$.sval = null;
+                            Logger.logTerceto(cursor.getCurrentLine(),((Terceto) $$.obj));
+                            Logger.logRule(cursor.getCurrentLine(), "Sentencia EXPRESION ARITMETICA");
+                            }
+    |   expresion_aritmetica '-' termino  {
+
+                           Logger.logRule(cursor.getCurrentLine(), "Sentencia EXPRESION ARITMETICA");
+                           }
     |   expresion_aritmetica_toi          {Logger.logRule(cursor.getCurrentLine(), "Sentencia TOI");}
-    |   termino {$$.sval=$1.sval;}
+    |   termino {
+    		String aux;
+    		   if ($1.obj != null) {
+
+    			aux = ((Terceto) $1.obj).getNumTerceto();
+    		    } else {
+    			// $1 es un valor simple (ID, CTE_INT, etc.)
+    			aux = $1.sval;
+    		    }
+
+    		    $$.obj = null;
+    		    $$.sval=aux;
+	         }
     |   expresion_aritmetica_error
     ;
 
@@ -294,9 +363,42 @@ expresion_aritmetica_error
     ;
 
 termino
-    :   termino '*' factor             {Logger.logRule(cursor.getCurrentLine(), "Sentencia EXPRESION ARITMETICA");}
-    |   termino '/' factor             {Logger.logRule(cursor.getCurrentLine(), "Sentencia EXPRESION ARITMETICA");}
-    |   factor
+    :   termino '*' factor             {
+    					// Vamos a guardar los operandos izquierdo y derecho
+                                            String operandoIzquierdo;
+                                            String operandoDerecho;
+
+                                            // --- 1. Definir Operando Izquierdo ($1) ---
+                                            if ($1.obj != null) {
+                                                // $1 es un Terceto (complejo)
+                                                operandoIzquierdo = ((Terceto) $1.obj).getNumTerceto();
+                                            } else {
+                                                // $1 es un valor simple (ID, CTE_INT, etc.)
+                                                operandoIzquierdo = $1.sval;
+                                            }
+
+                                            // --- 2. Definir Operando Derecho ($3) ---
+                                            if ($3.obj != null) {
+                                                // $3 es un Terceto (complejo)
+                                                operandoDerecho = ((Terceto) $3.obj).getNumTerceto();
+                                            } else {
+                                                // $3 es un valor simple (ID, CTE_INT, etc.)
+                                                operandoDerecho = $3.sval;
+                                            }
+
+                                            // --- 3. Crear el nuevo Terceto ---
+                                            $$.obj = new Terceto($2.sval, operandoIzquierdo, operandoDerecho);
+
+                                            // ¡Importante! Limpiamos sval para que la siguiente regla
+                                            // sepa que ESTE resultado ($$) es un objeto complejo.
+					Logger.logTerceto(cursor.getCurrentLine(),((Terceto) $$.obj));
+    					Logger.logRule(cursor.getCurrentLine(), "Sentencia EXPRESION ARITMETICA");
+
+                                        }
+    |   termino '/' factor
+                                        {Logger.logRule(cursor.getCurrentLine(), "Sentencia EXPRESION ARITMETICA");
+                                        }
+    |   factor {$$.sval=$1.sval; $$.obj=null;}
     |   termino_error
     ;
 
@@ -311,9 +413,9 @@ factor
     :   CTE_INT  {
                     $$.sval=$1.sval;
                     System.out.println( "cte_int "+ TablaSimbolos.TABLA_SIMBOLOS.get($1.sval));}
-    |   CTE_FLOAT
+    |   CTE_FLOAT {$$.sval=$1.sval;}
     |   invocacion_funcion   {Logger.logRule(cursor.getCurrentLine(), "Sentencia INVOCACION FUNCION");}
-    |   variable
+    |   variable {$$.sval=$1.sval;}
     ;
 
 invocacion_funcion
@@ -379,8 +481,8 @@ lista_variables_error
     ;
 
 variable
-    :   ID
-    |   ID '.' ID
+    :   ID {$$.sval=$1.sval;}
+    |   ID  '.' ID
     ;
 
 tipo
