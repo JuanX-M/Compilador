@@ -10,6 +10,7 @@ public final class Logger {
     private static final ArrayList<String> errors = new ArrayList<>();
     private static final ArrayList<String> tokens = new ArrayList<>();
     private static final ArrayList<String> rules = new ArrayList<>();
+    private static final ArrayList<String> tercetos = new ArrayList<>();
 
     private Logger(){};
 
@@ -17,7 +18,8 @@ public final class Logger {
         ERROR,
         WARNING,
         TOKEN,
-        RULE
+        RULE,
+        TERCETO
     }
 
     public static void logError(int line, Object message) {
@@ -33,19 +35,23 @@ public final class Logger {
     }
 
     public static void logRule(int line, Object message) {
-
         rules.add("Se encontro un " + LogType.RULE + " en la linea [" + line + "] : " + message + "\n");
+    }
+
+    public static void logTerceto(int line, Object message) {
+        tercetos.add("Se encontro un " + LogType.TERCETO + "en la linea [" + line + "]" + message + "\n");
     }
 
 
     public static String generateLog() {
         String out = null;
         out = "\n>>>    LOG \n\n";
-
+        for(String s: tercetos) {
+            out += s;
+        }
         for (String s : rules) {
             out += s;
         }
-
         for (String s : warnings) {
             out += s;
         }

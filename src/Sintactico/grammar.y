@@ -9,6 +9,7 @@
     import Tools.Logger;
     import Tools.Cursor;
     import Tools.Info;
+    import Tools.Terceto;
     import java.util.Scanner;
 
 
@@ -276,6 +277,8 @@ condicion_error
 expresion_aritmetica
     :   expresion_aritmetica '+' termino  {
                             System.out.println("1er operando :" + $1.sval + "2do operando :"+ $3.sval);
+                            terceto = new Terceto($2.sval,$1.sval,$3.sval);
+                            Logger.logTerceto(cursor.getCurrentLine(),terceto);
                             Logger.logRule(cursor.getCurrentLine(), "Sentencia EXPRESION ARITMETICA");}
     |   expresion_aritmetica '-' termino  {Logger.logRule(cursor.getCurrentLine(), "Sentencia EXPRESION ARITMETICA");}
     |   expresion_aritmetica_toi          {Logger.logRule(cursor.getCurrentLine(), "Sentencia TOI");}
@@ -431,6 +434,7 @@ static AnalizadorLexico lex = null;
 static Parser par = null;
 static Cursor cursor = null;
 static String ambito = null;
+static Terceto terceto = null;
 
 public static void main (String [] args) {
 
