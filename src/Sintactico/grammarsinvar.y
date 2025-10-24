@@ -1,0 +1,520 @@
+%{
+    import java.io.*;
+
+    import Lexico.AnalizadorLexico;
+
+    import Tools.TablaSimbolos;
+    import Tools.Pair;
+    import Tools.TablaPalabrasReservadas;
+    import Tools.Logger;
+    import Tools.Cursor;
+    import java.util.Scanner;
+
+
+%}
+
+%token TWO_POINTS_ASSIGNATION STRING GREATER_OR_EQUAL LESS_OR_EQUAL EQUAL NOT_EQUAL CTE_INT CTE_FLOAT ID IF ELSE ENDIF PRINT RETURN VAR FOR FROM TO CR SE LE TOI INT FLOAT ARROW FUN CTE_INT_NEGATIVE
+
+%nonassoc SENTENCIA_ASIGNACION_PREC
+%right TWO_POINTS_ASSIGNATION
+%left ID
+
+
+
+%start  prog
+
+%%
+
+prog
+    :   ID '{' cuerpo '}' {Logger.logRule(cursor.getCurrentLine(), "Sentencia PROG");}
+    |   prog_error
+    ;
+
+
+prog_error
+    :   '{' cuerpo '}'      {Logger.logError(cursor.getCurrentLine(), "Falta el nombre del programa");}
+    |   ID '(' cuerpo ')'   {Logger.logError(cursor.getCurrentLine(), "Debe indicar el programa entre {}");}
+    |   ID cuerpo           {Logger.logError(cursor.getCurrentLine(), "Faltan los delimitadores de programa");}
+    |   ID '{' cuerpo       {Logger.logError(cursor.getCurrentLine(), "Falta el delimitador de programa '}'");}
+    |   ID cuerpo '}'       {Logger.logError(cursor.getCurrentLine(), "Falta el delimitador de programa '{'");}
+    |   error               {Logger.logError(cursor.getCurrentLine(), "Hay errores lexicos o sintaticos no identificados");}
+    ;
+
+cuerpo
+    :   cuerpo sentencia
+    |   sentencia
+    ;
+
+sentencia
+    :   sentencia_declarativa
+    |   sentencia_ejecucion ';'
+    |   sentencia_ejecucion_sin_coma
+    ;
+
+sentencia_declarativa
+    :   funcion  {Logger.logRule(cursor.getCurrentLine(), "Sentencia DECLARACION FUNCION");}
+    ;
+sentencia_simple
+    :   sentencia_print  {Logger.logRule(cursor.getCurrentLine(), "Sentencia PRINT");}
+    |   sentencia_asignacion
+    ;
+sentencia_ejecucion
+    :   sentencia_simple
+    |   sentencia_seleccion
+    |   sentencia_asignacion_var
+    |   sentencia_iteracion
+    ;
+sentencia_asignacion_var
+    : VAR ID TWO_POINTS_ASSIGNATION expresion_aritmetica {Logger.logRule(cursor.getCurrentLine(), "Sentencia DECLARACION-ASIGNACION-VARIABLE");}
+    ;
+sentencia_ejecucion_retorno
+    :   sentencia_seleccion_retorno
+    |   sentencia_iteracion_retorno
+    ;
+
+sentencia_seleccion_retorno
+    :   IF parametros_seleccion cuerpo_seleccion_retorno ELSE cuerpo_seleccion_retorno ENDIF {Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");}
+    |   IF parametros_seleccion cuerpo_seleccion_retorno ELSE cuerpo_seleccion ENDIF        {Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");}
+    |   IF parametros_seleccion cuerpo_seleccion ELSE cuerpo_seleccion_retorno ENDIF        {Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");}
+    |   IF parametros_seleccion cuerpo_seleccion_retorno ENDIF                              {Logger.logRule(cursor.getCurrentLine(), "Sentencia IF");}
+//    |   sentencia_seleccion_sin_endif  {Logger.logError(cursor.getCurrentLine(), "Falta de endif");}
+    ;
+
+cuerpo_seleccion_retorno
+    :   '{' cuerpo_funcion '}'
+//    |   cuerpo_seleccion_error
+    ;
+
+sentencia_iteracion_retorno
+    :   FOR parametros_iteracion cuerpo_iteracion_retorno  {Logger.logRule(cursor.getCurrentLine(), "Sentencia ITERACION");}
+    ;
+
+cuerpo_iteracion_retorno
+    :   '{' cuerpo_funcion_sin_var '}'
+//    |   cuerpo_iteracion_error
+    ;
+
+sentencia_ejecucion_sin_coma
+    :   sentencia_ejecucion  {Logger.logError(cursor.getCurrentLine(), "Falta de ';' al final de las sentencias.");}
+  //  ;
+
+sentencia_print
+    :   PRINT '(' STRING ')'
+    |   PRINT '(' lista_exp_aritmeticas ')'
+    |   sentencia_print_error
+    ;
+
+sentencia_print_error
+    :   PRINT '(' ')'       {Logger.logError(cursor.getCurrentLine(), "Falta argumento en sentencia PRINT");}
+    ;
+
+sentencia_seleccion
+    :   IF parametros_seleccion cuerpo_seleccion ELSE cuerpo_seleccion ENDIF    {Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");}
+    |   IF parametros_seleccion cuerpo_seleccion ENDIF                          {Logger.logRule(cursor.getCurrentLine(), "Sentencia IF");}
+    |   sentencia_seleccion_sin_endif                                           {Logger.logError(cursor.getCurrentLine(), "Falta de endif");}
+    ;
+
+sentencia_seleccion_sin_endif
+    :   IF parametros_seleccion cuerpo_seleccion ELSE cuerpo_seleccion
+    |   IF parametros_seleccion cuerpo_seleccion
+    ;
+
+parametros_seleccion
+    :    '(' condicion ')'  {Logger.logRule(cursor.getCurrentLine(), "Sentencia CONDICION");}
+    |   parametros_seleccion_error
+    ;
+
+parametros_seleccion_error
+    :   condicion ')'   {Logger.logError(cursor.getCurrentLine(), "Falta de '(' en condicion de seleccion");}
+    |   '(' condicion   {Logger.logError(cursor.getCurrentLine(), "Falta de ')' en condicion de seleccion");}
+    |   condicion       {Logger.logError(cursor.getCurrentLine(), "Falta de '()' en condicion de seleccion");}
+    ;
+
+cuerpo_seleccion
+    :   '{' cuerpo '}'
+    |   cuerpo_seleccion_error
+    ;
+
+cuerpo_seleccion_error
+    :   '{' '}' {Logger.logError(cursor.getCurrentLine(), "Falta de cuerpo en seleccion");}
+
+sentencia_iteracion
+    :   FOR parametros_iteracion cuerpo_iteracion  {Logger.logRule(cursor.getCurrentLine(), "Sentencia ITERACION");}
+    ;
+
+parametros_iteracion
+    :   '(' encabezado_iteracion ')'
+    |   parametros_iteracion_error
+    ;
+
+parametros_iteracion_error
+    :   encabezado_iteracion ')'    {Logger.logError(cursor.getCurrentLine(), "Falta de '(' en condicion de iteracion");}
+    |   '(' encabezado_iteracion   {Logger.logError(cursor.getCurrentLine(), "Falta de ')' en condicion de iteracion");}
+    |   encabezado_iteracion        {Logger.logError(cursor.getCurrentLine(), "Falta de '()' en condicion de iteracion");}
+    ;
+
+encabezado_iteracion
+    :   ID FROM CTE_INT TO CTE_INT
+    |   encabezado_iteracion_error
+    ;
+
+encabezado_iteracion_error
+    :   FROM CTE_INT TO CTE_INT {Logger.logError(cursor.getCurrentLine(), "Falta de encabezado ID del for");}
+    |   ID CTE_INT TO CTE_INT   {Logger.logError(cursor.getCurrentLine(), "Falta de encabezado FROM del for");}
+    |   ID FROM TO CTE_INT      {Logger.logError(cursor.getCurrentLine(), "Falta de encabezado CTE_INT_1 del for");}
+    |   ID FROM CTE_INT CTE_INT {Logger.logError(cursor.getCurrentLine(), "Falta de encabezado TO del for");}
+    |   ID FROM CTE_INT TO      {Logger.logError(cursor.getCurrentLine(), "Falta de encabezado CTE_INT_2 del for");}
+    ;
+
+cuerpo_iteracion
+    :   '{' cuerpo_sin_var '}'
+    |   cuerpo_iteracion_error
+    ;
+
+cuerpo_sin_var
+    :   cuerpo_sin_var sentencia_sin_var
+    |   sentencia_sin_var
+    ;
+
+sentencia_sin_var
+    :   sentencia_declarativa_sin_var
+    |   sentencia_ejecucion_sin_var ';'
+    |   sentencia_sin_var_asignacion_error ';'
+    ;
+sentencia_sin_var_asignacion_error
+    : VAR sentencia_asignacion_unaria {Logger.logError(cursor.getCurrentLine(), "Uso de var dentro de cuerpo Iteracion no es posible");}
+sentencia_declarativa_sin_var
+    :   funcion_sin_var
+    ;
+funcion_sin_var
+    :   encabezado_funcion '{' cuerpo_funcion_sin_var '}' {Logger.logRule(cursor.getCurrentLine(), "Sentencia DECLARACION FUNCION");}
+    |   sentencia_lambda_sin_var    {Logger.logRule(cursor.getCurrentLine(), "Sentencia LAMBDA");}
+    ;
+
+
+cuerpo_funcion_sin_var
+    :   cuerpo_sin_var  sentencia_funcion_sin_var
+    |   sentencia_funcion_sin_var cuerpo_sin_var
+    |   cuerpo_sin_var sentencia_funcion_sin_var cuerpo_sin_var
+    |   sentencia_funcion_sin_var cuerpo_sin_var sentencia_funcion_sin_var
+    |   sentencia_funcion_sin_var
+    ;
+sentencia_funcion_sin_var
+    :   sentencia_ejecucion_retorno_sin_var ';'
+    |   sentencia_retorno
+    ;
+
+sentencia_ejecucion_retorno_sin_var
+    :   sentencia_seleccion_retorno_sin_var
+    |   sentencia_iteracion_retorno
+    ;
+sentencia_seleccion_retorno_sin_var
+    :   IF parametros_seleccion cuerpo_seleccion_retorno_sin_var ELSE cuerpo_seleccion_retorno_sin_var ENDIF {Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");}
+    |   IF parametros_seleccion cuerpo_seleccion_retorno_sin_var ELSE cuerpo_seleccion_sin_var ENDIF        {Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");}
+    |   IF parametros_seleccion cuerpo_seleccion_sin_var ELSE cuerpo_seleccion_retorno_sin_var ENDIF        {Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");}
+    |   IF parametros_seleccion cuerpo_seleccion_retorno_sin_var ENDIF                              {Logger.logRule(cursor.getCurrentLine(), "Sentencia IF");}
+//    |   sentencia_seleccion_sin_endif  {Logger.logError(cursor.getCurrentLine(), "Falta de endif");}
+    ;
+
+cuerpo_seleccion_retorno_sin_var
+    :  '{' cuerpo_funcion_sin_var'}'
+    ;
+sentencia_lambda_sin_var
+    :    parametro_lambda cuerpo_lambda_sin_var argumento_lambda
+    ;
+cuerpo_lambda_sin_var
+    :    '{' cuerpo_sin_var '}'
+    ;
+
+sentencia_ejecucion_sin_var
+    :   sentencia_simple
+    |   sentencia_iteracion
+    |   sentencia_seleccion_sin_var
+    ;
+
+sentencia_seleccion_sin_var
+    :   IF parametros_seleccion cuerpo_seleccion_sin_var ELSE cuerpo_seleccion_sin_var ENDIF        {Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");}
+    |   IF parametros_seleccion cuerpo_seleccion_sin_var ENDIF                              {Logger.logRule(cursor.getCurrentLine(), "Sentencia IF");}
+    ;
+cuerpo_seleccion_sin_var
+    :   '{' cuerpo_sin_var'}'
+    ;
+cuerpo_iteracion_error
+    :   '{'  '}'    {Logger.logError(cursor.getCurrentLine(), "Falta de cuerpo en iteracion");}
+    ;
+
+sentencia_asignacion
+    :   sentencia_asignacion_unaria  {Logger.logRule(cursor.getCurrentLine(), "Sentencia ASIGNACION UNARIA");}
+    |   sentencia_asignacion_multiple  {Logger.logRule(cursor.getCurrentLine(), "Sentencia ASIGNACION MULTIPLE");}
+    ;
+
+sentencia_asignacion_unaria
+    :   variable TWO_POINTS_ASSIGNATION expresion_aritmetica  {if (!(TablaSimbolos.TABLA_SIMBOLOS.containsKey($1.sval))) {Logger.logError(cursor.getCurrentLine(), "Variable sin declarar");};}
+    |   sentencia_asignacion_unaria_error
+    ;
+
+sentencia_asignacion_unaria_error
+    :   ID expresion_aritmetica     {Logger.logError(cursor.getCurrentLine(), "Falta de asignacion luego de var");}
+    ;
+
+sentencia_asignacion_multiple
+    :   lista_variables '=' lista_exp_aritmeticas %prec SENTENCIA_ASIGNACION_PREC   {if ($1.ival != $3.ival) {Logger.logError(cursor.getCurrentLine(), "La cantidad de variables (" + $1.ival + ") no coincide con la cantidad de expresiones (" + $3.ival + ") en la asignación múltiple.");}}
+    ;
+
+funcion
+    :   encabezado_funcion '{' cuerpo_funcion '}' {Logger.logRule(cursor.getCurrentLine(), "Sentencia DECLARACION FUNCION");}
+    |   sentencia_lambda    {Logger.logRule(cursor.getCurrentLine(), "Sentencia LAMBDA");}
+    //|   funcion_error
+    ;
+
+encabezado_funcion
+    : lista_tipos  FUN ID '(' lista_param_formales ')'
+    | encabezado_funcion_error
+    ;
+encabezado_funcion_error
+    : lista_tipos FUN '(' lista_param_formales ')' '{' cuerpo_funcion '}'  {Logger.logError(cursor.getCurrentLine(), "Falta de nombre en declaracion de funcion");}
+    ;
+cuerpo_funcion
+    :   cuerpo  sentencia_funcion
+    |   sentencia_funcion cuerpo
+    |   cuerpo sentencia_funcion cuerpo
+    |   sentencia_funcion cuerpo sentencia_funcion
+    |   sentencia_funcion
+    ;
+sentencia_funcion
+    :   sentencia_ejecucion_retorno ';'
+    |   sentencia_retorno
+    ;
+sentencia_retorno
+    : RETURN '(' lista_exp_aritmeticas ')' ';'
+    ;
+
+//funcion_error
+//    :   lista_tipos FUN '(' lista_param_formales ')' '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' ';'     {Logger.logError(cursor.getCurrentLine(), "Falta de nombre en funcion");}
+//    ;
+
+sentencia_lambda
+    :   parametro_lambda cuerpo_lambda argumento_lambda
+    ;
+
+parametro_lambda
+    :    '(' tipo ID ')'
+    ;
+
+cuerpo_lambda
+    :   '{' cuerpo '}'
+    |   cuerpo_lambda_error
+    ;
+cuerpo_lambda_error
+    :   cuerpo '}' {Logger.logError(cursor.getCurrentLine(), "Falta delimitador izquierdo '{' del cuerpo lambda");}
+    //|   '{' cuerpo error {Logger.logError(cursor.getCurrentLine(), "Falta delimitador derecho '}' del cuerpo lambda");}
+    ;
+
+argumento_lambda
+    :   '(' ID ')'
+    |   '(' CTE_INT ')'
+    |   '(' CTE_FLOAT ')'
+    ;
+
+condicion
+    :   expresion_aritmetica simbolo_comparador factor
+    |   condicion_error
+    ;
+
+condicion_error
+    :   expresion_aritmetica termino               {Logger.logError(cursor.getCurrentLine(), "Falta de simbolo comparador en condicion");}
+    |   expresion_aritmetica simbolo_comparador    {Logger.logError(cursor.getCurrentLine(), "Falta de argumento derecho en condicion");}
+    |   simbolo_comparador termino                 {Logger.logError(cursor.getCurrentLine(), "Falta de argumento izquierdo en condicion");}
+    ;
+
+expresion_aritmetica
+    :   expresion_aritmetica '+' termino  {Logger.logRule(cursor.getCurrentLine(), "Sentencia EXPRESION ARITMETICA");}
+    |   expresion_aritmetica '-' termino  {Logger.logRule(cursor.getCurrentLine(), "Sentencia EXPRESION ARITMETICA");}
+    |   expresion_aritmetica_toi          {Logger.logRule(cursor.getCurrentLine(), "Sentencia TOI");}
+    |   termino
+    |   expresion_aritmetica_error
+    ;
+
+expresion_aritmetica_error
+    :   error '+' termino               {Logger.logError(cursor.getCurrentLine(), "Falta de operando izquierdo en expresion_aritmetica con '+''");}
+    |   error '-' termino               {Logger.logError(cursor.getCurrentLine(), "Falta de operando izquierdo en expresion_aritmetica con '-'");}
+    |   expresion_aritmetica '+' error  {Logger.logError(cursor.getCurrentLine(), "Falta de operando derecho en expresion_aritmetica con '+'");}
+    |   expresion_aritmetica '-' error  {Logger.logError(cursor.getCurrentLine(), "Falta de operando derecho en expresion_aritmetica con '-'");}
+    ;
+
+termino
+    :   termino '*' factor             {Logger.logRule(cursor.getCurrentLine(), "Sentencia EXPRESION ARITMETICA");}
+    |   termino '/' factor             {Logger.logRule(cursor.getCurrentLine(), "Sentencia EXPRESION ARITMETICA");}
+    |   factor
+    |   termino_error
+    ;
+
+termino_error
+    :   termino '*' error   {Logger.logError(cursor.getCurrentLine(), "Falta de operando izquierdo en expresion_aritmetica con '*'");}
+    |   termino '/' error   {Logger.logError(cursor.getCurrentLine(), "Falta de operando izquierdo en expresion_aritmetica con '/'");}
+    |   error '*' factor    {Logger.logError(cursor.getCurrentLine(), "Falta de operando derecho en expresion_aritmetica con '*'");}
+    |   error '/' factor    {Logger.logError(cursor.getCurrentLine(), "Falta de operando derecho en expresion_aritmetica con '-'");}
+    ;
+
+factor
+    :   CTE_INT
+    |   CTE_FLOAT
+    |   invocacion_funcion   {Logger.logRule(cursor.getCurrentLine(), "Sentencia INVOCACION FUNCION");}
+    |   variable
+    ;
+
+invocacion_funcion
+    :   FUN ID '(' lista_param_reales ')'
+    |   invocacion_funcion_error
+    ;
+invocacion_funcion_error
+    : FUN '(' lista_param_reales ')' {Logger.logError(cursor.getCurrentLine(), "Falta de nombre en funcion en invocacion de funcion");}
+    ;
+expresion_aritmetica_toi
+    :   TOI '(' expresion_aritmetica ')'
+    |   expresion_aritmetica_toi_error
+    ;
+
+expresion_aritmetica_toi_error
+    :   TOI error expresion_aritmetica ')'      {Logger.logError(cursor.getCurrentLine(), "Falta de '(' en expresion_aritmetica TOI");}
+    |   TOI '(' expresion_aritmetica error      {Logger.logError(cursor.getCurrentLine(), "Falta de ')' en expresion_aritmetica TOI");}
+    |   TOI error expresion_aritmetica error    {Logger.logError(cursor.getCurrentLine(), "Falta de '()' en expresion_aritmetica TOI");}
+    ;
+
+simbolo_comparador
+    :   GREATER_OR_EQUAL
+    |   LESS_OR_EQUAL
+    |   EQUAL
+    |   NOT_EQUAL
+    |   '>'
+    |   '<'
+    ;
+
+lista_exp_aritmeticas
+    :   lista_exp_aritmeticas ',' expresion_aritmetica {$$.ival = $1.ival + 1;}
+    |   expresion_aritmetica  {$$.ival = 1;}
+    |   lista_exp_aritmeticas_error
+    ;
+
+lista_exp_aritmeticas_error
+    :   lista_exp_aritmeticas  expresion_aritmetica    {Logger.logError(cursor.getCurrentLine(), "Falta de ',' en declaracion de expresiones aritmeticas (lado derecho)");}
+    ;
+
+lista_tipos
+    :   lista_tipos ',' tipo
+    |   tipo
+    |   lista_tipos_error
+    ;
+lista_tipos_error
+    :   lista_tipos tipo {Logger.logError(cursor.getCurrentLine(), "Falta de ',' en declaracion de tipos");}
+    ;
+lista_param_formales
+    :   lista_param_formales ',' parametro_formal
+    |   parametro_formal
+    ;
+
+lista_variables
+    :   lista_variables ',' variable        {$$.ival = $1.ival + 1;}
+    |   variable                            {$$.ival = 1; }
+    |   lista_variables_error
+    ;
+
+lista_variables_error
+    :   lista_variables variable    {Logger.logError(cursor.getCurrentLine(), "Falta de ',' en declaracion de variables (lado izquierdo)");}
+    ;
+
+variable
+    :   ID
+    |   ID '.' ID
+    ;
+
+tipo
+    :   INT
+    |   FLOAT
+    |   STRING
+    ;
+
+parametro_formal
+    :   semantica_pasaje tipo ID
+    |   tipo ID
+    |   parametro_formal_error
+    ;
+
+parametro_formal_error
+    :   semantica_pasaje tipo   {Logger.logError(cursor.getCurrentLine(), "Falta el nombre de parametro formal en declaracion de funcion");}
+    |   tipo                    {Logger.logError(cursor.getCurrentLine(), "Falta el nombre de parametro formal en declaracion de funcion");}
+    |   semantica_pasaje ID     {Logger.logError(cursor.getCurrentLine(), "Falta de tipo en parametro formal en declaracion de funcion");}
+    |   ID                      {Logger.logError(cursor.getCurrentLine(), "Falta de tipo en parametro formal en declaracion de funcion");}
+    ;
+
+lista_param_reales
+    :   lista_param_reales ',' parametro_real
+    |   parametro_real
+    ;
+
+semantica_pasaje
+    :   CR SE
+    |   CR LE
+    |   semantica_pasaje_error
+    ;
+
+semantica_pasaje_error
+    :   CR  {Logger.logError(cursor.getCurrentLine(), "Falta de LE o SE despues de CR");}
+    |   SE  {Logger.logError(cursor.getCurrentLine(), "Falta de CR antes de SE");}
+    |   LE  {Logger.logError(cursor.getCurrentLine(), "Falta de CR antes de LE");}
+    ;
+
+parametro_real
+    :   expresion_aritmetica ARROW ID
+    |   parametro_real_error
+    ;
+parametro_real_error
+    :   expresion_aritmetica ARROW  {Logger.logError(cursor.getCurrentLine(), "Falta especificacion del parametro formal");}
+    ;
+%%
+
+private static int yylval_recognition = 0;
+
+static AnalizadorLexico lex = null;
+static Parser par = null;
+static Cursor cursor = null;
+
+public static void main (String [] args) {
+
+    System.out.println("Iniciando compilación ... ");
+    Scanner lector = new Scanner(System.in);
+    System.out.println("Usted se encuentra en: " + System.getProperty("user.dir"));
+    System.out.println("Ingrese el archivo deseado, este debe estar dentro de data");
+    String programa = lector.nextLine();
+    lector.close();
+
+    TablaPalabrasReservadas tablaPalabrasReservadas = new TablaPalabrasReservadas();
+    tablaPalabrasReservadas.cargarTabla();
+
+    lex = new AnalizadorLexico (programa) ;
+    cursor = lex.getCursor();
+    par = new Parser (false);
+
+    par.run () ;
+
+    System.out.println("TablaSimbolos: " + TablaSimbolos.TABLA_SIMBOLOS);
+    System.out.println(Logger.generateLog());
+
+    System.out.println("\nFin compilación");
+}
+
+
+int yylex() {
+    Pair<String, Integer> t = lex.generarToken();
+    String lexema = t.getFirst();
+    Integer token = t.getSecond();
+    if (lexema != null){
+        yylval = new ParserVal(lexema);
+        yylval_recognition += 1;
+    }
+    return token;
+}
+
+void yyerror (String s) {
+    System.out.println(s);
+}
