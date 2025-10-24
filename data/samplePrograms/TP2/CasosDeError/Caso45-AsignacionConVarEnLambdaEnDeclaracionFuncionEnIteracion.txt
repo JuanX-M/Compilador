@@ -1,0 +1,26 @@
+##Prueba error cuando se realiza una asignacion de una variable con
+"var" dentro Sentencias IF-ELSE en una declaracion de funcion en un cuerpo iteracion ##
+ASIGVARITERIFELSE{
+    for (J from 2I to 4I){
+        int fun F1(int X) {
+            if (A <= 2I){
+                var B:=3I;
+            }endif;
+
+            if (A <= 2I){
+                C:=3I;
+            }else{
+                var D:=3I;
+            }endif;
+
+            if (A <= 2I){
+                var C:=3I;
+            }else{
+                D:=3I;
+            }endif;
+
+        return (X);
+        }
+
+    };
+}

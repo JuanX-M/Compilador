@@ -65,7 +65,7 @@ sentencia_ejecucion
     |   sentencia_iteracion
     ;
 sentencia_asignacion_var
-    : VAR ID TWO_POINTS_ASSIGNATION expresion_aritmetica
+    : VAR ID TWO_POINTS_ASSIGNATION expresion_aritmetica {Logger.logRule(cursor.getCurrentLine(), "Sentencia DECLARACION-ASIGNACION-VARIABLE");}
     ;
 sentencia_ejecucion_retorno
     :   sentencia_seleccion_retorno
@@ -179,11 +179,13 @@ cuerpo_sin_var
 sentencia_sin_var
     :   sentencia_declarativa_sin_var
     |   sentencia_ejecucion_sin_var ';'
+    |   sentencia_sin_var_asignacion_error ';'
     ;
+sentencia_sin_var_asignacion_error
+    : VAR sentencia_asignacion_unaria {Logger.logError(cursor.getCurrentLine(), "Uso de var dentro de cuerpo Iteracion no es posible");}
 sentencia_declarativa_sin_var
     :   funcion_sin_var
     ;
-
 funcion_sin_var
     :   encabezado_funcion '{' cuerpo_funcion_sin_var '}' {Logger.logRule(cursor.getCurrentLine(), "Sentencia DECLARACION FUNCION");}
     |   sentencia_lambda_sin_var    {Logger.logRule(cursor.getCurrentLine(), "Sentencia LAMBDA");}
@@ -252,7 +254,7 @@ sentencia_asignacion_unaria
     ;
 
 sentencia_asignacion_unaria_error
-    :   VAR ID expresion_aritmetica     {Logger.logError(cursor.getCurrentLine(), "Falta de asignacion luego de var");}
+    :   ID expresion_aritmetica     {Logger.logError(cursor.getCurrentLine(), "Falta de asignacion luego de var");}
     ;
 
 sentencia_asignacion_multiple
