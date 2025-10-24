@@ -249,7 +249,7 @@ sentencia_asignacion
     ;
 
 sentencia_asignacion_unaria
-    :   ID TWO_POINTS_ASSIGNATION expresion_aritmetica  {if (!(TablaSimbolos.TABLA_SIMBOLOS.containsKey($1.sval))) {Logger.logError(cursor.getCurrentLine(), "Variable sin declarar");};}
+    :   variable TWO_POINTS_ASSIGNATION expresion_aritmetica  {if (!(TablaSimbolos.TABLA_SIMBOLOS.containsKey($1.sval))) {Logger.logError(cursor.getCurrentLine(), "Variable sin declarar");};}
     |   sentencia_asignacion_unaria_error
     ;
 

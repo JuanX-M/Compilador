@@ -1,0 +1,16 @@
+##Prueba error cuando se realiza una asignacion de una variable con
+"var" en interacion dentro de una declaracion de funcion ##
+ASIGVARFUNCITER{
+
+     int fun F1(int X) {
+       for (J from 2I to 4I){
+            var X:=2I;
+           };
+       if (A <= 2I){
+           for (J from 2I to 4I){
+            var X:=2I;
+          };
+       }endif;
+       return(X);
+     }
+}
