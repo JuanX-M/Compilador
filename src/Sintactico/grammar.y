@@ -187,16 +187,14 @@ sentencia_asignacion_unaria
             else {
                 TablaSimbolos.TABLA_SIMBOLOS.put($2.sval + ".INT." + ambito,new Info($2.sval, "CTE_INT", "INT", "Variable", ambito));
                 System.out.println(TablaSimbolos.TABLA_SIMBOLOS.get($2.sval + ".INT." + ambito));
-                $$ = crearTerceto($2, $3, $4);
             };
-
+        $$ = crearTerceto($2, $3, $4);
         } //TODO: Lexema o ID
     |   ID TWO_POINTS_ASSIGNATION expresion_aritmetica {
             if (!(TablaSimbolos.TABLA_SIMBOLOS.containsKey($1.sval))) {
-                Logger.logError(cursor.getCurrentLine(), "Variable sin declarar");}
-            else{
-            	$$ = crearTerceto($1, $2, $3);
-		    }
+                Logger.logError(cursor.getCurrentLine(), "Variable sin declarar");
+            };
+            $$ = crearTerceto($1, $2, $3);
 
         }
     |   sentencia_asignacion_unaria_error
