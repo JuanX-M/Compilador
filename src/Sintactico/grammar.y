@@ -185,8 +185,9 @@ sentencia_asignacion_unaria
             if (TablaSimbolos.TABLA_SIMBOLOS.containsKey($2.sval)) {
                 Logger.logError(cursor.getCurrentLine(), "Redeclaracion de variable");}
             else {
-                TablaSimbolos.TABLA_SIMBOLOS.put($2.sval + ".INT." + ambito,new Info($2.sval, "CTE_INT", "INT", "Variable", ambito));
-                System.out.println(TablaSimbolos.TABLA_SIMBOLOS.get($2.sval + ".INT." + ambito));
+                $2.sval=$2.sval + ".INT." + ambito;
+                TablaSimbolos.TABLA_SIMBOLOS.put($2.sval,new Info($2.sval, "CTE_INT", "INT", "Variable", ambito));
+                //System.out.println(TablaSimbolos.TABLA_SIMBOLOS.get($2.sval + ".INT." + ambito));
             };
         $$ = crearTerceto($2, $3, $4);
         } //TODO: Lexema o ID
