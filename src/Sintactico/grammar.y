@@ -187,7 +187,7 @@ sentencia_asignacion_unaria
             else {
                 $2.sval=$2.sval + ".INT." + ambito;
                 TablaSimbolos.TABLA_SIMBOLOS.put($2.sval,new Info($2.sval, "CTE_INT", "INT", "Variable", ambito));
-                //System.out.println(TablaSimbolos.TABLA_SIMBOLOS.get($2.sval + ".INT." + ambito));
+                //System.out.println(TablaSimbolos.TABLA_SIMBOLOS.get($2.sval));
             };
         $$ = crearTerceto($2, $3, $4);
         } //TODO: Lexema o ID
@@ -283,11 +283,13 @@ condicion_error
 
 expresion_aritmetica
     :   expresion_aritmetica '+' termino  {
+
             $$ = crearTerceto($1, $2, $3);
             Logger.logRule(cursor.getCurrentLine(), "Sentencia EXPRESION ARITMETICA");
         }
     |   expresion_aritmetica '-' termino{
             $$ = crearTerceto($1, $2, $3);
+
             Logger.logRule(cursor.getCurrentLine(), "Sentencia EXPRESION ARITMETICA");
         }
     |   expresion_aritmetica_toi{
@@ -313,6 +315,7 @@ termino
             Logger.logRule(cursor.getCurrentLine(), "Sentencia EXPRESION ARITMETICA");
         }
     |   termino '/' factor{
+
             $$ = crearTerceto($1, $2, $3);
             Logger.logRule(cursor.getCurrentLine(), "Sentencia EXPRESION ARITMETICA");
         }
@@ -332,7 +335,6 @@ termino_error
 factor
     :   CTE_INT  {
             $$=$1;
-            System.out.println( "cte_int "+ TablaSimbolos.TABLA_SIMBOLOS.get($1.sval));
         }
     |   CTE_FLOAT {
             $$=$1;
@@ -462,6 +464,7 @@ private static int yylval_recognition = 0;
 static AnalizadorLexico lex = null;
 static Parser par = null;
 static Cursor cursor = null;
+static Integer numTerceto = 0;
 static String ambito = null;
 
 private String getReferencia(ParserVal val) {
@@ -478,9 +481,12 @@ private ParserVal crearTerceto(ParserVal operando1, ParserVal operador, ParserVa
 
     String opIzquierdo = getReferencia(operando1);
     String opDerecho = getReferencia(operando2);
-    String op = operador.sval;
 
-    Terceto nuevoTerceto = new Terceto(op, opIzquierdo, opDerecho);
+    //System.out.println("op1 " + operando1.obj);
+    //System.out.println("op2 " + operando2.obj);
+    String op = operador.sval;
+    numTerceto += 1;
+    Terceto nuevoTerceto = new Terceto(numTerceto,op, opIzquierdo, opDerecho);
     Logger.logTerceto(cursor.getCurrentLine(), nuevoTerceto);
 
 

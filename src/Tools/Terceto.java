@@ -2,13 +2,13 @@ package Tools;
 
 public class Terceto {
 
-    private static Integer numTerceto=0;
+    private Integer numTerceto;
     private String first;
     private String second;
     private String third;
 
-    public Terceto( String first, String second, String third) {
-        this.numTerceto = numTerceto +1;
+    public Terceto( Integer numTerceto,String first, String second, String third) {
+        this.numTerceto = numTerceto;
         this.first = first;
         this.second = second;
         this.third =  third;
