@@ -43,7 +43,7 @@ prog_error
     ;
 
 cuerpo
-    :   cuerpo sentencia
+    :   cuerpo sentencia {$$=$2;}
     |   sentencia
     ;
 
@@ -106,9 +106,22 @@ sentencia_print_error
     ;
 
 sentencia_seleccion
-    :   IF parametros_seleccion cuerpo_seleccion ELSE cuerpo_seleccion ENDIF    {Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");}
-    |   IF parametros_seleccion cuerpo_seleccion ENDIF                          {Logger.logRule(cursor.getCurrentLine(), "Sentencia IF");}
-    |   sentencia_seleccion_sin_endif                                           {Logger.logError(cursor.getCurrentLine(), "Falta de endif");}
+    :   IF parametros_seleccion cuerpo_seleccion else_seleccion ENDIF	{Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");}
+    |   IF parametros_seleccion cuerpo_seleccion ENDIF                  {Logger.logRule(cursor.getCurrentLine(), "Sentencia IF");}
+    |   sentencia_seleccion_sin_endif                                   {Logger.logError(cursor.getCurrentLine(), "Falta de endif");}
+    ;
+
+else_seleccion
+    :	ELSE cuerpo_seleccion {
+            $$ = pila.pop();
+            //Integer aux = toString(Integer.parseInt(getReferencia($2)) + 1);
+             System.out.println((Terceto)$$.obj);
+             //System.out.println((Integer)getReferencia($2).replaceAll("\\D",""));
+            ((Terceto)$$.obj).addThird(String.valueOf(Integer.parseInt(getReferencia($2).replaceAll("\\D","")) + 1)));
+             Logger.logTerceto(cursor.getCurrentLine(), (Terceto)$$.obj);
+            pila.push(crearTerceto(new ParserVal("BI"), null, null));
+    		Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");
+	    }
     ;
 
 sentencia_seleccion_sin_endif
@@ -119,7 +132,6 @@ sentencia_seleccion_sin_endif
 parametros_seleccion
     :   '(' condicion ')'  {
             pila.push(crearTerceto(new ParserVal("BF"),$2,null));
-            System.out.println("terceto if:" + pila.peek());
             Logger.logRule(cursor.getCurrentLine(), "Sentencia CONDICION");
         }
     |   parametros_seleccion_error
@@ -132,7 +144,7 @@ parametros_seleccion_error
     ;
 
 cuerpo_seleccion
-    :   '{' cuerpo '}'
+    :   '{' cuerpo '}' {$$=$2;}
     |   cuerpo_seleccion_error
     ;
 
