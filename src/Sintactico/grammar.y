@@ -65,22 +65,22 @@ sentencia_ejecucion
     ;
 
 sentencia_ejecucion_retorno
-    :   sentencia_seleccion_retorno
-    |   sentencia_iteracion_retorno
+    //:   sentencia_seleccion_retorno
+    :   sentencia_iteracion_retorno
     ;
 
-sentencia_seleccion_retorno
-    :   IF parametros_seleccion cuerpo_seleccion_retorno ELSE cuerpo_seleccion_retorno ENDIF    {Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");}
-    |   IF parametros_seleccion cuerpo_seleccion_retorno ELSE cuerpo_seleccion ENDIF            {Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");}
-    |   IF parametros_seleccion cuerpo_seleccion ELSE cuerpo_seleccion_retorno ENDIF            {Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");}
-    |   IF parametros_seleccion cuerpo_seleccion_retorno ENDIF                                  {Logger.logRule(cursor.getCurrentLine(), "Sentencia IF");}
+//sentencia_seleccion_retorno
+//    :   IF parametros_seleccion cuerpo_seleccion_retorno ELSE cuerpo_seleccion_retorno ENDIF    {Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");}
+//    |   IF parametros_seleccion cuerpo_seleccion_retorno ELSE cuerpo_seleccion ENDIF            {Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");}
+//    |   IF parametros_seleccion cuerpo_seleccion ELSE cuerpo_seleccion_retorno ENDIF            {Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");}
+//    |   IF parametros_seleccion cuerpo_seleccion_retorno ENDIF                                  {Logger.logRule(cursor.getCurrentLine(), "Sentencia IF");}
 //    |   sentencia_seleccion_sin_endif  {Logger.logError(cursor.getCurrentLine(), "Falta de endif");}
-    ;
+//   ;
 
-cuerpo_seleccion_retorno
-    :   '{' cuerpo_funcion '}'
+//cuerpo_seleccion_retorno
+//    :   '{' cuerpo_funcion '}'
 //    |   cuerpo_seleccion_error
-    ;
+//    ;
 
 sentencia_iteracion_retorno
     :   FOR parametros_iteracion cuerpo_iteracion_retorno  {Logger.logRule(cursor.getCurrentLine(), "Sentencia ITERACION");}
@@ -106,30 +106,49 @@ sentencia_print_error
     ;
 
 sentencia_seleccion
-    :   IF parametros_seleccion cuerpo_seleccion else_seleccion ENDIF	{Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");}
-    |   IF parametros_seleccion cuerpo_seleccion ENDIF                  {Logger.logRule(cursor.getCurrentLine(), "Sentencia IF");}
-    |   sentencia_seleccion_sin_endif                                   {Logger.logError(cursor.getCurrentLine(), "Falta de endif");}
+    :   IF parametros_seleccion cuerpo_if ENDIF	{
+            $$ = pila.pop();
+            System.out.println((Terceto)$$.obj);
+            String auxString = getReferencia($3).replaceAll("\\D",""); //Agarramos el valor sin los parentesis
+            Integer aux = Integer.parseInt(auxString);
+            aux++;
+            auxString = "(" + String.valueOf(aux) + ")";
+            ((Terceto)$$.obj).addSecond(auxString);
+
+            Logger.logTerceto(cursor.getCurrentLine(), $$.obj);
+            //Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");
+        }
+//    |   IF parametros_seleccion cuerpo_seleccion ENDIF                  {Logger.logRule(cursor.getCurrentLine(), "Sentencia IF");}
+//    |   sentencia_seleccion_sin_endif                                   {Logger.logError(cursor.getCurrentLine(), "Falta de endif");}
+    ;
+cuerpo_if
+    :  if_seleccion else_seleccion {$$=$2;}
+    |  if_seleccion
+    ;
+if_seleccion
+    :   cuerpo_seleccion {
+            $$ = pila.pop();
+            System.out.println((Terceto)$$.obj);
+            String auxString = getReferencia($1).replaceAll("\\D",""); //Agarramos el valor sin los parentesis
+            Integer aux = Integer.parseInt(auxString);
+            aux= aux+2;
+            auxString = "(" + String.valueOf(aux) + ")";
+            ((Terceto)$$.obj).addThird(auxString);
+            pila.push(crearTerceto(new ParserVal("BI"), null, null));
+            Logger.logTerceto(cursor.getCurrentLine(), $$.obj);
+            //Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");
+
+        }
     ;
 
 else_seleccion
-    :	ELSE cuerpo_seleccion {
-            	$$ = pila.pop();
-		System.out.println((Terceto)$$.obj);
-		String auxString = getReferencia($2).replaceAll("\\D",""); //Agarramos el valor sin los parentesis
-		Integer aux = Integer.parseInt(auxString);
-		aux++;
-		auxString = "(" + String.valueOf(aux) + ")";
-            	((Terceto)$$.obj).addThird(auxString);
-            	pila.push(crearTerceto(new ParserVal("BI"), null, null));
-	        Logger.logTerceto(cursor.getCurrentLine(), $$.obj);
-    		Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");
-	    }
+    :	ELSE cuerpo_seleccion {$$=$2;}
     ;
 
-sentencia_seleccion_sin_endif
-    :   IF parametros_seleccion cuerpo_seleccion ELSE cuerpo_seleccion
-    |   IF parametros_seleccion cuerpo_seleccion
-    ;
+//sentencia_seleccion_sin_endif
+//    :   IF parametros_seleccion cuerpo_seleccion ELSE cuerpo_seleccion
+//    |   IF parametros_seleccion cuerpo_seleccion
+//    ;
 
 parametros_seleccion
     :   '(' condicion ')'  {
