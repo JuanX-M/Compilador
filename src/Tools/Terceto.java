@@ -1,6 +1,6 @@
 package Tools;
 
-public class Terceto {
+public class Terceto implements Comparable<Terceto>{
 
     private Integer numTerceto;
     private String first;
@@ -12,6 +12,21 @@ public class Terceto {
         this.first = first;
         this.second = second;
         this.third =  third;
+    }
+
+    @Override
+    public int compareTo(Terceto t) {
+        return this.numTerceto - t.getSoloNumTerceto();
+        /*if (this.getSoloNumTerceto() < t.getSoloNumTerceto())
+            return -1;
+        else
+            if (this.getSoloNumTerceto() > t.getSoloNumTerceto())
+                return 1;
+        return 0;*/
+    }
+
+    public int getSoloNumTerceto() {
+        return numTerceto;
     }
 
     public String getNumTerceto() {

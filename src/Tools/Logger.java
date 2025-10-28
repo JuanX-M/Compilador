@@ -2,6 +2,9 @@ package Tools;
 
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 
 public final class Logger {
     private static final String OUTPUT = "/output/";
@@ -46,6 +49,7 @@ public final class Logger {
     public static String generateLog() {
         String out = null;
         out = "\n>>>    LOG \n\n";
+        tercetos.sort(
         for(String s: tercetos) {
             out += s;
         }

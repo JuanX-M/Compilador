@@ -113,13 +113,15 @@ sentencia_seleccion
 
 else_seleccion
     :	ELSE cuerpo_seleccion {
-            $$ = pila.pop();
-            //Integer aux = toString(Integer.parseInt(getReferencia($2)) + 1);
-             System.out.println((Terceto)$$.obj);
-             //System.out.println((Integer)getReferencia($2).replaceAll("\\D",""));
-            ((Terceto)$$.obj).addThird(String.valueOf(Integer.parseInt(getReferencia($2).replaceAll("\\D","")) + 1)));
-             Logger.logTerceto(cursor.getCurrentLine(), (Terceto)$$.obj);
-            pila.push(crearTerceto(new ParserVal("BI"), null, null));
+            	$$ = pila.pop();
+		System.out.println((Terceto)$$.obj);
+		String auxString = getReferencia($2).replaceAll("\\D",""); //Agarramos el valor sin los parentesis
+		Integer aux = Integer.parseInt(auxString);
+		aux++;
+		auxString = "(" + String.valueOf(aux) + ")";
+            	((Terceto)$$.obj).addThird(auxString);
+            	pila.push(crearTerceto(new ParserVal("BI"), null, null));
+	        Logger.logTerceto(cursor.getCurrentLine(), $$.obj);
     		Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");
 	    }
     ;
@@ -203,12 +205,14 @@ sentencia_asignacion_unaria
                 //System.out.println(TablaSimbolos.TABLA_SIMBOLOS.get($2.sval));
             };
             $$ = crearTerceto($3, $2, $4);
+            Logger.logTerceto(cursor.getCurrentLine(), $$.obj);
         } //TODO: Lexema o ID
     |   ID TWO_POINTS_ASSIGNATION expresion_aritmetica {
             if (!(TablaSimbolos.TABLA_SIMBOLOS.containsKey($1.sval))) {
                 Logger.logError(cursor.getCurrentLine(), "Variable sin declarar");
             };
             $$ = crearTerceto($2, $1, $3);
+            Logger.logTerceto(cursor.getCurrentLine(), $$.obj);
         }
     |   sentencia_asignacion_unaria_error
     ;
@@ -288,7 +292,10 @@ argumento_lambda
     ;
 
 condicion
-    :   expresion_aritmetica simbolo_comparador expresion_aritmetica  {$$=crearTerceto($2,$1,$3);}
+    :   expresion_aritmetica simbolo_comparador expresion_aritmetica	{
+	$$=crearTerceto($2,$1,$3);
+	Logger.logTerceto(cursor.getCurrentLine(), $$.obj);
+	}
     |   condicion_error
     ;
 
@@ -301,10 +308,12 @@ condicion_error
 expresion_aritmetica
     :   expresion_aritmetica '+' termino  {
             $$ = crearTerceto($2, $1, $3);
+            Logger.logTerceto(cursor.getCurrentLine(), $$.obj);
             Logger.logRule(cursor.getCurrentLine(), "Sentencia EXPRESION ARITMETICA");
         }
     |   expresion_aritmetica '-' termino{
             $$ = crearTerceto($2, $1, $3);
+            Logger.logTerceto(cursor.getCurrentLine(), $$.obj);
             Logger.logRule(cursor.getCurrentLine(), "Sentencia EXPRESION ARITMETICA");
         }
     |   expresion_aritmetica_toi {
@@ -325,10 +334,12 @@ expresion_aritmetica_error
 termino
     :   termino '*' factor {
             $$ = crearTerceto($2, $1, $3);
+            Logger.logTerceto(cursor.getCurrentLine(), $$.obj);
             Logger.logRule(cursor.getCurrentLine(), "Sentencia EXPRESION ARITMETICA");
         }
     |   termino '/' factor{
             $$ = crearTerceto($2, $1, $3);
+            Logger.logTerceto(cursor.getCurrentLine(), $$.obj);
             Logger.logRule(cursor.getCurrentLine(), "Sentencia EXPRESION ARITMETICA");
         }
     |   factor {$$ = $1;}
@@ -547,7 +558,7 @@ private ParserVal crearTerceto(ParserVal operador, ParserVal operando1, ParserVa
     String op = operador.sval;
     numTerceto += 1;
     Terceto nuevoTerceto = new Terceto(numTerceto,op, opIzquierdo, opDerecho);
-    Logger.logTerceto(cursor.getCurrentLine(), nuevoTerceto);
+    //Logger.logTerceto(cursor.getCurrentLine(), nuevoTerceto);
 
     ParserVal resultado = new ParserVal();
     resultado.obj = nuevoTerceto;
