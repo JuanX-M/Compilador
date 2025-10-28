@@ -12,8 +12,6 @@
     import Tools.Terceto;
     import java.util.Scanner;
 
-
-
 %}
 
 %token TWO_POINTS_ASSIGNATION STRING GREATER_OR_EQUAL LESS_OR_EQUAL EQUAL NOT_EQUAL CTE_INT CTE_FLOAT ID IF ELSE ENDIF PRINT RETURN VAR FOR FROM TO CR SE LE TOI INT FLOAT ARROW FUN CTE_INT_NEGATIVE
@@ -21,8 +19,6 @@
 %nonassoc SENTENCIA_ASIGNACION_PREC
 %right TWO_POINTS_ASSIGNATION
 %left ID
-
-
 
 %start  prog
 
@@ -73,10 +69,10 @@ sentencia_ejecucion_retorno
     ;
 
 sentencia_seleccion_retorno
-    :   IF parametros_seleccion cuerpo_seleccion_retorno ELSE cuerpo_seleccion_retorno ENDIF {Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");}
-    |   IF parametros_seleccion cuerpo_seleccion_retorno ELSE cuerpo_seleccion ENDIF        {Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");}
-    |   IF parametros_seleccion cuerpo_seleccion ELSE cuerpo_seleccion_retorno ENDIF        {Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");}
-    |   IF parametros_seleccion cuerpo_seleccion_retorno ENDIF                              {Logger.logRule(cursor.getCurrentLine(), "Sentencia IF");}
+    :   IF parametros_seleccion cuerpo_seleccion_retorno ELSE cuerpo_seleccion_retorno ENDIF    {Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");}
+    |   IF parametros_seleccion cuerpo_seleccion_retorno ELSE cuerpo_seleccion ENDIF            {Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");}
+    |   IF parametros_seleccion cuerpo_seleccion ELSE cuerpo_seleccion_retorno ENDIF            {Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");}
+    |   IF parametros_seleccion cuerpo_seleccion_retorno ENDIF                                  {Logger.logRule(cursor.getCurrentLine(), "Sentencia IF");}
 //    |   sentencia_seleccion_sin_endif  {Logger.logError(cursor.getCurrentLine(), "Falta de endif");}
     ;
 
@@ -120,7 +116,7 @@ sentencia_seleccion_sin_endif
     ;
 
 parametros_seleccion
-    :    '(' condicion ')'  {Logger.logRule(cursor.getCurrentLine(), "Sentencia CONDICION");}
+    :   '(' condicion ')'  {Logger.logRule(cursor.getCurrentLine(), "Sentencia CONDICION");}
     |   parametros_seleccion_error
     ;
 
@@ -149,7 +145,7 @@ parametros_iteracion
 
 parametros_iteracion_error
     :   encabezado_iteracion ')'    {Logger.logError(cursor.getCurrentLine(), "Falta de '(' en condicion de iteracion");}
-    |   '(' encabezado_iteracion   {Logger.logError(cursor.getCurrentLine(), "Falta de ')' en condicion de iteracion");}
+    |   '(' encabezado_iteracion    {Logger.logError(cursor.getCurrentLine(), "Falta de ')' en condicion de iteracion");}
     |   encabezado_iteracion        {Logger.logError(cursor.getCurrentLine(), "Falta de '()' en condicion de iteracion");}
     ;
 
@@ -176,8 +172,8 @@ cuerpo_iteracion_error
     ;
 
 sentencia_asignacion
-    :   sentencia_asignacion_unaria  {Logger.logRule(cursor.getCurrentLine(), "Sentencia ASIGNACION UNARIA");}
-    |   sentencia_asignacion_multiple  {Logger.logRule(cursor.getCurrentLine(), "Sentencia ASIGNACION MULTIPLE");}
+    :   sentencia_asignacion_unaria     {Logger.logRule(cursor.getCurrentLine(), "Sentencia ASIGNACION UNARIA");}
+    |   sentencia_asignacion_multiple   {Logger.logRule(cursor.getCurrentLine(), "Sentencia ASIGNACION MULTIPLE");}
     ;
 
 sentencia_asignacion_unaria
@@ -189,14 +185,13 @@ sentencia_asignacion_unaria
                 TablaSimbolos.TABLA_SIMBOLOS.put($2.sval,new Info($2.sval, "CTE_INT", "INT", "Variable", ambito));
                 //System.out.println(TablaSimbolos.TABLA_SIMBOLOS.get($2.sval));
             };
-        $$ = crearTerceto($2, $3, $4);
+            $$ = crearTerceto($2, $3, $4);
         } //TODO: Lexema o ID
     |   ID TWO_POINTS_ASSIGNATION expresion_aritmetica {
             if (!(TablaSimbolos.TABLA_SIMBOLOS.containsKey($1.sval))) {
                 Logger.logError(cursor.getCurrentLine(), "Variable sin declarar");
             };
             $$ = crearTerceto($1, $2, $3);
-
         }
     |   sentencia_asignacion_unaria_error
     ;
@@ -210,8 +205,8 @@ sentencia_asignacion_multiple
     ;
 
 funcion
-    :   encabezado_funcion '{' cuerpo_funcion '}' {Logger.logRule(cursor.getCurrentLine(), "Sentencia DECLARACION FUNCION");}
-    |   sentencia_lambda    {Logger.logRule(cursor.getCurrentLine(), "Sentencia LAMBDA");}
+    :   encabezado_funcion '{' cuerpo_funcion '}'   {Logger.logRule(cursor.getCurrentLine(), "Sentencia DECLARACION FUNCION");}
+    |   sentencia_lambda                            {Logger.logRule(cursor.getCurrentLine(), "Sentencia LAMBDA");}
     //|   funcion_error
     ;
 
@@ -230,7 +225,7 @@ encabezado_funcion_error
     : lista_tipos FUN '(' lista_param_formales ')' '{' cuerpo_funcion '}'  {Logger.logError(cursor.getCurrentLine(), "Falta de nombre en declaracion de funcion");}
     ;
 cuerpo_funcion
-    :   cuerpo  sentencia_funcion
+    :   cuerpo sentencia_funcion
     |   sentencia_funcion cuerpo
     |   cuerpo sentencia_funcion cuerpo
     |   sentencia_funcion cuerpo sentencia_funcion
@@ -261,8 +256,8 @@ cuerpo_lambda
     |   cuerpo_lambda_error
     ;
 cuerpo_lambda_error
-    :   cuerpo '}' {Logger.logError(cursor.getCurrentLine(), "Falta delimitador izquierdo '{' del cuerpo lambda");}
-    //|   '{' cuerpo error {Logger.logError(cursor.getCurrentLine(), "Falta delimitador derecho '}' del cuerpo lambda");}
+    :   cuerpo '}'          {Logger.logError(cursor.getCurrentLine(), "Falta delimitador izquierdo '{' del cuerpo lambda");}
+    //|   '{' cuerpo error  {Logger.logError(cursor.getCurrentLine(), "Falta delimitador derecho '}' del cuerpo lambda");}
     ;
 
 argumento_lambda
@@ -284,22 +279,18 @@ condicion_error
 
 expresion_aritmetica
     :   expresion_aritmetica '+' termino  {
-
             $$ = crearTerceto($1, $2, $3);
             Logger.logRule(cursor.getCurrentLine(), "Sentencia EXPRESION ARITMETICA");
         }
     |   expresion_aritmetica '-' termino{
             $$ = crearTerceto($1, $2, $3);
-
             Logger.logRule(cursor.getCurrentLine(), "Sentencia EXPRESION ARITMETICA");
         }
-    |   expresion_aritmetica_toi{
+    |   expresion_aritmetica_toi {
             $$ = $1;
             Logger.logRule(cursor.getCurrentLine(), "Sentencia TOI");
         }
-    |   termino{
-            $$=$1;
-        }
+    |   termino { $$=$1;}
     |   expresion_aritmetica_error
     ;
 
@@ -311,18 +302,15 @@ expresion_aritmetica_error
     ;
 
 termino
-    :   termino '*' factor{
+    :   termino '*' factor {
             $$ = crearTerceto($1, $2, $3);
             Logger.logRule(cursor.getCurrentLine(), "Sentencia EXPRESION ARITMETICA");
         }
     |   termino '/' factor{
-
             $$ = crearTerceto($1, $2, $3);
             Logger.logRule(cursor.getCurrentLine(), "Sentencia EXPRESION ARITMETICA");
         }
-    |   factor {
-            $$ = $1;
-        }
+    |   factor {$$ = $1;}
     |   termino_error
     ;
 
@@ -334,29 +322,23 @@ termino_error
     ;
 
 factor
-    :   CTE_INT  {
-            $$=$1;
-        }
-    |   CTE_FLOAT {
-            $$=$1;
-        }
-    |   invocacion_funcion {
-            Logger.logRule(cursor.getCurrentLine(), "Sentencia INVOCACION FUNCION");
-        }
-    |   variable {
-            $$=$1;
-        }
+    :   CTE_INT     {$$=$1;}
+    |   CTE_FLOAT   {$$=$1;}
+    |   invocacion_funcion {Logger.logRule(cursor.getCurrentLine(), "Sentencia INVOCACION FUNCION");}
+    |   variable    {$$=$1;}
     ;
 
 invocacion_funcion
-    :   FUN ID '(' lista_param_reales ')'
-            {if (!(TablaSimbolos.TABLA_SIMBOLOS.containsKey($2.sval))) {
-                Logger.logError(cursor.getCurrentLine(), "Funcion sin declarar");};}
-    |   invocacion_funcion_error
+    :   FUN ID '(' lista_param_reales ')' {
+            if (!(TablaSimbolos.TABLA_SIMBOLOS.containsKey($2.sval))) {
+                Logger.logError(cursor.getCurrentLine(), "Funcion sin declarar");};
+        }
+    |   invocacion_funcion_erroe
     ;
 invocacion_funcion_error
-    : FUN '(' lista_param_reales ')' {Logger.logError(cursor.getCurrentLine(), "Falta de nombre en funcion en invocacion de funcion");}
+    :   FUN '(' lista_param_reales ')' {Logger.logError(cursor.getCurrentLine(), "Falta de nombre en funcion en invocacion de funcion");}
     ;
+
 expresion_aritmetica_toi
     :   TOI '(' expresion_aritmetica ')'
     |   expresion_aritmetica_toi_error
@@ -378,8 +360,8 @@ simbolo_comparador
     ;
 
 lista_exp_aritmeticas
-    :   lista_exp_aritmeticas ',' expresion_aritmetica {$$.ival = $1.ival + 1;}
-    |   expresion_aritmetica  {$$.ival = 1;}
+    :   lista_exp_aritmeticas ',' expresion_aritmetica  {$$.ival = $1.ival + 1;}
+    |   expresion_aritmetica                            {$$.ival = 1;}
     |   lista_exp_aritmeticas_error
     ;
 
@@ -388,13 +370,15 @@ lista_exp_aritmeticas_error
     ;
 
 lista_tipos
-    :   lista_tipos ',' tipo {$$.sval = $1.sval + (",") + $3.sval;}
-    |   tipo {$$.sval = $1.sval;}
+    :   lista_tipos ',' tipo    {$$.sval = $1.sval + (",") + $3.sval;}
+    |   tipo                    {$$.sval = $1.sval;}
     |   lista_tipos_error
     ;
+
 lista_tipos_error
     :   lista_tipos tipo {Logger.logError(cursor.getCurrentLine(), "Falta de ',' en declaracion de tipos");}
     ;
+
 lista_param_formales
     :   lista_param_formales ',' parametro_formal
     |   parametro_formal
@@ -411,13 +395,13 @@ lista_variables_error
     ;
 
 variable
-    :   ID {$$.sval=$1.sval;}
+    :   ID          {$$.sval=$1.sval;}
     |   ID  '.' ID
     ;
 
 tipo
-    :   INT {$$.sval = "INT";}
-    |   FLOAT {$$.sval = "FLOAT";}
+    :   INT     {$$.sval = "INT";}
+    |   FLOAT   {$$.sval = "FLOAT";}
     |   STRING
     ;
 
@@ -467,8 +451,6 @@ static Parser par = null;
 static Cursor cursor = null;
 static Integer numTerceto = 0;
 static String ambito = null;
-
-
 
 public static void main (String [] args) {
 
