@@ -1,5 +1,7 @@
 %{
     import java.io.*;
+    import java.util.Scanner;
+    import java.util.Stack;
 
     import Lexico.AnalizadorLexico;
 
@@ -10,7 +12,6 @@
     import Tools.Cursor;
     import Tools.Info;
     import Tools.Terceto;
-    import java.util.Scanner;
 
 %}
 
@@ -116,7 +117,11 @@ sentencia_seleccion_sin_endif
     ;
 
 parametros_seleccion
-    :   '(' condicion ')'  {Logger.logRule(cursor.getCurrentLine(), "Sentencia CONDICION");}
+    :   '(' condicion ')'  {
+            pila.push(crearTerceto(new ParserVal("BF"),$2,null));
+            System.out.println("terceto if:" + pila.peek());
+            Logger.logRule(cursor.getCurrentLine(), "Sentencia CONDICION");
+        }
     |   parametros_seleccion_error
     ;
 
@@ -185,13 +190,13 @@ sentencia_asignacion_unaria
                 TablaSimbolos.TABLA_SIMBOLOS.put($2.sval,new Info($2.sval, "CTE_INT", "INT", "Variable", ambito));
                 //System.out.println(TablaSimbolos.TABLA_SIMBOLOS.get($2.sval));
             };
-            $$ = crearTerceto($2, $3, $4);
+            $$ = crearTerceto($3, $2, $4);
         } //TODO: Lexema o ID
     |   ID TWO_POINTS_ASSIGNATION expresion_aritmetica {
             if (!(TablaSimbolos.TABLA_SIMBOLOS.containsKey($1.sval))) {
                 Logger.logError(cursor.getCurrentLine(), "Variable sin declarar");
             };
-            $$ = crearTerceto($1, $2, $3);
+            $$ = crearTerceto($2, $1, $3);
         }
     |   sentencia_asignacion_unaria_error
     ;
@@ -221,9 +226,11 @@ encabezado_funcion
         }
     | encabezado_funcion_error
     ;
+
 encabezado_funcion_error
     : lista_tipos FUN '(' lista_param_formales ')' '{' cuerpo_funcion '}'  {Logger.logError(cursor.getCurrentLine(), "Falta de nombre en declaracion de funcion");}
     ;
+
 cuerpo_funcion
     :   cuerpo sentencia_funcion
     |   sentencia_funcion cuerpo
@@ -231,10 +238,12 @@ cuerpo_funcion
     |   sentencia_funcion cuerpo sentencia_funcion
     |   sentencia_funcion
     ;
+
 sentencia_funcion
     :   sentencia_ejecucion_retorno ';'
     |   sentencia_retorno
     ;
+
 sentencia_retorno
     : RETURN '(' lista_exp_aritmeticas ')' ';'
     ;
@@ -267,23 +276,23 @@ argumento_lambda
     ;
 
 condicion
-    :   expresion_aritmetica simbolo_comparador factor
+    :   expresion_aritmetica simbolo_comparador expresion_aritmetica  {$$=crearTerceto($2,$1,$3);}
     |   condicion_error
     ;
 
 condicion_error
-    :   expresion_aritmetica termino               {Logger.logError(cursor.getCurrentLine(), "Falta de simbolo comparador en condicion");}
-    |   expresion_aritmetica simbolo_comparador    {Logger.logError(cursor.getCurrentLine(), "Falta de argumento derecho en condicion");}
-    |   simbolo_comparador termino                 {Logger.logError(cursor.getCurrentLine(), "Falta de argumento izquierdo en condicion");}
+    :   expresion_aritmetica expresion_aritmetica   {Logger.logError(cursor.getCurrentLine(), "Falta de simbolo comparador en condicion");}
+    |   expresion_aritmetica simbolo_comparador     {Logger.logError(cursor.getCurrentLine(), "Falta de argumento derecho en condicion");}
+    |   simbolo_comparador expresion_aritmetica     {Logger.logError(cursor.getCurrentLine(), "Falta de argumento izquierdo en condicion");}
     ;
 
 expresion_aritmetica
     :   expresion_aritmetica '+' termino  {
-            $$ = crearTerceto($1, $2, $3);
+            $$ = crearTerceto($2, $1, $3);
             Logger.logRule(cursor.getCurrentLine(), "Sentencia EXPRESION ARITMETICA");
         }
     |   expresion_aritmetica '-' termino{
-            $$ = crearTerceto($1, $2, $3);
+            $$ = crearTerceto($2, $1, $3);
             Logger.logRule(cursor.getCurrentLine(), "Sentencia EXPRESION ARITMETICA");
         }
     |   expresion_aritmetica_toi {
@@ -303,11 +312,11 @@ expresion_aritmetica_error
 
 termino
     :   termino '*' factor {
-            $$ = crearTerceto($1, $2, $3);
+            $$ = crearTerceto($2, $1, $3);
             Logger.logRule(cursor.getCurrentLine(), "Sentencia EXPRESION ARITMETICA");
         }
     |   termino '/' factor{
-            $$ = crearTerceto($1, $2, $3);
+            $$ = crearTerceto($2, $1, $3);
             Logger.logRule(cursor.getCurrentLine(), "Sentencia EXPRESION ARITMETICA");
         }
     |   factor {$$ = $1;}
@@ -333,7 +342,7 @@ invocacion_funcion
             if (!(TablaSimbolos.TABLA_SIMBOLOS.containsKey($2.sval))) {
                 Logger.logError(cursor.getCurrentLine(), "Funcion sin declarar");};
         }
-    |   invocacion_funcion_erroe
+    |   invocacion_funcion_error
     ;
 invocacion_funcion_error
     :   FUN '(' lista_param_reales ')' {Logger.logError(cursor.getCurrentLine(), "Falta de nombre en funcion en invocacion de funcion");}
@@ -351,12 +360,12 @@ expresion_aritmetica_toi_error
     ;
 
 simbolo_comparador
-    :   GREATER_OR_EQUAL
-    |   LESS_OR_EQUAL
-    |   EQUAL
-    |   NOT_EQUAL
-    |   '>'
-    |   '<'
+    :   GREATER_OR_EQUAL    {$$=$1;}
+    |   LESS_OR_EQUAL       {$$=$1;}
+    |   EQUAL               {$$=$1;}
+    |   NOT_EQUAL           {$$=$1;}
+    |   '>'                 {$$=$1;}
+    |   '<'                 {$$=$1;}
     ;
 
 lista_exp_aritmeticas
@@ -451,15 +460,20 @@ static Parser par = null;
 static Cursor cursor = null;
 static Integer numTerceto = 0;
 static String ambito = null;
+static Stack<ParserVal> pila = new Stack<>();
 
 public static void main (String [] args) {
 
     System.out.println("Iniciando compilación ... ");
-    Scanner lector = new Scanner(System.in);
+
+    /*Scanner lector = new Scanner(System.in);
     System.out.println("Usted se encuentra en: " + System.getProperty("user.dir"));
     System.out.println("Ingrese el archivo deseado, este debe estar dentro de data");
     String programa = lector.nextLine();
     lector.close();
+    */
+
+    String programa = "testing.txt"; //TODO:Despues lo cambiamos
 
     TablaPalabrasReservadas tablaPalabrasReservadas = new TablaPalabrasReservadas();
     tablaPalabrasReservadas.cargarTabla();
@@ -502,10 +516,19 @@ private String getReferencia(ParserVal val) {
     }
 }
 
-private ParserVal crearTerceto(ParserVal operando1, ParserVal operador, ParserVal operando2) {
-
-    String opIzquierdo = getReferencia(operando1);
-    String opDerecho = getReferencia(operando2);
+private ParserVal crearTerceto(ParserVal operador, ParserVal operando1, ParserVal operando2) {
+    String opIzquierdo;
+    String opDerecho;
+    if (operando1 == null){
+        opIzquierdo = null;
+    } else {
+        opIzquierdo = getReferencia(operando1);
+    }
+    if (operando2 == null){
+        opDerecho = null;
+    } else {
+        opDerecho = getReferencia(operando2);
+    }
 
     //System.out.println("op1 " + operando1.obj);
     //System.out.println("op2 " + operando2.obj);
@@ -513,7 +536,6 @@ private ParserVal crearTerceto(ParserVal operando1, ParserVal operador, ParserVa
     numTerceto += 1;
     Terceto nuevoTerceto = new Terceto(numTerceto,op, opIzquierdo, opDerecho);
     Logger.logTerceto(cursor.getCurrentLine(), nuevoTerceto);
-
 
     ParserVal resultado = new ParserVal();
     resultado.obj = nuevoTerceto;

@@ -49,9 +49,9 @@ public final class Logger {
         for(String s: tercetos) {
             out += s;
         }
-        for (String s : rules) {
-            out += s;
-        }
+        //for (String s : rules) {
+          //  out += s; TODO: Sacar esto
+        //}
         for (String s : warnings) {
             out += s;
         }
