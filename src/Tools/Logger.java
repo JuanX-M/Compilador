@@ -13,16 +13,17 @@ public final class Logger {
     private static final ArrayList<String> errors = new ArrayList<>();
     private static final ArrayList<String> tokens = new ArrayList<>();
     private static final ArrayList<String> rules = new ArrayList<>();
-    private static final ArrayList<String> tercetos = new ArrayList<>();
+    private static ArrayList<String> tercetos = new ArrayList<>();
 
     private Logger(){};
 
-    private enum LogType{
+    private enum LogType {
         ERROR,
         WARNING,
         TOKEN,
         RULE,
-        TERCETO
+        TERCETO;
+
     }
 
     public static void logError(int line, Object message) {
@@ -45,11 +46,17 @@ public final class Logger {
         tercetos.add("Se encontro un " + LogType.TERCETO + " en la linea [" + line + "] : " + message + "\n");
     }
 
+    public static int extraerNumTercetos(String linea){
+        int inicio = linea.indexOf('{');
+        int fin = linea.indexOf('}');
+        String numeroComoString = linea.substring(inicio + 1, fin);
+        return Integer.parseInt(numeroComoString);
+    }
 
     public static String generateLog() {
         String out = null;
         out = "\n>>>    LOG \n\n";
-        tercetos.sort(
+        tercetos.sort(Comparator.comparingInt(Logger::extraerNumTercetos));
         for(String s: tercetos) {
             out += s;
         }
