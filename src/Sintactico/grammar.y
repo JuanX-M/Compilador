@@ -216,13 +216,14 @@ funcion
     ;
 
 encabezado_funcion
-    : lista_tipos  FUN ID '(' lista_param_formales ')' //put de funcion
-        {if (TablaSimbolos.TABLA_SIMBOLOS.containsKey($3.sval)) {
-            Logger.logError(cursor.getCurrentLine(), "Redeclaracion de funcion");
-        } else {
-            System.out.println($1.sval);
-            //TablaSimbolos.TABLA_SIMBOLOS.put($3.sval,new Info($3.sval,$1, ));
-        };}
+    :   lista_tipos  FUN ID '(' lista_param_formales ')' { //put de funcion
+            if (TablaSimbolos.TABLA_SIMBOLOS.containsKey($3.sval)) {
+                Logger.logError(cursor.getCurrentLine(), "Redeclaracion de funcion");
+            } else {
+                System.out.println($1.sval);
+                //TablaSimbolos.TABLA_SIMBOLOS.put($3.sval,new Info($3.sval,$1, ));
+            };
+        }
     | encabezado_funcion_error
     ;
 encabezado_funcion_error
@@ -467,34 +468,7 @@ static Cursor cursor = null;
 static Integer numTerceto = 0;
 static String ambito = null;
 
-private String getReferencia(ParserVal val) {
-    if (val.obj != null) {
-        // Es un Terceto, usamos su número de referencia
-        return ((Terceto) val.obj).getNumTerceto();
-    } else {
-        // Es un valor simple (ID, CTE_INT, etc.), usamos su lexema
-        return val.sval;
-    }
-}
 
-private ParserVal crearTerceto(ParserVal operando1, ParserVal operador, ParserVal operando2) {
-
-    String opIzquierdo = getReferencia(operando1);
-    String opDerecho = getReferencia(operando2);
-
-    //System.out.println("op1 " + operando1.obj);
-    //System.out.println("op2 " + operando2.obj);
-    String op = operador.sval;
-    numTerceto += 1;
-    Terceto nuevoTerceto = new Terceto(numTerceto,op, opIzquierdo, opDerecho);
-    Logger.logTerceto(cursor.getCurrentLine(), nuevoTerceto);
-
-
-    ParserVal resultado = new ParserVal();
-    resultado.obj = nuevoTerceto;
-    resultado.sval = null;
-    return resultado;
-}
 
 public static void main (String [] args) {
 
@@ -534,4 +508,33 @@ int yylex() {
 
 void yyerror (String s) {
     System.out.println(s);
+}
+
+private String getReferencia(ParserVal val) {
+    if (val.obj != null) {
+        // Es un Terceto, usamos su número de referencia
+        return ((Terceto) val.obj).getNumTerceto();
+    } else {
+        // Es un valor simple (ID, CTE_INT, etc.), usamos su lexema
+        return val.sval;
+    }
+}
+
+private ParserVal crearTerceto(ParserVal operando1, ParserVal operador, ParserVal operando2) {
+
+    String opIzquierdo = getReferencia(operando1);
+    String opDerecho = getReferencia(operando2);
+
+    //System.out.println("op1 " + operando1.obj);
+    //System.out.println("op2 " + operando2.obj);
+    String op = operador.sval;
+    numTerceto += 1;
+    Terceto nuevoTerceto = new Terceto(numTerceto,op, opIzquierdo, opDerecho);
+    Logger.logTerceto(cursor.getCurrentLine(), nuevoTerceto);
+
+
+    ParserVal resultado = new ParserVal();
+    resultado.obj = nuevoTerceto;
+    resultado.sval = null;
+    return resultado;
 }
