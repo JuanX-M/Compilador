@@ -107,31 +107,37 @@ sentencia_print_error
 
 sentencia_seleccion
     :   IF parametros_seleccion cuerpo_if ENDIF	{
-            $$ = pila.pop();
-            System.out.println((Terceto)$$.obj);
-            String auxString = getReferencia($3).replaceAll("\\D",""); //Agarramos el valor sin los parentesis
-            Integer aux = Integer.parseInt(auxString);
-            aux++;
-            auxString = "(" + String.valueOf(aux) + ")";
-            ((Terceto)$$.obj).addSecond(auxString);
+            if (!pila.isEmpty()) {
+                $$ = pila.pop();
+                System.out.println((Terceto)$$.obj);
+                String auxString = getReferencia($3).replaceAll("\\D",""); //Agarramos el valor sin los parentesis
+                Integer aux = Integer.parseInt(auxString);
+                aux++;
+                auxString = "(" + String.valueOf(aux) + ")";
+                ((Terceto)$$.obj).addSecond(auxString);
 
-            Logger.logTerceto(cursor.getCurrentLine(), $$.obj);
-            //Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");
+                Logger.logTerceto(cursor.getCurrentLine(), $$.obj);
+                //Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");
+            }
+            $$ = $3;
         }
 //    |   IF parametros_seleccion cuerpo_seleccion ENDIF                  {Logger.logRule(cursor.getCurrentLine(), "Sentencia IF");}
 //    |   sentencia_seleccion_sin_endif                                   {Logger.logError(cursor.getCurrentLine(), "Falta de endif");}
     ;
 cuerpo_if
     :  if_seleccion else_seleccion {$$=$2;}
-    |  if_seleccion
+    |  if_seleccion {
+            pila.pop();
+            $$=$1;
+        }
     ;
 if_seleccion
     :   cuerpo_seleccion {
             $$ = pila.pop();
             System.out.println((Terceto)$$.obj);
             String auxString = getReferencia($1).replaceAll("\\D",""); //Agarramos el valor sin los parentesis
-            Integer aux = Integer.parseInt(auxString);
-            aux= aux+2;
+            Integer aux = 1;
+            aux= aux + Integer.parseInt(auxString);
             auxString = "(" + String.valueOf(aux) + ")";
             ((Terceto)$$.obj).addThird(auxString);
             pila.push(crearTerceto(new ParserVal("BI"), null, null));
@@ -152,7 +158,7 @@ else_seleccion
 
 parametros_seleccion
     :   '(' condicion ')'  {
-            pila.push(crearTerceto(new ParserVal("BF"),$2,null));
+            pila.push(crearTerceto(new ParserVal("BF"),$2,new ParserVal("1")));
             Logger.logRule(cursor.getCurrentLine(), "Sentencia CONDICION");
         }
     |   parametros_seleccion_error
