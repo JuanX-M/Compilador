@@ -56,7 +56,6 @@ public final class Logger {
     public static String generateLog() {
         String out = null;
         out = "\n>>>    LOG \n\n";
-        tercetos.sort(Comparator.comparingInt(Logger::extraerNumTercetos));
         for(String s: tercetos) {
             out += s;
         }
