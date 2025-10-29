@@ -136,8 +136,9 @@ if_seleccion
             $$ = pila.pop();
             System.out.println((Terceto)$$.obj);
             String auxString = getReferencia($1).replaceAll("\\D",""); //Agarramos el valor sin los parentesis
-            Integer aux = 1;
-            aux= aux + Integer.parseInt(auxString);
+
+            Integer aux = Integer.parseInt(auxString);
+            aux++;
             auxString = "(" + String.valueOf(aux) + ")";
             ((Terceto)$$.obj).addThird(auxString);
             pila.push(crearTerceto(new ParserVal("BI"), null, null));
