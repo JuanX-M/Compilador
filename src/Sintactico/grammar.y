@@ -109,45 +109,67 @@ sentencia_print_error
 
 sentencia_seleccion
     :   IF parametros_seleccion cuerpo_if ENDIF	{
-            if (!pila.isEmpty()) {
-                $$ = pila.pop();
-                System.out.println((Terceto)$$.obj);
-                String auxString = getReferencia($3).replaceAll("\\D",""); //Agarramos el valor sin los parentesis
-                Integer aux = Integer.parseInt(auxString);
-                aux++;
-                auxString = "(" + String.valueOf(aux) + ")";
-                ((Terceto)$$.obj).addSecond(auxString);
-
-                listaTercetos.add((Terceto)$$.obj);
-                ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
-
-                //Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");
-            }
             $$ = $3;
         }
 //    |   IF parametros_seleccion cuerpo_seleccion ENDIF                  {Logger.logRule(cursor.getCurrentLine(), "Sentencia IF");}
 //    |   sentencia_seleccion_sin_endif                                   {Logger.logError(cursor.getCurrentLine(), "Falta de endif");}
     ;
 cuerpo_if
-    :  if_seleccion else_seleccion {$$=$2;}
+    :  if_seleccion {
+
+                $$ = pila.pop();
+
+
+                String auxString = ((Terceto)$$.obj).getThird().replaceAll("\\D",""); //Agarramos el valor sin los parentesis
+
+                Integer aux = Integer.parseInt(auxString);
+                aux++;
+                auxString = "(" + String.valueOf(aux) + ")";
+                ((Terceto)$$.obj).addThird(auxString);
+
+                listaTercetos.add((Terceto)$$.obj);
+                ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+
+
+                pila.push(crearTerceto(new ParserVal("BI"), null, null));
+
+        } else_seleccion {
+
+            $$ = pila.pop();
+            System.out.println("$$ "+(Terceto)$$.obj);
+            System.out.println("$2 "+(Terceto)$3.obj);
+            String auxString = getReferencia($3).replaceAll("\\D",""); //Agarramos el valor sin los parentesis
+            Integer aux = Integer.parseInt(auxString);
+            aux++;
+            auxString = "(" + String.valueOf(aux) + ")";
+            ((Terceto)$$.obj).addSecond(auxString);
+
+            listaTercetos.add((Terceto)$$.obj);
+            ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+
+            //Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");
+        }
     |  if_seleccion {
-            pila.pop();
-            $$=$1;
+            $$=pila.pop();
+            listaTercetos.add((Terceto)$$.obj);
+            ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+            $$ = $1;
         }
     ;
 if_seleccion
     :   cuerpo_seleccion {
             $$ = pila.pop();
 
-            System.out.println((Terceto)$$.obj);
+            //System.out.println((Terceto)$$.obj);
             String auxString = getReferencia($1).replaceAll("\\D",""); //Agarramos el valor sin los parentesis
 
             Integer aux = Integer.parseInt(auxString);
             aux++;
             auxString = "(" + String.valueOf(aux) + ")";
             ((Terceto)$$.obj).addThird(auxString);
-            pila.push(crearTerceto(new ParserVal("BI"), null, null));
+            pila.push($$);
 
+            $$ = $1;
             //Logger.logTerceto(cursor.getCurrentLine(), $$.obj);
             //Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");
 
@@ -155,7 +177,10 @@ if_seleccion
     ;
 
 else_seleccion
-    :	ELSE cuerpo_seleccion {$$=$2;}
+    :	ELSE cuerpo_seleccion {
+            $$=$2;
+
+        }
     ;
 
 //sentencia_seleccion_sin_endif
@@ -165,7 +190,7 @@ else_seleccion
 
 parametros_seleccion
     :   '(' condicion ')'  {
-            pila.push(crearTerceto(new ParserVal("BF"),$2,new ParserVal("1")));
+            pila.push(crearTerceto(new ParserVal("BF"),$2, null));
             Logger.logRule(cursor.getCurrentLine(), "Sentencia CONDICION");
         }
     |   parametros_seleccion_error
