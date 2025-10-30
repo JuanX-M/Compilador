@@ -66,23 +66,145 @@ sentencia_ejecucion
     |   sentencia_asignacion
     ;
 
-sentencia_ejecucion_retorno
-    //:   sentencia_seleccion_retorno
-    :   sentencia_iteracion_retorno
+sentencia_seleccion_retorno
+    :   IF parametros_seleccion cuerpo_seleccion_retorno ELSE cuerpo_seleccion_retorno ENDIF {
+            /*
+
+            auxParserVal = pila.pop();
+
+
+
+            String auxString = getReferencia($5).replaceAll("\\D",""); //Agarramos el valor sin los parentesis
+            Integer aux = Integer.parseInt(auxString);
+            aux++;
+            auxString = "(" + String.valueOf(aux) + ")";
+            ((Terceto)auxParserVal.obj).addSecond(auxString);
+            //System.out.println(" if-else : "+ pila);
+            listaTercetos.add((Terceto)auxParserVal.obj);
+            ((Terceto)auxParserVal.obj).addLine(cursor.getCurrentLine());
+
+            //Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");
+
+            $$ = $5;
+            */
+
+        //Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");
+
+        }
+    |   IF parametros_seleccion cuerpo_seleccion_retorno ELSE cuerpo_seleccion ENDIF {
+
+            /*
+
+            auxParserVal = pila.pop();
+
+
+
+            String auxString = getReferencia($5).replaceAll("\\D",""); //Agarramos el valor sin los parentesis
+            Integer aux = Integer.parseInt(auxString);
+            aux++;
+            auxString = "(" + String.valueOf(aux) + ")";
+            ((Terceto)auxParserVal.obj).addSecond(auxString);
+            //System.out.println(" if-else : "+ pila);
+            listaTercetos.add((Terceto)auxParserVal.obj);
+            ((Terceto)auxParserVal.obj).addLine(cursor.getCurrentLine());
+
+            //Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");
+
+            $$ = $5;
+            */
+
+        //Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");
+
+        }
+    |   IF parametros_seleccion cuerpo_seleccion ELSE cuerpo_seleccion_retorno ENDIF {
+            /*
+            auxParserVal = pila.pop();
+
+
+
+            String auxString = getReferencia($5).replaceAll("\\D",""); //Agarramos el valor sin los parentesis
+            Integer aux = Integer.parseInt(auxString);
+            aux++;
+            auxString = "(" + String.valueOf(aux) + ")";
+            ((Terceto)auxParserVal.obj).addSecond(auxString);
+            //System.out.println(" if-else : "+ pila);
+            listaTercetos.add((Terceto)auxParserVal.obj);
+            ((Terceto)auxParserVal.obj).addLine(cursor.getCurrentLine());
+
+            //Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");
+
+            $$ = $5;
+            */
+            //Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");
+        }
+    |   IF parametros_seleccion cuerpo_seleccion_retorno ENDIF {
+            /*
+            auxParserVal = pila.pop();
+
+            pila.pop(); // Sacamos el BI sin uso
+
+            listaTercetos.add((Terceto)auxParserVal.obj);
+            ((Terceto)auxParserVal.obj).addLine(cursor.getCurrentLine());
+            $$ = $3;
+            //Logger.logRule(cursor.getCurrentLine(), "Sentencia IF");
+
+        //Logger.logRule(cursor.getCurrentLine(), "Sentencia IF");
+            */
+        }
+//    |   sentencia_seleccion_sin_endif  {Logger.logError(cursor.getCurrentLine(), "Falta de endif");}
     ;
 
-//sentencia_seleccion_retorno
-//    :   IF parametros_seleccion cuerpo_seleccion_retorno ELSE cuerpo_seleccion_retorno ENDIF    {Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");}
-//    |   IF parametros_seleccion cuerpo_seleccion_retorno ELSE cuerpo_seleccion ENDIF            {Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");}
-//    |   IF parametros_seleccion cuerpo_seleccion ELSE cuerpo_seleccion_retorno ENDIF            {Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");}
-//    |   IF parametros_seleccion cuerpo_seleccion_retorno ENDIF                                  {Logger.logRule(cursor.getCurrentLine(), "Sentencia IF");}
-//    |   sentencia_seleccion_sin_endif  {Logger.logError(cursor.getCurrentLine(), "Falta de endif");}
-//   ;
+cuerpo_seleccion_retorno
+    :   '{' cuerpo_funcion '}' {
 
-//cuerpo_seleccion_retorno
-//    :   '{' cuerpo_funcion '}'
+            /*
+            if (pila.size() == 1 ) {
+
+                auxParserVal = pila.pop();
+
+                String auxString = getReferencia($2).replaceAll("\\D","");
+                Integer aux = Integer.parseInt(auxString);
+                aux++;
+
+                auxString = "(" + String.valueOf(aux) + ")";
+                ((Terceto)auxParserVal.obj).addThird(auxString);
+
+
+
+
+                pila.push(crearTerceto(new ParserVal("BI"), null, null));
+
+                pila.push(auxParserVal);
+
+
+
+            } else{
+                if (pila.size() == 2 ) {
+
+                    auxParserVal = pila.pop(); //BF esta en la pila con dest. +1
+
+
+
+                    String auxString = ((Terceto)auxParserVal.obj).getThird().replaceAll("\\D","");
+                    Integer aux = Integer.parseInt(auxString);
+                    aux++;
+                    auxString = "(" + String.valueOf(aux) + ")";
+
+                    ((Terceto)auxParserVal.obj).addThird(auxString);
+
+                    listaTercetos.add((Terceto)auxParserVal.obj);
+                    ((Terceto)auxParserVal.obj).addLine(cursor.getCurrentLine());
+
+                };
+
+            };
+
+            $$ = $2;
+            */
+        }
 //    |   cuerpo_seleccion_error
-//    ;
+    ;
+
 
 sentencia_iteracion_retorno
     :   FOR parametros_iteracion cuerpo_iteracion_retorno  {Logger.logRule(cursor.getCurrentLine(), "Sentencia ITERACION");}
@@ -108,85 +230,44 @@ sentencia_print_error
     ;
 
 sentencia_seleccion
-    :   IF parametros_seleccion cuerpo_if ENDIF	{
+    :   IF parametros_seleccion cuerpo_seleccion ELSE cuerpo_seleccion ENDIF    {
+
+            auxParserVal = pila.pop();
+
+
+
+            String auxString = getReferencia($5).replaceAll("\\D",""); //Agarramos el valor sin los parentesis
+            Integer aux = Integer.parseInt(auxString);
+            aux++;
+            auxString = "(" + String.valueOf(aux) + ")";
+            ((Terceto)auxParserVal.obj).addSecond(auxString);
+            //System.out.println(" if-else : "+ pila);
+            listaTercetos.add((Terceto)auxParserVal.obj);
+            ((Terceto)auxParserVal.obj).addLine(cursor.getCurrentLine());
+
+            //Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");
+
+            $$ = $5;
+
+        }
+    |   IF parametros_seleccion cuerpo_seleccion ENDIF{
+
+            auxParserVal = pila.pop();
+
+            pila.pop(); // Sacamos el BI sin uso
+
+            listaTercetos.add((Terceto)auxParserVal.obj);
+            ((Terceto)auxParserVal.obj).addLine(cursor.getCurrentLine());
             $$ = $3;
+            //Logger.logRule(cursor.getCurrentLine(), "Sentencia IF");
         }
-//    |   IF parametros_seleccion cuerpo_seleccion ENDIF                  {Logger.logRule(cursor.getCurrentLine(), "Sentencia IF");}
-//    |   sentencia_seleccion_sin_endif                                   {Logger.logError(cursor.getCurrentLine(), "Falta de endif");}
-    ;
-cuerpo_if
-    :  if_seleccion {
-
-                $$ = pila.pop();
-
-
-                String auxString = ((Terceto)$$.obj).getThird().replaceAll("\\D",""); //Agarramos el valor sin los parentesis
-
-                Integer aux = Integer.parseInt(auxString);
-                aux++;
-                auxString = "(" + String.valueOf(aux) + ")";
-                ((Terceto)$$.obj).addThird(auxString);
-
-                listaTercetos.add((Terceto)$$.obj);
-                ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
-
-
-                pila.push(crearTerceto(new ParserVal("BI"), null, null));
-
-        } else_seleccion {
-
-            $$ = pila.pop();
-            System.out.println("$$ "+(Terceto)$$.obj);
-            System.out.println("$2 "+(Terceto)$3.obj);
-            String auxString = getReferencia($3).replaceAll("\\D",""); //Agarramos el valor sin los parentesis
-            Integer aux = Integer.parseInt(auxString);
-            aux++;
-            auxString = "(" + String.valueOf(aux) + ")";
-            ((Terceto)$$.obj).addSecond(auxString);
-
-            listaTercetos.add((Terceto)$$.obj);
-            ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
-
-            //Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");
-        }
-    |  if_seleccion {
-            $$=pila.pop();
-            listaTercetos.add((Terceto)$$.obj);
-            ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
-            $$ = $1;
-        }
-    ;
-if_seleccion
-    :   cuerpo_seleccion {
-            $$ = pila.pop();
-
-            //System.out.println((Terceto)$$.obj);
-            String auxString = getReferencia($1).replaceAll("\\D",""); //Agarramos el valor sin los parentesis
-
-            Integer aux = Integer.parseInt(auxString);
-            aux++;
-            auxString = "(" + String.valueOf(aux) + ")";
-            ((Terceto)$$.obj).addThird(auxString);
-            pila.push($$);
-
-            $$ = $1;
-            //Logger.logTerceto(cursor.getCurrentLine(), $$.obj);
-            //Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");
-
-        }
+    |   sentencia_seleccion_sin_endif                                           {Logger.logError(cursor.getCurrentLine(), "Falta de endif");}
     ;
 
-else_seleccion
-    :	ELSE cuerpo_seleccion {
-            $$=$2;
-
-        }
+sentencia_seleccion_sin_endif
+    :   IF parametros_seleccion cuerpo_seleccion ELSE cuerpo_seleccion
+    |   IF parametros_seleccion cuerpo_seleccion
     ;
-
-//sentencia_seleccion_sin_endif
-//    :   IF parametros_seleccion cuerpo_seleccion ELSE cuerpo_seleccion
-//    |   IF parametros_seleccion cuerpo_seleccion
-//    ;
 
 parametros_seleccion
     :   '(' condicion ')'  {
@@ -203,7 +284,51 @@ parametros_seleccion_error
     ;
 
 cuerpo_seleccion
-    :   '{' cuerpo '}' {$$=$2;}
+    :   '{' cuerpo '}' {
+
+            if (pila.size() == 1 ) {
+
+                auxParserVal = pila.pop();
+
+                String auxString = getReferencia($2).replaceAll("\\D","");
+                Integer aux = Integer.parseInt(auxString);
+                aux++;
+
+                auxString = "(" + String.valueOf(aux) + ")";
+                ((Terceto)auxParserVal.obj).addThird(auxString);
+
+
+
+
+                pila.push(crearTerceto(new ParserVal("BI"), null, null));
+
+                pila.push(auxParserVal);
+
+
+
+            } else{
+                if (pila.size() == 2 ) {
+
+                    auxParserVal = pila.pop(); //BF esta en la pila con dest. +1
+
+
+
+                    String auxString = ((Terceto)auxParserVal.obj).getThird().replaceAll("\\D","");
+                    Integer aux = Integer.parseInt(auxString);
+                    aux++;
+                    auxString = "(" + String.valueOf(aux) + ")";
+
+                    ((Terceto)auxParserVal.obj).addThird(auxString);
+
+                    listaTercetos.add((Terceto)auxParserVal.obj);
+                    ((Terceto)auxParserVal.obj).addLine(cursor.getCurrentLine());
+
+                };
+
+            };
+            $$ = $2;
+
+        }
     |   cuerpo_seleccion_error
     ;
 
@@ -311,8 +436,6 @@ encabezado_funcion_error
 
 cuerpo_funcion
     :   cuerpo sentencia_funcion
-    |   sentencia_funcion cuerpo
-    |   cuerpo sentencia_funcion cuerpo
     |   sentencia_funcion cuerpo sentencia_funcion
     |   sentencia_funcion
     ;
@@ -321,9 +444,17 @@ sentencia_funcion
     :   sentencia_ejecucion_retorno ';'
     |   sentencia_retorno
     ;
+sentencia_ejecucion_retorno
+    :   sentencia_seleccion_retorno
+    |   sentencia_iteracion_retorno
+    ;
+
 
 sentencia_retorno
-    : RETURN '(' lista_exp_aritmeticas ')' ';'
+    : RETURN '(' lista_exp_aritmeticas ')' ';' {
+
+
+    }
     ;
 
 //funcion_error
@@ -423,7 +554,12 @@ termino_error
 factor
     :   CTE_INT     {$$=$1;}
     |   CTE_FLOAT   {$$=$1;}
-    |   invocacion_funcion {Logger.logRule(cursor.getCurrentLine(), "Sentencia INVOCACION FUNCION");}
+    |   invocacion_funcion {
+        //Crear BI a con dest al primer terceto de la funcion
+
+        Logger.logRule(cursor.getCurrentLine(), "Sentencia INVOCACION FUNCION");
+
+        }
     |   variable    {$$=$1;}
     ;
 
@@ -552,7 +688,7 @@ static Integer numTerceto = 0;
 static String ambito = null;
 static Stack<ParserVal> pila = new Stack<>();
 static ArrayList<Terceto> listaTercetos = new ArrayList<>();
-
+static ParserVal auxParserVal = new ParserVal();
 public static void main (String [] args) {
 
     System.out.println("Iniciando compilación ... ");
