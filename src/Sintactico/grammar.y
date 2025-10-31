@@ -34,7 +34,6 @@ prog
     |   prog_error
     ;
 
-
 prog_error
     :   '{' cuerpo '}'      {Logger.logError(cursor.getCurrentLine(), "Falta el nombre del programa");}
     |   ID '(' cuerpo ')'   {Logger.logError(cursor.getCurrentLine(), "Debe indicar el programa entre {}");}
@@ -66,158 +65,15 @@ sentencia_ejecucion
     |   sentencia_asignacion
     ;
 
-sentencia_seleccion_retorno
-    :   IF parametros_seleccion cuerpo_seleccion_retorno ELSE cuerpo_seleccion_retorno ENDIF {
-            /*
-
-            auxParserVal = pila.pop();
-
-
-
-            String auxString = getReferencia($5).replaceAll("\\D",""); //Agarramos el valor sin los parentesis
-            Integer aux = Integer.parseInt(auxString);
-            aux++;
-            auxString = "(" + String.valueOf(aux) + ")";
-            ((Terceto)auxParserVal.obj).addSecond(auxString);
-            //System.out.println(" if-else : "+ pila);
-            listaTercetos.add((Terceto)auxParserVal.obj);
-            ((Terceto)auxParserVal.obj).addLine(cursor.getCurrentLine());
-
-            //Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");
-
-            $$ = $5;
-            */
-
-        //Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");
-
-        }
-    |   IF parametros_seleccion cuerpo_seleccion_retorno ELSE cuerpo_seleccion ENDIF {
-
-            /*
-
-            auxParserVal = pila.pop();
-
-
-
-            String auxString = getReferencia($5).replaceAll("\\D",""); //Agarramos el valor sin los parentesis
-            Integer aux = Integer.parseInt(auxString);
-            aux++;
-            auxString = "(" + String.valueOf(aux) + ")";
-            ((Terceto)auxParserVal.obj).addSecond(auxString);
-            //System.out.println(" if-else : "+ pila);
-            listaTercetos.add((Terceto)auxParserVal.obj);
-            ((Terceto)auxParserVal.obj).addLine(cursor.getCurrentLine());
-
-            //Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");
-
-            $$ = $5;
-            */
-
-        //Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");
-
-        }
-    |   IF parametros_seleccion cuerpo_seleccion ELSE cuerpo_seleccion_retorno ENDIF {
-            /*
-            auxParserVal = pila.pop();
-
-
-
-            String auxString = getReferencia($5).replaceAll("\\D",""); //Agarramos el valor sin los parentesis
-            Integer aux = Integer.parseInt(auxString);
-            aux++;
-            auxString = "(" + String.valueOf(aux) + ")";
-            ((Terceto)auxParserVal.obj).addSecond(auxString);
-            //System.out.println(" if-else : "+ pila);
-            listaTercetos.add((Terceto)auxParserVal.obj);
-            ((Terceto)auxParserVal.obj).addLine(cursor.getCurrentLine());
-
-            //Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");
-
-            $$ = $5;
-            */
-            //Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");
-        }
-    |   IF parametros_seleccion cuerpo_seleccion_retorno ENDIF {
-            /*
-            auxParserVal = pila.pop();
-
-            pila.pop(); // Sacamos el BI sin uso
-
-            listaTercetos.add((Terceto)auxParserVal.obj);
-            ((Terceto)auxParserVal.obj).addLine(cursor.getCurrentLine());
-            $$ = $3;
-            //Logger.logRule(cursor.getCurrentLine(), "Sentencia IF");
-
-        //Logger.logRule(cursor.getCurrentLine(), "Sentencia IF");
-            */
-        }
-//    |   sentencia_seleccion_sin_endif  {Logger.logError(cursor.getCurrentLine(), "Falta de endif");}
-    ;
-
-cuerpo_seleccion_retorno
-    :   '{' cuerpo_funcion '}' {
-
-            /*
-            if (pila.size() == 1 ) {
-
-                auxParserVal = pila.pop();
-
-                String auxString = getReferencia($2).replaceAll("\\D","");
-                Integer aux = Integer.parseInt(auxString);
-                aux++;
-
-                auxString = "(" + String.valueOf(aux) + ")";
-                ((Terceto)auxParserVal.obj).addThird(auxString);
-
-
-
-
-                pila.push(crearTerceto(new ParserVal("BI"), null, null));
-
-                pila.push(auxParserVal);
-
-
-
-            } else{
-                if (pila.size() == 2 ) {
-
-                    auxParserVal = pila.pop(); //BF esta en la pila con dest. +1
-
-
-
-                    String auxString = ((Terceto)auxParserVal.obj).getThird().replaceAll("\\D","");
-                    Integer aux = Integer.parseInt(auxString);
-                    aux++;
-                    auxString = "(" + String.valueOf(aux) + ")";
-
-                    ((Terceto)auxParserVal.obj).addThird(auxString);
-
-                    listaTercetos.add((Terceto)auxParserVal.obj);
-                    ((Terceto)auxParserVal.obj).addLine(cursor.getCurrentLine());
-
-                };
-
-            };
-
-            $$ = $2;
-            */
-        }
-//    |   cuerpo_seleccion_error
-    ;
-
-
-sentencia_iteracion_retorno
-    :   FOR parametros_iteracion cuerpo_iteracion_retorno  {Logger.logRule(cursor.getCurrentLine(), "Sentencia ITERACION");}
-    ;
-
-cuerpo_iteracion_retorno
-    :   '{' cuerpo_funcion '}'
-//    |   cuerpo_iteracion_error
-    ;
-
 sentencia_ejecucion_sin_coma
     :   sentencia_ejecucion  {Logger.logError(cursor.getCurrentLine(), "Falta de ';' al final de las sentencias.");}
-  //  ;
+    ;
+
+funcion
+    :   encabezado_funcion '{' cuerpo_funcion '}'   {Logger.logRule(cursor.getCurrentLine(), "Sentencia DECLARACION FUNCION");}
+    |   sentencia_lambda                            {Logger.logRule(cursor.getCurrentLine(), "Sentencia LAMBDA");}
+    //|   funcion_error
+    ;
 
 sentencia_print
     :   PRINT '(' STRING ')'
@@ -231,11 +87,7 @@ sentencia_print_error
 
 sentencia_seleccion
     :   IF parametros_seleccion cuerpo_seleccion ELSE cuerpo_seleccion ENDIF    {
-
             auxParserVal = pila.pop();
-
-
-
             String auxString = getReferencia($5).replaceAll("\\D",""); //Agarramos el valor sin los parentesis
             Integer aux = Integer.parseInt(auxString);
             aux++;
@@ -244,29 +96,68 @@ sentencia_seleccion
             //System.out.println(" if-else : "+ pila);
             listaTercetos.add((Terceto)auxParserVal.obj);
             ((Terceto)auxParserVal.obj).addLine(cursor.getCurrentLine());
-
             //Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");
-
             $$ = $5;
-
         }
     |   IF parametros_seleccion cuerpo_seleccion ENDIF{
-
             auxParserVal = pila.pop();
-
             pila.pop(); // Sacamos el BI sin uso
-
             listaTercetos.add((Terceto)auxParserVal.obj);
             ((Terceto)auxParserVal.obj).addLine(cursor.getCurrentLine());
             $$ = $3;
             //Logger.logRule(cursor.getCurrentLine(), "Sentencia IF");
         }
-    |   sentencia_seleccion_sin_endif                                           {Logger.logError(cursor.getCurrentLine(), "Falta de endif");}
+    |   sentencia_seleccion_sin_endif  {Logger.logError(cursor.getCurrentLine(), "Falta de endif");}
     ;
 
 sentencia_seleccion_sin_endif
     :   IF parametros_seleccion cuerpo_seleccion ELSE cuerpo_seleccion
     |   IF parametros_seleccion cuerpo_seleccion
+    ;
+
+sentencia_iteracion
+    :   FOR parametros_iteracion cuerpo_iteracion  {Logger.logRule(cursor.getCurrentLine(), "Sentencia ITERACION");}
+    ;
+
+sentencia_asignacion
+    :   sentencia_asignacion_unaria     {Logger.logRule(cursor.getCurrentLine(), "Sentencia ASIGNACION UNARIA");}
+    |   sentencia_asignacion_multiple   {Logger.logRule(cursor.getCurrentLine(), "Sentencia ASIGNACION MULTIPLE");}
+    ;
+
+encabezado_funcion
+    :   lista_tipos  FUN ID '(' lista_param_formales ')' { //put de funcion
+            if (TablaSimbolos.TABLA_SIMBOLOS.containsKey($3.sval)) {
+                Logger.logError(cursor.getCurrentLine(), "Redeclaracion de funcion");
+            } else {
+                System.out.println($1.sval);
+                //TablaSimbolos.TABLA_SIMBOLOS.put($3.sval,new Info($3.sval,$1, ));
+            };
+        }
+    |   encabezado_funcion_error
+    ;
+
+encabezado_funcion_error
+    :   lista_tipos FUN '(' lista_param_formales ')' '{' cuerpo_funcion '}'  {Logger.logError(cursor.getCurrentLine(), "Falta de nombre en declaracion de funcion");}
+    ;
+
+cuerpo_funcion
+    :   cuerpo sentencia_funcion
+    |   sentencia_funcion cuerpo sentencia_funcion
+    |   sentencia_funcion
+    ;
+
+sentencia_lambda
+    :   parametro_lambda cuerpo_lambda argumento_lambda
+    ;
+
+lista_exp_aritmeticas
+    :   lista_exp_aritmeticas ',' expresion_aritmetica  {$$.ival = $1.ival + 1;}
+    |   expresion_aritmetica                            {$$.ival = 1;}
+    |   lista_exp_aritmeticas_error
+    ;
+
+lista_exp_aritmeticas_error
+    :   lista_exp_aritmeticas  expresion_aritmetica    {Logger.logError(cursor.getCurrentLine(), "Falta de ',' en declaracion de expresiones aritmeticas (lado derecho)");}
     ;
 
 parametros_seleccion
@@ -285,59 +176,34 @@ parametros_seleccion_error
 
 cuerpo_seleccion
     :   '{' cuerpo '}' {
-
             if (pila.size() == 1 ) {
-
                 auxParserVal = pila.pop();
-
                 String auxString = getReferencia($2).replaceAll("\\D","");
                 Integer aux = Integer.parseInt(auxString);
                 aux++;
-
                 auxString = "(" + String.valueOf(aux) + ")";
                 ((Terceto)auxParserVal.obj).addThird(auxString);
-
-
-
-
                 pila.push(crearTerceto(new ParserVal("BI"), null, null));
-
                 pila.push(auxParserVal);
-
-
-
             } else{
                 if (pila.size() == 2 ) {
-
                     auxParserVal = pila.pop(); //BF esta en la pila con dest. +1
-
-
-
                     String auxString = ((Terceto)auxParserVal.obj).getThird().replaceAll("\\D","");
                     Integer aux = Integer.parseInt(auxString);
                     aux++;
                     auxString = "(" + String.valueOf(aux) + ")";
-
                     ((Terceto)auxParserVal.obj).addThird(auxString);
-
                     listaTercetos.add((Terceto)auxParserVal.obj);
                     ((Terceto)auxParserVal.obj).addLine(cursor.getCurrentLine());
-
                 };
-
             };
             $$ = $2;
-
         }
     |   cuerpo_seleccion_error
     ;
 
 cuerpo_seleccion_error
     :   '{' '}' {Logger.logError(cursor.getCurrentLine(), "Falta de cuerpo en seleccion");}
-
-sentencia_iteracion
-    :   FOR parametros_iteracion cuerpo_iteracion  {Logger.logRule(cursor.getCurrentLine(), "Sentencia ITERACION");}
-    ;
 
 parametros_iteracion
     :   '(' encabezado_iteracion ')'
@@ -350,19 +216,6 @@ parametros_iteracion_error
     |   encabezado_iteracion        {Logger.logError(cursor.getCurrentLine(), "Falta de '()' en condicion de iteracion");}
     ;
 
-encabezado_iteracion
-    :   ID FROM CTE_INT TO CTE_INT
-    |   encabezado_iteracion_error
-    ;
-
-encabezado_iteracion_error
-    :   FROM CTE_INT TO CTE_INT {Logger.logError(cursor.getCurrentLine(), "Falta de encabezado ID del for");}
-    |   ID CTE_INT TO CTE_INT   {Logger.logError(cursor.getCurrentLine(), "Falta de encabezado FROM del for");}
-    |   ID FROM TO CTE_INT      {Logger.logError(cursor.getCurrentLine(), "Falta de encabezado CTE_INT_1 del for");}
-    |   ID FROM CTE_INT CTE_INT {Logger.logError(cursor.getCurrentLine(), "Falta de encabezado TO del for");}
-    |   ID FROM CTE_INT TO      {Logger.logError(cursor.getCurrentLine(), "Falta de encabezado CTE_INT_2 del for");}
-    ;
-
 cuerpo_iteracion
     :   '{' cuerpo '}'
     |   cuerpo_iteracion_error
@@ -370,11 +223,6 @@ cuerpo_iteracion
 
 cuerpo_iteracion_error
     :   '{'  '}'    {Logger.logError(cursor.getCurrentLine(), "Falta de cuerpo en iteracion");}
-    ;
-
-sentencia_asignacion
-    :   sentencia_asignacion_unaria     {Logger.logRule(cursor.getCurrentLine(), "Sentencia ASIGNACION UNARIA");}
-    |   sentencia_asignacion_multiple   {Logger.logRule(cursor.getCurrentLine(), "Sentencia ASIGNACION MULTIPLE");}
     ;
 
 sentencia_asignacion_unaria
@@ -412,57 +260,24 @@ sentencia_asignacion_multiple
             }
     ;
 
-funcion
-    :   encabezado_funcion '{' cuerpo_funcion '}'   {Logger.logRule(cursor.getCurrentLine(), "Sentencia DECLARACION FUNCION");}
-    |   sentencia_lambda                            {Logger.logRule(cursor.getCurrentLine(), "Sentencia LAMBDA");}
-    //|   funcion_error
+lista_tipos
+    :   lista_tipos ',' tipo    {$$.sval = $1.sval + (",") + $3.sval;}
+    |   tipo                    {$$.sval = $1.sval;}
+    |   lista_tipos_error
     ;
 
-encabezado_funcion
-    :   lista_tipos  FUN ID '(' lista_param_formales ')' { //put de funcion
-            if (TablaSimbolos.TABLA_SIMBOLOS.containsKey($3.sval)) {
-                Logger.logError(cursor.getCurrentLine(), "Redeclaracion de funcion");
-            } else {
-                System.out.println($1.sval);
-                //TablaSimbolos.TABLA_SIMBOLOS.put($3.sval,new Info($3.sval,$1, ));
-            };
-        }
-    |   encabezado_funcion_error
+lista_tipos_error
+    :   lista_tipos tipo {Logger.logError(cursor.getCurrentLine(), "Falta de ',' en declaracion de tipos");}
     ;
 
-encabezado_funcion_error
-    : lista_tipos FUN '(' lista_param_formales ')' '{' cuerpo_funcion '}'  {Logger.logError(cursor.getCurrentLine(), "Falta de nombre en declaracion de funcion");}
-    ;
-
-cuerpo_funcion
-    :   cuerpo sentencia_funcion
-    |   sentencia_funcion cuerpo sentencia_funcion
-    |   sentencia_funcion
+lista_param_formales
+    :   lista_param_formales ',' parametro_formal
+    |   parametro_formal
     ;
 
 sentencia_funcion
     :   sentencia_ejecucion_retorno ';'
     |   sentencia_retorno
-    ;
-sentencia_ejecucion_retorno
-    :   sentencia_seleccion_retorno
-    |   sentencia_iteracion_retorno
-    ;
-
-
-sentencia_retorno
-    : RETURN '(' lista_exp_aritmeticas ')' ';' {
-
-
-    }
-    ;
-
-//funcion_error
-//    :   lista_tipos FUN '(' lista_param_formales ')' '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' ';'     {Logger.logError(cursor.getCurrentLine(), "Falta de nombre en funcion");}
-//    ;
-
-sentencia_lambda
-    :   parametro_lambda cuerpo_lambda argumento_lambda
     ;
 
 parametro_lambda
@@ -473,6 +288,7 @@ cuerpo_lambda
     :   '{' cuerpo '}'
     |   cuerpo_lambda_error
     ;
+
 cuerpo_lambda_error
     :   cuerpo '}'          {Logger.logError(cursor.getCurrentLine(), "Falta delimitador izquierdo '{' del cuerpo lambda");}
     //|   '{' cuerpo error  {Logger.logError(cursor.getCurrentLine(), "Falta delimitador derecho '}' del cuerpo lambda");}
@@ -482,21 +298,6 @@ argumento_lambda
     :   '(' ID ')'
     |   '(' CTE_INT ')'
     |   '(' CTE_FLOAT ')'
-    ;
-
-condicion
-    :   expresion_aritmetica simbolo_comparador expresion_aritmetica	{
-	        $$=crearTerceto($2,$1,$3);
-	        listaTercetos.add((Terceto)$$.obj);
-            ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
-	    }
-    |   condicion_error
-    ;
-
-condicion_error
-    :   expresion_aritmetica expresion_aritmetica   {Logger.logError(cursor.getCurrentLine(), "Falta de simbolo comparador en condicion");}
-    |   expresion_aritmetica simbolo_comparador     {Logger.logError(cursor.getCurrentLine(), "Falta de argumento derecho en condicion");}
-    |   simbolo_comparador expresion_aritmetica     {Logger.logError(cursor.getCurrentLine(), "Falta de argumento izquierdo en condicion");}
     ;
 
 expresion_aritmetica
@@ -527,6 +328,73 @@ expresion_aritmetica_error
     |   expresion_aritmetica '-' error  {Logger.logError(cursor.getCurrentLine(), "Falta de operando derecho en expresion_aritmetica con '-'");}
     ;
 
+condicion
+    :   expresion_aritmetica simbolo_comparador expresion_aritmetica	{
+	        $$=crearTerceto($2,$1,$3);
+	        listaTercetos.add((Terceto)$$.obj);
+            ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+	    }
+    |   condicion_error
+    ;
+
+condicion_error
+    :   expresion_aritmetica expresion_aritmetica   {Logger.logError(cursor.getCurrentLine(), "Falta de simbolo comparador en condicion");}
+    |   expresion_aritmetica simbolo_comparador     {Logger.logError(cursor.getCurrentLine(), "Falta de argumento derecho en condicion");}
+    |   simbolo_comparador expresion_aritmetica     {Logger.logError(cursor.getCurrentLine(), "Falta de argumento izquierdo en condicion");}
+    ;
+
+encabezado_iteracion
+    :   ID FROM CTE_INT TO CTE_INT
+    |   encabezado_iteracion_error
+    ;
+
+encabezado_iteracion_error
+    :   FROM CTE_INT TO CTE_INT {Logger.logError(cursor.getCurrentLine(), "Falta de encabezado ID del for");}
+    |   ID CTE_INT TO CTE_INT   {Logger.logError(cursor.getCurrentLine(), "Falta de encabezado FROM del for");}
+    |   ID FROM TO CTE_INT      {Logger.logError(cursor.getCurrentLine(), "Falta de encabezado CTE_INT_1 del for");}
+    |   ID FROM CTE_INT CTE_INT {Logger.logError(cursor.getCurrentLine(), "Falta de encabezado TO del for");}
+    |   ID FROM CTE_INT TO      {Logger.logError(cursor.getCurrentLine(), "Falta de encabezado CTE_INT_2 del for");}
+    ;
+
+lista_variables
+    :   lista_variables ',' variable        {$$.ival = $1.ival + 1;}
+    |   variable                            {$$.ival = 1; }
+    |   lista_variables_error
+    ;
+
+lista_variables_error
+    :   lista_variables variable    {Logger.logError(cursor.getCurrentLine(), "Falta de ',' en declaracion de variables (lado izquierdo)");}
+    ;
+
+tipo
+    :   INT     {$$.sval = "INT";}
+    |   FLOAT   {$$.sval = "FLOAT";}
+    |   STRING
+    ;
+
+parametro_formal
+    :   semantica_pasaje tipo ID
+    |   tipo ID
+    |   parametro_formal_error
+    ;
+
+parametro_formal_error
+    :   semantica_pasaje tipo   {Logger.logError(cursor.getCurrentLine(), "Falta el nombre de parametro formal en declaracion de funcion");}
+    |   tipo                    {Logger.logError(cursor.getCurrentLine(), "Falta el nombre de parametro formal en declaracion de funcion");}
+    |   semantica_pasaje ID     {Logger.logError(cursor.getCurrentLine(), "Falta de tipo en parametro formal en declaracion de funcion");}
+    |   ID                      {Logger.logError(cursor.getCurrentLine(), "Falta de tipo en parametro formal en declaracion de funcion");}
+    ;
+
+sentencia_ejecucion_retorno
+    :   sentencia_seleccion_retorno
+    |   sentencia_iteracion_retorno
+    ;
+
+sentencia_retorno
+    : RETURN '(' lista_exp_aritmeticas ')' ';' {
+    }
+    ;
+
 termino
     :   termino '*' factor {
             $$ = crearTerceto($2, $1, $3);
@@ -551,29 +419,6 @@ termino_error
     |   error '/' factor    {Logger.logError(cursor.getCurrentLine(), "Falta de operando derecho en expresion_aritmetica con '-'");}
     ;
 
-factor
-    :   CTE_INT     {$$=$1;}
-    |   CTE_FLOAT   {$$=$1;}
-    |   invocacion_funcion {
-        //Crear BI a con dest al primer terceto de la funcion
-
-        Logger.logRule(cursor.getCurrentLine(), "Sentencia INVOCACION FUNCION");
-
-        }
-    |   variable    {$$=$1;}
-    ;
-
-invocacion_funcion
-    :   FUN ID '(' lista_param_reales ')' {
-            if (!(TablaSimbolos.TABLA_SIMBOLOS.containsKey($2.sval))) {
-                Logger.logError(cursor.getCurrentLine(), "Funcion sin declarar");};
-        }
-    |   invocacion_funcion_error
-    ;
-invocacion_funcion_error
-    :   FUN '(' lista_param_reales ')' {Logger.logError(cursor.getCurrentLine(), "Falta de nombre en funcion en invocacion de funcion");}
-    ;
-
 expresion_aritmetica_toi
     :   TOI '(' expresion_aritmetica ')'
     |   expresion_aritmetica_toi_error
@@ -594,68 +439,9 @@ simbolo_comparador
     |   '<'                 {$$=$1;}
     ;
 
-lista_exp_aritmeticas
-    :   lista_exp_aritmeticas ',' expresion_aritmetica  {$$.ival = $1.ival + 1;}
-    |   expresion_aritmetica                            {$$.ival = 1;}
-    |   lista_exp_aritmeticas_error
-    ;
-
-lista_exp_aritmeticas_error
-    :   lista_exp_aritmeticas  expresion_aritmetica    {Logger.logError(cursor.getCurrentLine(), "Falta de ',' en declaracion de expresiones aritmeticas (lado derecho)");}
-    ;
-
-lista_tipos
-    :   lista_tipos ',' tipo    {$$.sval = $1.sval + (",") + $3.sval;}
-    |   tipo                    {$$.sval = $1.sval;}
-    |   lista_tipos_error
-    ;
-
-lista_tipos_error
-    :   lista_tipos tipo {Logger.logError(cursor.getCurrentLine(), "Falta de ',' en declaracion de tipos");}
-    ;
-
-lista_param_formales
-    :   lista_param_formales ',' parametro_formal
-    |   parametro_formal
-    ;
-
-lista_variables
-    :   lista_variables ',' variable        {$$.ival = $1.ival + 1;}
-    |   variable                            {$$.ival = 1; }
-    |   lista_variables_error
-    ;
-
-lista_variables_error
-    :   lista_variables variable    {Logger.logError(cursor.getCurrentLine(), "Falta de ',' en declaracion de variables (lado izquierdo)");}
-    ;
-
 variable
     :   ID          {$$.sval=$1.sval;}
     |   ID  '.' ID
-    ;
-
-tipo
-    :   INT     {$$.sval = "INT";}
-    |   FLOAT   {$$.sval = "FLOAT";}
-    |   STRING
-    ;
-
-parametro_formal
-    :   semantica_pasaje tipo ID
-    |   tipo ID
-    |   parametro_formal_error
-    ;
-
-parametro_formal_error
-    :   semantica_pasaje tipo   {Logger.logError(cursor.getCurrentLine(), "Falta el nombre de parametro formal en declaracion de funcion");}
-    |   tipo                    {Logger.logError(cursor.getCurrentLine(), "Falta el nombre de parametro formal en declaracion de funcion");}
-    |   semantica_pasaje ID     {Logger.logError(cursor.getCurrentLine(), "Falta de tipo en parametro formal en declaracion de funcion");}
-    |   ID                      {Logger.logError(cursor.getCurrentLine(), "Falta de tipo en parametro formal en declaracion de funcion");}
-    ;
-
-lista_param_reales
-    :   lista_param_reales ',' parametro_real
-    |   parametro_real
     ;
 
 semantica_pasaje
@@ -670,10 +456,148 @@ semantica_pasaje_error
     |   LE  {Logger.logError(cursor.getCurrentLine(), "Falta de CR antes de LE");}
     ;
 
+sentencia_seleccion_retorno
+    :   IF parametros_seleccion cuerpo_seleccion_retorno ELSE cuerpo_seleccion_retorno ENDIF {
+            /*
+            auxParserVal = pila.pop();
+            String auxString = getReferencia($5).replaceAll("\\D",""); //Agarramos el valor sin los parentesis
+            Integer aux = Integer.parseInt(auxString);
+            aux++;
+            auxString = "(" + String.valueOf(aux) + ")";
+            ((Terceto)auxParserVal.obj).addSecond(auxString);
+            //System.out.println(" if-else : "+ pila);
+            listaTercetos.add((Terceto)auxParserVal.obj);
+            ((Terceto)auxParserVal.obj).addLine(cursor.getCurrentLine());
+            //Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");
+            $$ = $5;
+            */
+            //Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");
+        }
+    |   IF parametros_seleccion cuerpo_seleccion_retorno ELSE cuerpo_seleccion ENDIF {
+            /*
+            auxParserVal = pila.pop();
+            String auxString = getReferencia($5).replaceAll("\\D",""); //Agarramos el valor sin los parentesis
+            Integer aux = Integer.parseInt(auxString);
+            aux++;
+            auxString = "(" + String.valueOf(aux) + ")";
+            ((Terceto)auxParserVal.obj).addSecond(auxString);
+            //System.out.println(" if-else : "+ pila);
+            listaTercetos.add((Terceto)auxParserVal.obj);
+            ((Terceto)auxParserVal.obj).addLine(cursor.getCurrentLine());
+            //Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");
+            $$ = $5;
+            */
+            //Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");
+        }
+    |   IF parametros_seleccion cuerpo_seleccion ELSE cuerpo_seleccion_retorno ENDIF {
+            /*
+            auxParserVal = pila.pop();
+            String auxString = getReferencia($5).replaceAll("\\D",""); //Agarramos el valor sin los parentesis
+            Integer aux = Integer.parseInt(auxString);
+            aux++;
+            auxString = "(" + String.valueOf(aux) + ")";
+            ((Terceto)auxParserVal.obj).addSecond(auxString);
+            //System.out.println(" if-else : "+ pila);
+            listaTercetos.add((Terceto)auxParserVal.obj);
+            ((Terceto)auxParserVal.obj).addLine(cursor.getCurrentLine());
+            //Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");
+            $$ = $5;
+            */
+            //Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");
+        }
+    |   IF parametros_seleccion cuerpo_seleccion_retorno ENDIF {
+            /*
+            auxParserVal = pila.pop();
+            pila.pop(); // Sacamos el BI sin uso
+            listaTercetos.add((Terceto)auxParserVal.obj);
+            ((Terceto)auxParserVal.obj).addLine(cursor.getCurrentLine());
+            $$ = $3;
+            //Logger.logRule(cursor.getCurrentLine(), "Sentencia IF");
+            //Logger.logRule(cursor.getCurrentLine(), "Sentencia IF");
+            */
+        }
+//    |   sentencia_seleccion_sin_endif  {Logger.logError(cursor.getCurrentLine(), "Falta de endif");}
+    ;
+
+sentencia_iteracion_retorno
+    :   FOR parametros_iteracion cuerpo_iteracion_retorno  {Logger.logRule(cursor.getCurrentLine(), "Sentencia ITERACION");}
+    ;
+
+factor
+    :   CTE_INT     {$$=$1;}
+    |   CTE_FLOAT   {$$=$1;}
+    |   invocacion_funcion {
+        //Crear BI a con dest al primer terceto de la funcion
+
+        Logger.logRule(cursor.getCurrentLine(), "Sentencia INVOCACION FUNCION");
+
+        }
+    |   variable    {$$=$1;}
+    ;
+
+cuerpo_seleccion_retorno
+    :   '{' cuerpo_funcion '}' {
+            /*
+            if (pila.size() == 1 ) {
+                auxParserVal = pila.pop();
+                String auxString = getReferencia($2).replaceAll("\\D","");
+                Integer aux = Integer.parseInt(auxString);
+                aux++;
+                auxString = "(" + String.valueOf(aux) + ")";
+                ((Terceto)auxParserVal.obj).addThird(auxString);
+                pila.push(crearTerceto(new ParserVal("BI"), null, null));
+                pila.push(auxParserVal);
+            } else{
+                if (pila.size() == 2 ) {
+                    auxParserVal = pila.pop(); //BF esta en la pila con dest. +1
+                    String auxString = ((Terceto)auxParserVal.obj).getThird().replaceAll("\\D","");
+                    Integer aux = Integer.parseInt(auxString);
+                    aux++;
+                    auxString = "(" + String.valueOf(aux) + ")";
+                    ((Terceto)auxParserVal.obj).addThird(auxString);
+                    listaTercetos.add((Terceto)auxParserVal.obj);
+                    ((Terceto)auxParserVal.obj).addLine(cursor.getCurrentLine());
+                };
+            };
+            $$ = $2;
+            */
+        }
+//    |   cuerpo_seleccion_error
+    ;
+
+cuerpo_iteracion_retorno
+    :   '{' cuerpo_funcion '}'
+//    |   cuerpo_iteracion_error
+    ;
+
+//funcion_error
+//    :   lista_tipos FUN '(' lista_param_formales ')' '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' ';'     {Logger.logError(cursor.getCurrentLine(), "Falta de nombre en funcion");}
+//    ;
+
+
+invocacion_funcion
+    :   FUN ID '(' lista_param_reales ')' {
+            if (!(TablaSimbolos.TABLA_SIMBOLOS.containsKey($2.sval))) {
+                Logger.logError(cursor.getCurrentLine(), "Funcion sin declarar");};
+        }
+    |   invocacion_funcion_error
+    ;
+
+invocacion_funcion_error
+    :   FUN '(' lista_param_reales ')' {Logger.logError(cursor.getCurrentLine(), "Falta de nombre en funcion en invocacion de funcion");}
+    ;
+
+
+lista_param_reales
+    :   lista_param_reales ',' parametro_real
+    |   parametro_real
+    ;
+
 parametro_real
     :   expresion_aritmetica ARROW ID
     |   parametro_real_error
     ;
+
 parametro_real_error
     :   expresion_aritmetica ARROW  {Logger.logError(cursor.getCurrentLine(), "Falta especificacion del parametro formal");}
     ;
