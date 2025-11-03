@@ -56,6 +56,8 @@ sentencia
 
 sentencia_declarativa
     :   funcion  {Logger.logRule(cursor.getCurrentLine(), "Sentencia DECLARACION FUNCION");}
+    |   declaracion_variable ';'
+    |   declaracion_variable_sin_coma
     ;
 
 sentencia_ejecucion
@@ -74,7 +76,13 @@ funcion
     |   sentencia_lambda                            {Logger.logRule(cursor.getCurrentLine(), "Sentencia LAMBDA");}
     //|   funcion_error
     ;
+declaracion_variable
+    :   declaracion_unaria
+    ;
 
+declaracion_variable_sin_coma
+    :   declaracion_variable    {Logger.logError(cursor.getCurrentLine(), "Falta de ';' al final de la declaracion de variable.");}
+    ;
 sentencia_print
     :   PRINT '(' STRING ')'
     |   PRINT '(' lista_exp_aritmeticas ')'
@@ -85,6 +93,7 @@ sentencia_print_error
     :   PRINT '(' ')'       {Logger.logError(cursor.getCurrentLine(), "Falta argumento en sentencia PRINT");}
     ;
 
+//TODO: Se puede permitir declaracion de varibles de lso cuerpos if/else???
 sentencia_seleccion
     :   IF parametros_seleccion cuerpo_seleccion ELSE cuerpo_seleccion ENDIF    {
             auxParserVal = pila.pop();
@@ -137,7 +146,7 @@ encabezado_funcion
     ;
 
 encabezado_funcion_error
-    :   lista_tipos FUN '(' lista_param_formales ')' '{' cuerpo_funcion '}'  {Logger.logError(cursor.getCurrentLine(), "Falta de nombre en declaracion de funcion");}
+    :   lista_tipos FUN '(' lista_param_formales ')'  {Logger.logError(cursor.getCurrentLine(), "Falta de nombre en declaracion de funcion");}
     ;
 
 cuerpo_funcion
@@ -150,6 +159,25 @@ sentencia_lambda
     :   parametro_lambda cuerpo_lambda argumento_lambda
     ;
 
+declaracion_unaria
+    : VAR ID TWO_POINTS_ASSIGNATION expresion_aritmetica {
+                  if (TablaSimbolos.TABLA_SIMBOLOS.containsKey($2.sval)) {
+                      Logger.logError(cursor.getCurrentLine(), "Redeclaracion de variable");}
+                  else {
+                      $2.sval=$2.sval + ".INT." + ambito;
+                      TablaSimbolos.TABLA_SIMBOLOS.put($2.sval,new Info($2.sval, "CTE_INT", "INT", "Variable", ambito));
+                      //System.out.println(TablaSimbolos.TABLA_SIMBOLOS.get($2.sval));
+                  };
+                  $$ = crearTerceto($3, $2, $4);
+                  listaTercetos.add((Terceto)$$.obj);
+                  ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+              } //TODO: Lexema o ID
+    |   declaracion_unaria_error
+    ;
+
+declaracion_unaria_error
+    : VAR ID expresion_aritmetica    {Logger.logError(cursor.getCurrentLine(), "Falta de asignacion en declaracion de variable");}
+    ;
 lista_exp_aritmeticas
     :   lista_exp_aritmeticas ',' expresion_aritmetica  {$$.ival = $1.ival + 1;}
     |   expresion_aritmetica                            {$$.ival = 1;}
@@ -175,7 +203,7 @@ parametros_seleccion_error
     ;
 
 cuerpo_seleccion
-    :   '{' cuerpo '}' {
+    :   '{' cuerpo_ejecutable '}' {
             if (pila.size() == 1 ) {
                 auxParserVal = pila.pop();
                 String auxString = getReferencia($2).replaceAll("\\D","");
@@ -217,7 +245,7 @@ parametros_iteracion_error
     ;
 
 cuerpo_iteracion
-    :   '{' cuerpo '}'
+    :   '{' cuerpo_ejecutable '}'
     |   cuerpo_iteracion_error
     ;
 
@@ -226,19 +254,7 @@ cuerpo_iteracion_error
     ;
 
 sentencia_asignacion_unaria
-    :   VAR ID TWO_POINTS_ASSIGNATION expresion_aritmetica {
-            if (TablaSimbolos.TABLA_SIMBOLOS.containsKey($2.sval)) {
-                Logger.logError(cursor.getCurrentLine(), "Redeclaracion de variable");}
-            else {
-                $2.sval=$2.sval + ".INT." + ambito;
-                TablaSimbolos.TABLA_SIMBOLOS.put($2.sval,new Info($2.sval, "CTE_INT", "INT", "Variable", ambito));
-                //System.out.println(TablaSimbolos.TABLA_SIMBOLOS.get($2.sval));
-            };
-            $$ = crearTerceto($3, $2, $4);
-            listaTercetos.add((Terceto)$$.obj);
-            ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
-        } //TODO: Lexema o ID
-    |   ID TWO_POINTS_ASSIGNATION expresion_aritmetica {
+    :   ID TWO_POINTS_ASSIGNATION expresion_aritmetica {
             if (!(TablaSimbolos.TABLA_SIMBOLOS.containsKey($1.sval))) {
                 Logger.logError(cursor.getCurrentLine(), "Variable sin declarar");
             };
@@ -250,7 +266,7 @@ sentencia_asignacion_unaria
     ;
 
 sentencia_asignacion_unaria_error
-    :   VAR ID expresion_aritmetica     {Logger.logError(cursor.getCurrentLine(), "Falta de asignacion luego de var");}
+    :   ID expresion_aritmetica     {Logger.logError(cursor.getCurrentLine(), "Falta de asignacion");}
     ;
 
 sentencia_asignacion_multiple
@@ -341,6 +357,11 @@ condicion_error
     :   expresion_aritmetica expresion_aritmetica   {Logger.logError(cursor.getCurrentLine(), "Falta de simbolo comparador en condicion");}
     |   expresion_aritmetica simbolo_comparador     {Logger.logError(cursor.getCurrentLine(), "Falta de argumento derecho en condicion");}
     |   simbolo_comparador expresion_aritmetica     {Logger.logError(cursor.getCurrentLine(), "Falta de argumento izquierdo en condicion");}
+    ;
+
+cuerpo_ejecutable
+    :   cuerpo_ejecutable sentencia_ejecucion
+    |   sentencia_ejecucion
     ;
 
 encabezado_iteracion
@@ -569,10 +590,6 @@ cuerpo_iteracion_retorno
     :   '{' cuerpo_funcion '}'
 //    |   cuerpo_iteracion_error
     ;
-
-//funcion_error
-//    :   lista_tipos FUN '(' lista_param_formales ')' '{' cuerpo '}' RETURN '(' lista_exp_aritmeticas ')' ';'     {Logger.logError(cursor.getCurrentLine(), "Falta de nombre en funcion");}
-//    ;
 
 
 invocacion_funcion
