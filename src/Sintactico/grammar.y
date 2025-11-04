@@ -301,12 +301,12 @@ parametro_lambda
     ;
 
 cuerpo_lambda
-    :   '{' cuerpo '}'
+    :   '{' cuerpo_ejecutable '}'
     |   cuerpo_lambda_error
     ;
 
 cuerpo_lambda_error
-    :   cuerpo '}'          {Logger.logError(cursor.getCurrentLine(), "Falta delimitador izquierdo '{' del cuerpo lambda");}
+    :   cuerpo_ejecutable '}'          {Logger.logError(cursor.getCurrentLine(), "Falta delimitador izquierdo '{' del cuerpo lambda");}
     //|   '{' cuerpo error  {Logger.logError(cursor.getCurrentLine(), "Falta delimitador derecho '}' del cuerpo lambda");}
     ;
 
@@ -358,14 +358,10 @@ condicion_error
     |   expresion_aritmetica simbolo_comparador     {Logger.logError(cursor.getCurrentLine(), "Falta de argumento derecho en condicion");}
     |   simbolo_comparador expresion_aritmetica     {Logger.logError(cursor.getCurrentLine(), "Falta de argumento izquierdo en condicion");}
     ;
+
 cuerpo_ejecutable
-    :   cuerpo_ejecutable cuerpo_sentencia_ejecutable //TODO: Poner un mejor nombre a esto
-    ;
-
-
-cuerpo_sentencia_ejecutable
-    :   sentencia_ejecucion ';'
-    |   sentencia_ejecucion_sin_coma
+    :   cuerpo_ejecutable sentencia_ejecucion
+    |   sentencia_ejecucion
     ;
 
 encabezado_iteracion
@@ -483,38 +479,6 @@ semantica_pasaje_error
 
 sentencia_seleccion_retorno
     :   IF parametros_seleccion cuerpo_seleccion_retorno ELSE cuerpo_seleccion_retorno ENDIF {
-            /*
-            auxParserVal = pila.pop();
-            String auxString = getReferencia($5).replaceAll("\\D",""); //Agarramos el valor sin los parentesis
-            Integer aux = Integer.parseInt(auxString);
-            aux++;
-            auxString = "(" + String.valueOf(aux) + ")";
-            ((Terceto)auxParserVal.obj).addSecond(auxString);
-            //System.out.println(" if-else : "+ pila);
-            listaTercetos.add((Terceto)auxParserVal.obj);
-            ((Terceto)auxParserVal.obj).addLine(cursor.getCurrentLine());
-            //Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");
-            $$ = $5;
-            */
-            //Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");
-        }
-    |   IF parametros_seleccion cuerpo_seleccion_retorno ELSE cuerpo_seleccion ENDIF {
-            /*
-            auxParserVal = pila.pop();
-            String auxString = getReferencia($5).replaceAll("\\D",""); //Agarramos el valor sin los parentesis
-            Integer aux = Integer.parseInt(auxString);
-            aux++;
-            auxString = "(" + String.valueOf(aux) + ")";
-            ((Terceto)auxParserVal.obj).addSecond(auxString);
-            //System.out.println(" if-else : "+ pila);
-            listaTercetos.add((Terceto)auxParserVal.obj);
-            ((Terceto)auxParserVal.obj).addLine(cursor.getCurrentLine());
-            //Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");
-            $$ = $5;
-            */
-            //Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");
-        }
-    |   IF parametros_seleccion cuerpo_seleccion ELSE cuerpo_seleccion_retorno ENDIF {
             /*
             auxParserVal = pila.pop();
             String auxString = getReferencia($5).replaceAll("\\D",""); //Agarramos el valor sin los parentesis
