@@ -358,10 +358,14 @@ condicion_error
     |   expresion_aritmetica simbolo_comparador     {Logger.logError(cursor.getCurrentLine(), "Falta de argumento derecho en condicion");}
     |   simbolo_comparador expresion_aritmetica     {Logger.logError(cursor.getCurrentLine(), "Falta de argumento izquierdo en condicion");}
     ;
-
 cuerpo_ejecutable
-    :   cuerpo_ejecutable sentencia_ejecucion
-    |   sentencia_ejecucion
+    :   cuerpo_ejecutable cuerpo_sentencia_ejecutable //TODO: Poner un mejor nombre a esto
+    ;
+
+
+cuerpo_sentencia_ejecutable
+    :   sentencia_ejecucion ';'
+    |   sentencia_ejecucion_sin_coma
     ;
 
 encabezado_iteracion
