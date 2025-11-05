@@ -50,8 +50,7 @@ cuerpo
 
 sentencia
     :   sentencia_declarativa
-    |   sentencia_ejecucion ';'
-    |   sentencia_ejecucion_sin_coma
+    |   sentencia_ejecutable
     ;
 
 sentencia_declarativa
@@ -360,8 +359,12 @@ condicion_error
     ;
 
 cuerpo_ejecutable
-    :   cuerpo_ejecutable sentencia_ejecucion
-    |   sentencia_ejecucion
+    :   cuerpo_ejecutable sentencia_ejecutable
+    |   sentencia_ejecutable
+    ;
+sentencia_ejecutable
+    :   sentencia_ejecucion ';'
+    |   sentencia_ejecucion_sin_coma
     ;
 
 encabezado_iteracion
@@ -525,7 +528,7 @@ factor
     ;
 
 cuerpo_seleccion_retorno
-    :   '{' cuerpo_funcion '}' {
+    :   '{' cuerpo_ejecutable_retorno '}' {
             /*
             if (pila.size() == 1 ) {
                 auxParserVal = pila.pop();
@@ -555,10 +558,13 @@ cuerpo_seleccion_retorno
     ;
 
 cuerpo_iteracion_retorno
-    :   '{' cuerpo_funcion '}'
+    :   '{' cuerpo_ejecutable_retorno '}'
 //    |   cuerpo_iteracion_error
     ;
-
+cuerpo_ejecutable_retorno
+    :   cuerpo_ejecutable sentencia_retorno
+    |   sentencia_retorno
+    ;
 
 invocacion_funcion
     :   FUN ID '(' lista_param_reales ')' {
