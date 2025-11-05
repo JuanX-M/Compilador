@@ -149,8 +149,11 @@ encabezado_funcion_error
     ;
 
 cuerpo_funcion
-    :   cuerpo sentencia_funcion
-    |   sentencia_funcion cuerpo sentencia_funcion
+    :   lista_sentencias_funcion sentencia_retorno
+    ;
+
+lista_sentencias_funcion
+    :   lista_sentencias_funcion sentencia_funcion
     |   sentencia_funcion
     ;
 
@@ -254,6 +257,7 @@ cuerpo_iteracion_error
 
 sentencia_asignacion_unaria
     :   ID TWO_POINTS_ASSIGNATION expresion_aritmetica {
+
             if (!(TablaSimbolos.TABLA_SIMBOLOS.containsKey($1.sval))) {
                 Logger.logError(cursor.getCurrentLine(), "Variable sin declarar");
             };
@@ -291,8 +295,8 @@ lista_param_formales
     ;
 
 sentencia_funcion
-    :   sentencia_ejecucion_retorno ';'
-    |   sentencia_retorno
+    :   sentencia
+    |   sentencia_ejecucion_retorno ';'
     ;
 
 parametro_lambda
