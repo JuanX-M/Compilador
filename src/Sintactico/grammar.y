@@ -150,6 +150,7 @@ encabezado_funcion_error
 
 cuerpo_funcion
     :   lista_sentencias_funcion sentencia_retorno
+    |   sentencia_retorno
     ;
 
 lista_sentencias_funcion
@@ -297,8 +298,12 @@ lista_param_formales
 sentencia_funcion
     :   sentencia
     |   sentencia_ejecucion_retorno ';'
-    ;
+    |   sentencia_ejecucion_retorno_sin_coma
 
+    ;
+sentencia_ejecucion_retorno_sin_coma
+    :   sentencia_ejecucion_retorno  {Logger.logError(cursor.getCurrentLine(), "Falta de ';' al final de las sentencias.");}
+    ;
 parametro_lambda
     :    '(' tipo ID ')'
     ;
@@ -365,6 +370,10 @@ condicion_error
 cuerpo_ejecutable
     :   cuerpo_ejecutable sentencia_ejecutable
     |   sentencia_ejecutable
+    |   cuerpo_ejecutable_error
+    ;
+cuerpo_ejecutable_error
+    :   sentencia_declarativa {Logger.logError(cursor.getCurrentLine(), "No se permiten declaraciones dentro de cuerpos ejecutables");}
     ;
 sentencia_ejecutable
     :   sentencia_ejecucion ';'
