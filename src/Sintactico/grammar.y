@@ -127,7 +127,6 @@ sentencia_seleccion
             aux++;
             auxString = "(" + String.valueOf(aux) + ")";
             ((Terceto)auxParserVal.obj).addSecond(auxString);
-            //System.out.println(" if-else : "+ pila);
             listaTercetos.add((Terceto)auxParserVal.obj);
             ((Terceto)auxParserVal.obj).addLine(cursor.getCurrentLine());
             //Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");
@@ -139,7 +138,7 @@ sentencia_seleccion
             listaTercetos.add((Terceto)auxParserVal.obj);
             ((Terceto)auxParserVal.obj).addLine(cursor.getCurrentLine());
             $$ = $3;
-            //Logger.logRule(cursor.getCurrentLine(), "Sentencia IF");
+            Logger.logRule(cursor.getCurrentLine(), "Sentencia IF");
         }
     |   sentencia_seleccion_sin_endif  {Logger.logError(cursor.getCurrentLine(), "Falta de endif");}
     ;
@@ -165,7 +164,7 @@ encabezado_funcion
             if (TablaSimbolos.TABLA_SIMBOLOS.containsKey($3.sval)) {
                 Logger.logError(cursor.getCurrentLine(), "Redeclaracion de funcion");
             } else {
-                TablaSimbolos.TABLA_SIMBOLOS.put($3.sval,new Info($3.sval, "FUN", "INT", "Funcion", null));
+                TablaSimbolos.TABLA_SIMBOLOS.put($3.sval,new Info($3.sval, $2.sval, "INT", "Funcion", null));
             };
         }
     |   encabezado_funcion_error
@@ -190,24 +189,25 @@ sentencia_lambda
     ;
 
 declaracion_unaria
-    : VAR ID TWO_POINTS_ASSIGNATION expresion_aritmetica {
-                  if (TablaSimbolos.TABLA_SIMBOLOS.containsKey($2.sval)) {
-                      Logger.logError(cursor.getCurrentLine(), "Redeclaracion de variable");}
-                  else {
-                      $2.sval=$2.sval + ".INT." + ambito;
-                      TablaSimbolos.TABLA_SIMBOLOS.put($2.sval,new Info($2.sval, "CTE_INT", "INT", "Variable", ambito));
-                      //System.out.println(TablaSimbolos.TABLA_SIMBOLOS.get($2.sval));
-                  };
-                  $$ = crearTerceto($3, $2, $4);
-                  listaTercetos.add((Terceto)$$.obj);
-                  ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
-              } //TODO: Lexema o ID
+    :   VAR ID TWO_POINTS_ASSIGNATION expresion_aritmetica {
+            if (TablaSimbolos.TABLA_SIMBOLOS.containsKey($2.sval)) {
+                Logger.logError(cursor.getCurrentLine(), "Redeclaracion de variable");}
+            else {
+                $2.sval=$2.sval + ".INT." + ambito;
+                TablaSimbolos.TABLA_SIMBOLOS.put($2.sval,new Info($2.sval, "CTE_INT", "INT", "Variable", ambito));
+                //System.out.println(TablaSimbolos.TABLA_SIMBOLOS.get($2.sval));
+            };
+            $$ = crearTerceto($3, $2, $4);
+            listaTercetos.add((Terceto)$$.obj);
+            ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+        } //TODO: Lexema o ID
     |   declaracion_unaria_error
     ;
 
 declaracion_unaria_error
     : VAR ID expresion_aritmetica    {Logger.logError(cursor.getCurrentLine(), "Falta de asignacion en declaracion de variable");}
     ;
+
 lista_exp_aritmeticas
     :   lista_exp_aritmeticas ',' expresion_aritmetica  {$$ = $3;}
     |   expresion_aritmetica                            {$$ = $1;}
@@ -285,7 +285,6 @@ cuerpo_iteracion_error
 
 sentencia_asignacion_unaria
     :   ID TWO_POINTS_ASSIGNATION expresion_aritmetica {
-
             if (!(TablaSimbolos.TABLA_SIMBOLOS.containsKey($1.sval))) {
                 Logger.logError(cursor.getCurrentLine(), "Variable sin declarar");
             };
@@ -561,10 +560,8 @@ factor
     :   CTE_INT     {$$=$1;}
     |   CTE_FLOAT   {$$=$1;}
     |   invocacion_funcion {
-        //Crear BI a con dest al primer terceto de la funcion
-
-        Logger.logRule(cursor.getCurrentLine(), "Sentencia INVOCACION FUNCION");
-
+            //Crear BI a con dest al primer terceto de la funcion
+            Logger.logRule(cursor.getCurrentLine(), "Sentencia INVOCACION FUNCION");
         }
     |   variable    {$$=$1;}
     ;
