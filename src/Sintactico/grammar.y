@@ -49,14 +49,19 @@ cuerpo
     ;
 
 sentencia
-    :   sentencia_declarativa
+    :   sentencia_declarativa ';'
+    |   sentencia_declarativa_sin_coma
     |   sentencia_ejecutable
     ;
 
 sentencia_declarativa
     :   funcion  {Logger.logRule(cursor.getCurrentLine(), "Sentencia DECLARACION FUNCION");}
-    |   declaracion_variable ';'
-    |   declaracion_variable_sin_coma
+    |   declaracion_variable
+//    |   declaracion_variable_sin_coma
+    ;
+
+sentencia_declarativa_sin_coma
+    :   sentencia_declarativa
     ;
 
 sentencia_ejecucion
@@ -75,16 +80,26 @@ funcion
     |   sentencia_lambda                            {Logger.logRule(cursor.getCurrentLine(), "Sentencia LAMBDA");}
     //|   funcion_error
     ;
+
 declaracion_variable
     :   declaracion_unaria
     ;
 
-declaracion_variable_sin_coma
-    :   declaracion_variable    {Logger.logError(cursor.getCurrentLine(), "Falta de ';' al final de la declaracion de variable.");}
-    ;
+//declaracion_variable_sin_coma
+//    :   declaracion_variable    {Logger.logError(cursor.getCurrentLine(), "Falta de ';' al final de la declaracion de variable.");}
+//    ;
+
 sentencia_print
-    :   PRINT '(' STRING ')'
-    |   PRINT '(' lista_exp_aritmeticas ')'
+    :   PRINT '(' STRING ')' {
+            $$ = crearTerceto($1,$3,null);
+            listaTercetos.add((Terceto)$$.obj);
+            ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+        }
+    |   PRINT '(' lista_exp_aritmeticas ')' {
+            $$ = crearTerceto($1,$3,null);
+            listaTercetos.add((Terceto)$$.obj);
+            ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+        }
     |   sentencia_print_error
     ;
 
@@ -182,8 +197,8 @@ declaracion_unaria_error
     : VAR ID expresion_aritmetica    {Logger.logError(cursor.getCurrentLine(), "Falta de asignacion en declaracion de variable");}
     ;
 lista_exp_aritmeticas
-    :   lista_exp_aritmeticas ',' expresion_aritmetica  {$$.ival = $1.ival + 1;}
-    |   expresion_aritmetica                            {$$.ival = 1;}
+    :   lista_exp_aritmeticas ',' expresion_aritmetica  {$$ = $3;}
+    |   expresion_aritmetica                            {$$ = $1;}
     |   lista_exp_aritmeticas_error
     ;
 
@@ -353,11 +368,11 @@ expresion_aritmetica_error
     ;
 
 condicion
-    :   expresion_aritmetica simbolo_comparador expresion_aritmetica	{
-	        $$=crearTerceto($2,$1,$3);
-	        listaTercetos.add((Terceto)$$.obj);
+    :   expresion_aritmetica simbolo_comparador expresion_aritmetica    {
+            $$=crearTerceto($2,$1,$3);
+            listaTercetos.add((Terceto)$$.obj);
             ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
-	    }
+        }
     |   condicion_error
     ;
 
