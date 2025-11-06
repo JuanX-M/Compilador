@@ -28,19 +28,24 @@
 %%
 
 prog
-    :   ID '{' cuerpo '}'
-            {Logger.logRule(cursor.getCurrentLine(), "Sentencia PROG");
-            ambito = $1.sval;}
+    :   nombre_programa '{' cuerpo '}'
     |   prog_error
     ;
 
 prog_error
-    :   '{' cuerpo '}'      {Logger.logError(cursor.getCurrentLine(), "Falta el nombre del programa");}
-    |   ID '(' cuerpo ')'   {Logger.logError(cursor.getCurrentLine(), "Debe indicar el programa entre {}");}
-    |   ID cuerpo           {Logger.logError(cursor.getCurrentLine(), "Faltan los delimitadores de programa");}
-    |   ID '{' cuerpo       {Logger.logError(cursor.getCurrentLine(), "Falta el delimitador de programa '}'");}
-    |   ID cuerpo '}'       {Logger.logError(cursor.getCurrentLine(), "Falta el delimitador de programa '{'");}
-    |   error               {Logger.logError(cursor.getCurrentLine(), "Hay errores lexicos o sintaticos no identificados");}
+    :   '{' cuerpo '}'                  {Logger.logError(cursor.getCurrentLine(), "Falta el nombre del programa");}
+    |   nombre_programa '(' cuerpo ')'  {Logger.logError(cursor.getCurrentLine(), "Debe indicar el programa entre {}");}
+    |   nombre_programa  cuerpo         {Logger.logError(cursor.getCurrentLine(), "Faltan los delimitadores de programa");}
+    |   nombre_programa  '{' cuerpo     {Logger.logError(cursor.getCurrentLine(), "Falta el delimitador de programa '}'");}
+    |   nombre_programa  cuerpo '}'     {Logger.logError(cursor.getCurrentLine(), "Falta el delimitador de programa '{'");}
+    |   error                           {Logger.logError(cursor.getCurrentLine(), "Hay errores lexicos o sintaticos no identificados");}
+    ;
+
+nombre_programa
+    :   ID {
+            Logger.logRule(cursor.getCurrentLine(), "Sentencia PROG");
+            ambito = $1.sval;
+        }
     ;
 
 cuerpo
@@ -76,8 +81,14 @@ sentencia_ejecucion_sin_coma
     ;
 
 funcion
-    :   encabezado_funcion '{' cuerpo_funcion '}'   {Logger.logRule(cursor.getCurrentLine(), "Sentencia DECLARACION FUNCION");}
-    |   sentencia_lambda                            {Logger.logRule(cursor.getCurrentLine(), "Sentencia LAMBDA");}
+    :   encabezado_funcion '{' cuerpo_funcion '}'   {
+            Logger.logRule(cursor.getCurrentLine(), "Sentencia DECLARACION FUNCION");
+            int pos = ambito.lastIndexOf('.');
+            if (pos != -1) {
+                ambito = ambito.substring(0, pos);
+            }
+        }
+    |   sentencia_lambda    {Logger.logRule(cursor.getCurrentLine(), "Sentencia LAMBDA");}
     //|   funcion_error
     ;
 
@@ -148,7 +159,9 @@ sentencia_asignacion
     ;
 
 encabezado_funcion
-    :   lista_tipos  FUN ID '(' lista_param_formales ')' { //put de funcion
+    :   lista_tipos FUN ID {
+                ambito += '.' + $3.sval;
+            } '(' lista_param_formales ')' { //put de funcion
             if (TablaSimbolos.TABLA_SIMBOLOS.containsKey($3.sval)) {
                 Logger.logError(cursor.getCurrentLine(), "Redeclaracion de funcion");
             } else {
