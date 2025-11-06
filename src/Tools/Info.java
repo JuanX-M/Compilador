@@ -36,7 +36,10 @@ public class Info {
     public String toString() {
         return "Info{ " +
                 "Lexema : " + lexema + " " +
-                ", Token : " + token +
+                ", Token : " + token + " " +
+                ", Tipo : " + tipo + " " +
+                ", Uso : " + uso + " " +
+                ", Ambito : " + ambito + " " +
                 "}";
     }
 
