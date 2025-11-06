@@ -428,10 +428,12 @@ sentencia_ejecucion_retorno
     ;
 
 sentencia_retorno
-    : RETURN '(' lista_exp_aritmeticas ')' ';' {
-    }
+    : RETURN '(' lista_exp_aritmeticas ')' ';'
+    | sentencia_retorno_sin_coma
     ;
-
+sentencia_retorno_sin_coma
+    : RETURN '(' lista_exp_aritmeticas ')'  {Logger.logError(cursor.getCurrentLine(), "Falta de ';' al final de la sentencia return.");}
+    ;
 termino
     :   termino '*' factor {
             $$ = crearTerceto($2, $1, $3);
