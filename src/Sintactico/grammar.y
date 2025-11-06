@@ -152,8 +152,7 @@ encabezado_funcion
             if (TablaSimbolos.TABLA_SIMBOLOS.containsKey($3.sval)) {
                 Logger.logError(cursor.getCurrentLine(), "Redeclaracion de funcion");
             } else {
-                System.out.println($1.sval);
-                //TablaSimbolos.TABLA_SIMBOLOS.put($3.sval,new Info($3.sval,$1, ));
+                TablaSimbolos.TABLA_SIMBOLOS.put($3.sval,new Info($3.sval, "FUN", "INT", "Funcion", null));
             };
         }
     |   encabezado_funcion_error
@@ -297,7 +296,7 @@ sentencia_asignacion_multiple
 
 lista_tipos
     :   lista_tipos ',' tipo    {$$.sval = $1.sval + (",") + $3.sval;}
-    |   tipo                    {$$.sval = $1.sval;}
+    |   tipo                    {$$ = $1;}
     |   lista_tipos_error
     ;
 
@@ -419,8 +418,8 @@ lista_variables_error
     ;
 
 tipo
-    :   INT     {$$.sval = "INT";}
-    |   FLOAT   {$$.sval = "FLOAT";}
+    :   INT     {$$ = $1;}
+    |   FLOAT   {$$ = $1;}
     |   STRING
     ;
 
