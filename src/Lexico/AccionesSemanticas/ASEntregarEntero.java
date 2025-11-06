@@ -33,7 +33,7 @@ public class ASEntregarEntero extends AccionSemantica {
             BUFFER.setLength(0);
             return new Pair<>(aux,TABLA_PALABRAS_RESERVADAS.get("CTE_INT"));
         }
-        TABLA_SIMBOLOS.put(aux,new Info(aux,"CTE_INT", "INT", "uso", "ambito"));
+        TABLA_SIMBOLOS.put(aux,new Info("CTE_INT", "INT"));
         BUFFER.setLength(0);
         return new Pair<>(aux,TABLA_PALABRAS_RESERVADAS.get("CTE_INT"));
     }

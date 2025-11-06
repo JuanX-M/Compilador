@@ -50,9 +50,9 @@ public class ASEntregarFlotante extends AccionSemantica{
             float numero = Float.parseFloat(aux);
             if (Float.isInfinite(numero))
                 throw new NumberFormatException();
-            //if(!TABLA_SIMBOLOS.containsKey(aux)){
-            //    TABLA_SIMBOLOS.put(aux,new Info(aux,"CTE_FLOAT", "FLOAT", ));
-            //}
+            if(!TABLA_SIMBOLOS.containsKey(aux)){
+                TABLA_SIMBOLOS.put(aux,new Info("CTE_FLOAT", "FLOAT"));
+            }
         } catch (NumberFormatException e) {
             BUFFER.setLength(0);
             Logger.logError(cursor.getCurrentLine(), "Excede cantidad de bits");
