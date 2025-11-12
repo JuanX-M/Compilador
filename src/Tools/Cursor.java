@@ -21,9 +21,10 @@ public class Cursor {
     }
 
     public void next() {
-        if (currentLine < PROGRAM.size() && currentColumn < PROGRAM.get(currentLine).size() - 1) { // Avanzamos a la siguiente columna en la misma línea
+        if (currentLine < PROGRAM.size() && (currentColumn < (PROGRAM.get(currentLine).size() - 1))) {  // Avanzamos a la siguiente columna en la misma línea
             currentColumn++;
-        } else if (!hasFinished()) { // Avanzamos a la siguiente línea
+        }
+        else if (!hasFinished()) { // Avanzamos a la siguiente línea
             currentLine++;
             currentColumn = 0;
         }
@@ -31,9 +32,8 @@ public class Cursor {
 
     public void gobackCharacter() {
         // Caso 1: Podemos retroceder dentro de la misma línea.
-        if (currentColumn > 0) {
+        if (currentColumn > 0)
             currentColumn--; // Es lo mismo que currentColumn = currentColumn - 1;
-        }
         // Caso 2: Estamos en la primera columna (0), pero no en la primera línea.
         else if (currentLine > 0) {
             // Nos movemos a la línea anterior.
@@ -52,8 +52,8 @@ public class Cursor {
     public boolean hasFinished() {
         // Si el número de línea actual es igual o mayor que el total de líneas,
         // significa que ya hemos procesado la última línea y hemos terminado.
-        return currentLine >= PROGRAM.size() ||
-                (currentLine == PROGRAM.size() - 1 && currentColumn >= PROGRAM.get(currentLine).size());
+        return ((currentLine >= PROGRAM.size()) ||
+                (currentLine == PROGRAM.size() - 1 && currentColumn >= PROGRAM.get(currentLine).size()));
     }
 
 

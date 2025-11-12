@@ -6,7 +6,7 @@ import Tools.Pair;
 
 import static Tools.TablaPalabrasReservadas.TABLA_PALABRAS_RESERVADAS;
 
-public class ASEntregarPalabras extends AccionSemantica{
+public class ASEntregarPalabras extends AccionSemantica {
 
     public ASEntregarPalabras() {
         super(12);
@@ -20,12 +20,11 @@ public class ASEntregarPalabras extends AccionSemantica{
         try {
             if (TABLA_PALABRAS_RESERVADAS.containsKey(aux))
                 return new Pair<>(aux, TABLA_PALABRAS_RESERVADAS.get(aux));
-             else
+            else
                 throw new IllegalAccessException("Palabra reservada " + aux + " no existe ni se encontro una semenjante");
+        } catch (IllegalAccessException e) {
+            Logger.logError(cursor.getCurrentLine(), e.getMessage());
         }
-            catch (IllegalAccessException e) {
-                Logger.logError(cursor.getCurrentLine(), e.getMessage());
-            }
         return null;
     }
 }
