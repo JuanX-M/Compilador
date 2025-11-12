@@ -159,10 +159,11 @@ sentencia_asignacion
 
 encabezado_funcion
     :   lista_tipos FUN ID {
+            String aux = ambito + '.' + $3.sval;
             if (TablaSimbolos.TABLA_SIMBOLOS.containsKey($3.sval)) {
                 Logger.logError(cursor.getCurrentLine(), "Redeclaracion de funcion");
             } else {
-                TablaSimbolos.TABLA_SIMBOLOS.put($3.sval + "." + $1.sval + "." + ambito ,new Info($3.sval, $2.sval, "INT", "Funcion", ambito));
+                TablaSimbolos.TABLA_SIMBOLOS.put( aux ,new Info($3.sval, $2.sval, "INT", "Funcion", ambito));
                 ambito += '.' + $3.sval;
             }
         } '(' lista_param_formales ')'
@@ -189,7 +190,8 @@ sentencia_lambda
 
 declaracion_unaria
     :   VAR ID TWO_POINTS_ASSIGNATION expresion_aritmetica {
-            String aux = $2.sval + "." + ambito;
+            String aux = ambito + '.' + $2.sval;
+            //TODO: PONER TIPO
             if (TablaSimbolos.TABLA_SIMBOLOS.containsKey(aux)) {
                 Logger.logError(cursor.getCurrentLine(), "Redeclaracion de variable");}
             else {
@@ -200,7 +202,7 @@ declaracion_unaria
             $$ = crearTerceto($3, $2, $4);
             listaTercetos.add((Terceto)$$.obj);
             ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
-        } //TODO: Lexema o ID
+        }
     |   declaracion_unaria_error
     ;
 
@@ -285,7 +287,7 @@ cuerpo_iteracion_error
 
 sentencia_asignacion_unaria
     :   ID TWO_POINTS_ASSIGNATION expresion_aritmetica {
-            String aux = $1.sval + "." + ambito;
+            String aux = ambito + '.' + $1.sval;
             if (!(TablaSimbolos.TABLA_SIMBOLOS.containsKey(aux))) {
                 Logger.logError(cursor.getCurrentLine(), "Variable sin declarar");
             };
@@ -354,6 +356,7 @@ argumento_lambda
 
 expresion_aritmetica
     :   expresion_aritmetica '+' termino  {
+
             $$ = crearTerceto($2, $1, $3);
             listaTercetos.add((Terceto)$$.obj);
             ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
@@ -507,8 +510,21 @@ simbolo_comparador
     ;
 
 variable
-    :   ID          {$$.sval=$1.sval;}
-    |   ID  '.' ID
+    :   ID          {
+            String aux = ambito + '.' + $1.sval;
+            if (!(TablaSimbolos.TABLA_SIMBOLOS.containsKey(aux))) {
+                Logger.logError(cursor.getCurrentLine(), "Variable sin declarar");
+            };
+            $$.sval = aux;
+        }
+    |   ID  '.' ID {
+            String aux = ambito + '.' + $1.sval + "." + $3.sval;
+            System.out.println("Variable compuesta: " + aux);
+            if (!(TablaSimbolos.TABLA_SIMBOLOS.containsKey(aux))) {
+                Logger.logError(cursor.getCurrentLine(), "Variable sin declarar");
+            };
+            $$.sval = aux;
+        }
     ;
 
 semantica_pasaje
