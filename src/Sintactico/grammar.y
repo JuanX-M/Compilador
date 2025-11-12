@@ -159,14 +159,13 @@ sentencia_asignacion
 
 encabezado_funcion
     :   lista_tipos FUN ID {
-                ambito += '.' + $3.sval;
-            } '(' lista_param_formales ')' { //put de funcion
             if (TablaSimbolos.TABLA_SIMBOLOS.containsKey($3.sval)) {
                 Logger.logError(cursor.getCurrentLine(), "Redeclaracion de funcion");
             } else {
-                TablaSimbolos.TABLA_SIMBOLOS.put($3.sval,new Info($3.sval, $2.sval, "INT", "Funcion", null));
-            };
-        }
+                TablaSimbolos.TABLA_SIMBOLOS.put($3.sval + "." + $1.sval + "." + ambito ,new Info($3.sval, $2.sval, "INT", "Funcion", ambito));
+                ambito += '.' + $3.sval;
+            }
+        } '(' lista_param_formales ')'
     |   encabezado_funcion_error
     ;
 
@@ -190,13 +189,14 @@ sentencia_lambda
 
 declaracion_unaria
     :   VAR ID TWO_POINTS_ASSIGNATION expresion_aritmetica {
-            if (TablaSimbolos.TABLA_SIMBOLOS.containsKey($2.sval)) {
+            String aux = $2.sval + "." + ambito;
+            if (TablaSimbolos.TABLA_SIMBOLOS.containsKey(aux)) {
                 Logger.logError(cursor.getCurrentLine(), "Redeclaracion de variable");}
             else {
-                $2.sval=$2.sval + ".INT." + ambito;
-                TablaSimbolos.TABLA_SIMBOLOS.put($2.sval,new Info($2.sval, "CTE_INT", "INT", "Variable", ambito));
+                TablaSimbolos.TABLA_SIMBOLOS.put(aux, new Info($2.sval, "CTE_INT", "INT", "Variable", ambito));
                 //System.out.println(TablaSimbolos.TABLA_SIMBOLOS.get($2.sval));
             };
+            $2.sval = aux;
             $$ = crearTerceto($3, $2, $4);
             listaTercetos.add((Terceto)$$.obj);
             ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
@@ -285,9 +285,11 @@ cuerpo_iteracion_error
 
 sentencia_asignacion_unaria
     :   ID TWO_POINTS_ASSIGNATION expresion_aritmetica {
-            if (!(TablaSimbolos.TABLA_SIMBOLOS.containsKey($1.sval))) {
+            String aux = $1.sval + "." + ambito;
+            if (!(TablaSimbolos.TABLA_SIMBOLOS.containsKey(aux))) {
                 Logger.logError(cursor.getCurrentLine(), "Variable sin declarar");
             };
+            $1.sval = aux;
             $$ = crearTerceto($2, $1, $3);
             listaTercetos.add((Terceto)$$.obj);
             ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
@@ -670,7 +672,6 @@ public static void main (String [] args) {
     for(Terceto t : listaTercetos){
         Logger.logTerceto(t.getLinea(), t);
     }
-
 
     System.out.println("TablaSimbolos: " + TablaSimbolos.TABLA_SIMBOLOS);
     System.out.println(Logger.generateLog());
