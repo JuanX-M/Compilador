@@ -5,7 +5,6 @@ import Tools.LectorArchivo;
 import Tools.Cursor;
 import Tools.Logger;
 import Tools.Pair;
-
 import java.util.stream.Collectors;
 
 public class AnalizadorLexico {
@@ -71,35 +70,42 @@ public class AnalizadorLexico {
         Pair<String, Integer> token = new Pair<>(null, null);
         while (!cursor.hasFinished() && !matrizTransicion.isEstadoFinal(estado)) {
             char caracter = cursor.getCharacter();
+            System.out.println("Caracter es:" + caracter);
+            System.out.println("Estado en el que estoy:" + estado);
             as = matrizTransicion.getAccionSemantica(estado, caracter);
+            if (as != null)
+                System.out.println(as.getNumeroAccionSemantica());
             ESTADO_ANTERIOR = estado;
             estado = matrizTransicion.getEstado(estado, caracter);
+            System.out.println("Estado al que voy:" + estado);
             boolean reiniciar = false;
             if (estado == -1) {
                 new ASError().run(caracter, cursor);
                 estado = 0;
                 reiniciar = true;
             }
-            else if (estado == 28) {
-                Logger.logWarning(cursor.getCurrentLine(),
-                        "Símbolo '" + cursor.getCharacter() + "' inválido, descartado.");
-                new ASVaciarBuffer().run(caracter, cursor);
-                estado = 0;
-                reiniciar = true;
-            }
             else
-                if (as != null) {
-                Pair<String, Integer> posibleToken = as.run(caracter, cursor);
-                    if (posibleToken == null) {
-                        Logger.logWarning(cursor.getCurrentLine(),
-                                "Token inválido descartado. Reiniciando análisis léxico...");
-                        new ASVaciarBuffer().run(caracter, cursor);
-                        estado = 0;
-                        reiniciar = true;
-                    } else {
-                        token = posibleToken;
-                    }
+                if (estado == 28) {
+                    Logger.logWarning(cursor.getCurrentLine(),
+                            "Símbolo '" + cursor.getCharacter() + "' inválido, descartado.");
+                    new ASVaciarBuffer().run(caracter, cursor);
+                    estado = 0;
+                    reiniciar = true;
                 }
+                else
+                    if (as != null) {
+                        Pair<String, Integer> posibleToken = as.run(caracter, cursor);
+                        if (posibleToken == null) {
+                            Logger.logWarning(cursor.getCurrentLine(),
+                                    "Token inválido descartado. Reiniciando análisis léxico...");
+                            new ASVaciarBuffer().run(caracter, cursor);
+                            estado = 0;
+                            reiniciar = true;
+                        }
+                        else {
+                            token = posibleToken;
+                        }
+                    }
             if (reiniciar) {
                 new ASVaciarBuffer().run(caracter, cursor);
                 cursor.next();
@@ -121,10 +127,10 @@ public class AnalizadorLexico {
         return generarToken();
     }
 
-    public ArrayList<Pair<String,Integer>> getTodosLosTokens() {
-        ArrayList<Pair<String,Integer>> salida = new ArrayList<>();
+    public ArrayList<Pair<String, Integer>> getTodosLosTokens() {
+        ArrayList<Pair<String, Integer>> salida = new ArrayList<>();
         while (!cursor.hasFinished()) {
-            Pair<String,Integer> token = generarToken();
+            Pair<String, Integer> token = generarToken();
             if (token != null) {
                 salida.add(token);
             }
