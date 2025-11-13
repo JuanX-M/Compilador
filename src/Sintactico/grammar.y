@@ -120,7 +120,7 @@ sentencia_print_error
 
 //TODO: Se puede permitir declaracion de varibles de lso cuerpos if/else???
 sentencia_seleccion
-    :   IF parametros_seleccion cuerpo_seleccion ELSE cuerpo_seleccion ENDIF    {
+    :   IF parametros_seleccion cuerpo_seleccion ELSE  cuerpo_seleccion ENDIF    {
             auxParserVal = pila.pop();
             String auxString = getReferencia($5).replaceAll("\\D",""); //Agarramos el valor sin los parentesis
             Integer aux = Integer.parseInt(auxString);
@@ -133,8 +133,8 @@ sentencia_seleccion
             $$ = $5;
         }
     |   IF parametros_seleccion cuerpo_seleccion ENDIF{
-            auxParserVal = pila.pop();
             pila.pop(); // Sacamos el BI sin uso
+            auxParserVal = pila.pop();
             listaTercetos.add((Terceto)auxParserVal.obj);
             ((Terceto)auxParserVal.obj).addLine(cursor.getCurrentLine());
             $$ = $3;
@@ -237,8 +237,10 @@ lista_exp_aritmeticas_error
 
 parametros_seleccion
     :   '(' condicion ')'  {
-            pila.push(crearTerceto(new ParserVal("BF"),$2, null));
-            Logger.logRule(cursor.getCurrentLine(), "Sentencia CONDICION");
+    		contadorParaBF++;
+		String bf = "BFIF" + contadorParaBF;
+		pila.push(crearTerceto(new ParserVal(bf),$2, null));
+		Logger.logRule(cursor.getCurrentLine(), "Sentencia CONDICION");
         }
     |   parametros_seleccion_error
     ;
@@ -251,25 +253,28 @@ parametros_seleccion_error
 
 cuerpo_seleccion
     :   '{' cuerpo_ejecutable '}' {
-            if (pila.size() == 1 ) {
+            if (((Terceto)pila.peek().obj).getFirst().contains("BFIF")) {
+
                 auxParserVal = pila.pop();
                 String auxString = getReferencia($2).replaceAll("\\D","");
                 Integer aux = Integer.parseInt(auxString);
                 aux++;
                 auxString = "(" + String.valueOf(aux) + ")";
                 ((Terceto)auxParserVal.obj).addThird(auxString);
-                pila.push(crearTerceto(new ParserVal("BI"), null, null));
                 pila.push(auxParserVal);
+                pila.push(crearTerceto(new ParserVal("BI"), null, null));
             } else{
-                if (pila.size() == 2 ) {
-                    auxParserVal = pila.pop(); //BF esta en la pila con dest. +1
-                    String auxString = ((Terceto)auxParserVal.obj).getThird().replaceAll("\\D","");
+                if (((Terceto)pila.peek().obj).getFirst().contains("BI")) {
+                    auxParserVal = pila.pop(); //BI esta en la pila con dest. +1
+                    auxParserVal2 = pila.pop(); //Tiene el BF
+                    String auxString = ((Terceto)auxParserVal2.obj).getThird().replaceAll("\\D","");
                     Integer aux = Integer.parseInt(auxString);
                     aux++;
                     auxString = "(" + String.valueOf(aux) + ")";
-                    ((Terceto)auxParserVal.obj).addThird(auxString);
-                    listaTercetos.add((Terceto)auxParserVal.obj);
-                    ((Terceto)auxParserVal.obj).addLine(cursor.getCurrentLine());
+                    ((Terceto)auxParserVal2.obj).addThird(auxString);
+                    listaTercetos.add((Terceto)auxParserVal2.obj);
+                    ((Terceto)auxParserVal2.obj).addLine(cursor.getCurrentLine());
+                    pila.push(auxParserVal);
                 };
             };
             $$ = $2;
@@ -281,7 +286,10 @@ cuerpo_seleccion_error
     :   '{' '}' {Logger.logError(cursor.getCurrentLine(), "Falta de cuerpo en seleccion");}
 
 parametros_iteracion
-    :   '(' encabezado_iteracion ')'
+    :   '(' encabezado_iteracion ')' {
+    		$$= crearTerceto(new ParserVal("BF"),$2,null);
+    		pila.push($$);
+    	}
     |   parametros_iteracion_error
     ;
 
@@ -292,7 +300,36 @@ parametros_iteracion_error
     ;
 
 cuerpo_iteracion
-    :   '{' cuerpo_ejecutable '}'
+    :   '{' cuerpo_ejecutable '}'{
+    		System.out.println("Entra");
+    		if (pila.isEmpty())
+    			System.out.println("bbbbb");
+    		$$=pila.pop(); //Saco BF incompleto de la fila
+    		// Hago suma con mas 3
+    		String auxString = getReferencia($2).replaceAll("\\D",""); //Agarramos el valor sin los parentesis
+    		Integer aux = Integer.parseInt(auxString);
+	        aux=aux+3;
+	    	auxString = "(" + String.valueOf(aux) + ")";
+
+    		((Terceto)$$.obj).addThird(auxString); // completo BF y agrego a arraylist
+    		listaTercetos.add((Terceto)$$.obj);
+	        ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+
+	        auxString = String.valueOf(((Terceto)$$.obj).getSecond()).replaceAll("\\D",""); // obtengo referencia del terceto de la condicion que esta en BF
+
+	        int indice = Integer.parseInt(auxString)-1;
+	        System.out.println(indice);
+	        auxString = listaTercetos.get(indice).getSecond(); // accedo a al arraylist para obtener el terceto de la condicion
+		System.out.println(auxString);
+	        auxParserVal = crearTerceto(new ParserVal("+"),new ParserVal(auxString),new ParserVal("1")); // creo hago terceto de suma +1 del for
+	        listaTercetos.add((Terceto)auxParserVal.obj);
+		((Terceto)auxParserVal.obj).addLine(cursor.getCurrentLine());
+		auxString = "(" + Integer.toString(indice+1) + ")";
+		auxParserVal = crearTerceto(new ParserVal("BI"),new ParserVal(auxString),null); // creo BI con direccion al terceto de condicion
+		listaTercetos.add((Terceto)auxParserVal.obj);
+		((Terceto)auxParserVal.obj).addLine(cursor.getCurrentLine());
+
+    	}
     |   cuerpo_iteracion_error
     ;
 
@@ -434,7 +471,39 @@ sentencia_ejecutable
     ;
 
 encabezado_iteracion
-    :   ID FROM CTE_INT TO CTE_INT
+    :   ID FROM CTE_INT TO CTE_INT {
+    	int aux1;
+    	aux1 = Integer.parseInt($3.sval);
+    	int aux2;
+	aux2 = Integer.parseInt($5.sval);
+
+	String aux = ambito + '.' + $1.sval;
+	if (TablaSimbolos.TABLA_SIMBOLOS.containsKey(aux)) {
+		Logger.logError(cursor.getCurrentLine(), "Redeclaracion de variable");}
+	else {
+		TablaSimbolos.TABLA_SIMBOLOS.put(aux, new Info($1.sval, "CTE_INT", "INT", "Variable", ambito));
+		$$ = crearTerceto(new ParserVal(":="),new ParserVal(aux),$3);
+		listaTercetos.add((Terceto)$$.obj);
+		((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+	};
+	if (aux1 == aux2)
+		Logger.logWarning(cursor.getCurrentLine(), "Cuerpo de for no ejecutado debido a constantes iguales");
+	else{
+		if (aux1 < aux2){
+			$$=crearTerceto(new ParserVal("<"), $1, $5); //Creamos el Terceto de la condicion sin la direccion de la suma
+		}
+		else{
+			$$=crearTerceto(new ParserVal(">"), $1, $5); //Creamos el Terceto de la condicion sin la direccion de la resta
+	     	}
+
+		listaTercetos.add((Terceto)$$.obj);
+		((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+		Logger.logRule(cursor.getCurrentLine(), "Sentencia FOR");
+	}
+
+	//pila.push(crearTerceto(new ParserVal("BF"), $$, null));
+
+    }
     |   encabezado_iteracion_error
     ;
 
@@ -567,7 +636,7 @@ semantica_pasaje_error
     ;
 
 sentencia_seleccion_retorno
-    :   IF parametros_seleccion cuerpo_seleccion_retorno ELSE cuerpo_seleccion_retorno ENDIF {
+    :   IF parametros_seleccion cuerpo_seleccion_retorno ELSE {} cuerpo_seleccion_retorno ENDIF {
             /*
             auxParserVal = pila.pop();
             String auxString = getReferencia($5).replaceAll("\\D",""); //Agarramos el valor sin los parentesis
@@ -585,8 +654,8 @@ sentencia_seleccion_retorno
         }
     |   IF parametros_seleccion cuerpo_seleccion_retorno ENDIF {
             /*
-            auxParserVal = pila.pop();
             pila.pop(); // Sacamos el BI sin uso
+            auxParserVal = pila.pop();
             listaTercetos.add((Terceto)auxParserVal.obj);
             ((Terceto)auxParserVal.obj).addLine(cursor.getCurrentLine());
             $$ = $3;
@@ -688,6 +757,8 @@ static String ambito = null;
 static Stack<ParserVal> pila = new Stack<>();
 static ArrayList<Terceto> listaTercetos = new ArrayList<>();
 static ParserVal auxParserVal = new ParserVal();
+static ParserVal auxParserVal2 = new ParserVal();
+static int contadorParaBF = 0;
 public static void main (String [] args) {
 
     System.out.println("Iniciando compilación ... ");
