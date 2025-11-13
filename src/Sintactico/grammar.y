@@ -149,7 +149,10 @@ sentencia_seleccion_sin_endif
     ;
 
 sentencia_iteracion
-    :   FOR parametros_iteracion cuerpo_iteracion  {Logger.logRule(cursor.getCurrentLine(), "Sentencia ITERACION");}
+    :   FOR parametros_iteracion cuerpo_iteracion  {
+        Logger.logRule(cursor.getCurrentLine(), "Sentencia ITERACION");
+        $$=$3;
+        }
     ;
 
 sentencia_asignacion
@@ -254,8 +257,8 @@ parametros_seleccion_error
 cuerpo_seleccion
     :   '{' cuerpo_ejecutable '}' {
             if (((Terceto)pila.peek().obj).getFirst().contains("BFIF")) {
-
                 auxParserVal = pila.pop();
+                System.out.println($2.obj);
                 String auxString = getReferencia($2).replaceAll("\\D","");
                 Integer aux = Integer.parseInt(auxString);
                 aux++;
@@ -316,20 +319,22 @@ cuerpo_iteracion
 	        ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
 
 	        auxString = String.valueOf(((Terceto)$$.obj).getSecond()).replaceAll("\\D",""); // obtengo referencia del terceto de la condicion que esta en BF
-
+            System.out.println("aaaa: "+$$.obj);
 	        int indice = Integer.parseInt(auxString)-1;
 	        System.out.println(indice);
 	        auxString = listaTercetos.get(indice).getSecond(); // accedo a al arraylist para obtener el terceto de la condicion
-		System.out.println(auxString);
+		    System.out.println(auxString);
 	        auxParserVal = crearTerceto(new ParserVal("+"),new ParserVal(auxString),new ParserVal("1")); // creo hago terceto de suma +1 del for
 	        listaTercetos.add((Terceto)auxParserVal.obj);
-		((Terceto)auxParserVal.obj).addLine(cursor.getCurrentLine());
-		auxString = "(" + Integer.toString(indice+1) + ")";
-		auxParserVal = crearTerceto(new ParserVal("BI"),new ParserVal(auxString),null); // creo BI con direccion al terceto de condicion
-		listaTercetos.add((Terceto)auxParserVal.obj);
-		((Terceto)auxParserVal.obj).addLine(cursor.getCurrentLine());
 
+            ((Terceto)auxParserVal.obj).addLine(cursor.getCurrentLine());
+		    auxString = "(" + Integer.toString(indice+1) + ")";
+		    auxParserVal = crearTerceto(new ParserVal("BI"),new ParserVal(auxString),null); // creo BI con direccion al terceto de condicion
+		    listaTercetos.add((Terceto)auxParserVal.obj);
+		    ((Terceto)auxParserVal.obj).addLine(cursor.getCurrentLine());
+            $$=auxParserVal;
     	}
+
     |   cuerpo_iteracion_error
     ;
 
@@ -458,7 +463,9 @@ condicion_error
     ;
 
 cuerpo_ejecutable
-    :   cuerpo_ejecutable sentencia_ejecutable
+    :   cuerpo_ejecutable sentencia_ejecutable {
+            $$=$2;
+        }
     |   sentencia_ejecutable
     |   cuerpo_ejecutable_error
     ;
