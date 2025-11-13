@@ -211,8 +211,23 @@ declaracion_unaria_error
     ;
 
 lista_exp_aritmeticas
-    :   lista_exp_aritmeticas ',' expresion_aritmetica  {$$ = $3;}
-    |   expresion_aritmetica                            {$$ = $1;}
+    :   lista_exp_aritmeticas ',' expresion_aritmetica  {
+            auxParserVal = pila.pop();
+            auxParserVal=crearTerceto(new ParserVal(":="),auxParserVal, $3);
+            listaTercetos.add((Terceto)auxParserVal.obj);
+            ((Terceto)auxParserVal.obj).addLine(cursor.getCurrentLine());
+
+
+        }
+    |   expresion_aritmetica                            {
+
+            auxParserVal = pila.pop();
+            auxParserVal= crearTerceto(new ParserVal(":="),auxParserVal, $1);
+
+            listaTercetos.add((Terceto)auxParserVal.obj);
+            ((Terceto)auxParserVal.obj).addLine(cursor.getCurrentLine());
+
+        }
     |   lista_exp_aritmeticas_error
     ;
 
@@ -304,10 +319,17 @@ sentencia_asignacion_unaria_error
     ;
 
 sentencia_asignacion_multiple
-    :   lista_variables '=' lista_exp_aritmeticas %prec SENTENCIA_ASIGNACION_PREC {
-            if ($1.ival != $3.ival) {
-                Logger.logError(cursor.getCurrentLine(), "La cantidad de variables (" + $1.ival + ") no coincide con la cantidad de expresiones (" + $3.ival + ") en la asignación múltiple.");}
+    :   lista_variables {
+            Stack<ParserVal> tempStack = new Stack<>();
+            while (!pila.isEmpty()) {
+                tempStack.push(pila.pop());
             }
+
+            // Volver a llenar el Stack original
+            pila.addAll(tempStack);
+        } '=' lista_exp_aritmeticas %prec SENTENCIA_ASIGNACION_PREC {
+
+        }
     ;
 
 lista_tipos
@@ -425,8 +447,13 @@ encabezado_iteracion_error
     ;
 
 lista_variables
-    :   lista_variables ',' variable        {$$.ival = $1.ival + 1;}
-    |   variable                            {$$.ival = 1; }
+    :   lista_variables ',' variable        {
+              pila.push($3);
+        }
+    |   variable  {
+           pila.push($1);
+
+        }
     |   lista_variables_error
     ;
 
