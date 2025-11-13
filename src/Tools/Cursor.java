@@ -10,9 +10,12 @@ public class Cursor {
     public Cursor(String programa) {
         LectorArchivo lectorArchivoAux = new LectorArchivo(programa, "data");
         this.PROGRAM = lectorArchivoAux.read();
+        //this.addSalto();
+        imprimirPrograma();
         this.currentLine = 0; //numero de linea arranca en 1 TODO:Preguntar a Marcela
         this.currentColumn = 0;
     }
+
     public Character getCharacter() {
         if (hasFinished()) {
             return null; // Evita IndexOutOfBounds
@@ -56,6 +59,18 @@ public class Cursor {
                 (currentLine == PROGRAM.size() - 1 && currentColumn >= PROGRAM.get(currentLine).size()));
     }
 
+    public boolean hasFinishedLine(){
+        return (currentColumn < (PROGRAM.get(currentLine).size() - 1));
+    }
+
+    /*public void addSalto(){
+        for (ArrayList<Character> linea : PROGRAM.size()) {
+            linea.add('\r');
+            PROGRAM.get(linea.size)
+        }
+    }*/
+
+
 
     public int getCurrentLine() {
         return currentLine + 1;
@@ -77,4 +92,30 @@ public class Cursor {
     public int getCurrentColumn() {
         return currentColumn;
     }
+
+    public void imprimirPrograma() {
+        System.out.println("--- Contenido de PROGRAM ---");
+
+        // 1. Bucle exterior: Recorre cada 'linea' (que es un ArrayList<Character>)
+        //    dentro de 'PROGRAM'.
+        for (ArrayList<Character> linea : PROGRAM) {
+
+            // 2. Bucle interior: Recorre cada 'caracter' (que es un Character)
+            //    dentro de la 'linea' actual.
+            for (Character caracter : linea) {
+
+                // 3. Imprime el caracter. Usamos print() (sin 'ln')
+                //    para que todos los caracteres de una línea salgan juntos.
+                System.out.print(caracter);
+            }
+
+            // 4. (Opcional) Si no incluiste el '\n' con addSalto(),
+            //    descomenta la siguiente línea para que cada línea del
+            //    ArrayList se imprima en una línea de la consola.
+            // System.out.println();
+        }
+
+        System.out.println("\n--- Fin del contenido ---");
+    }
+
 }
