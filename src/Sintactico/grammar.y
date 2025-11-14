@@ -147,17 +147,30 @@ cuerpo_seleccion
 
             pila.push( ((Terceto)$$.obj).getSoloNumTerceto() ); // pusheo el nro de terceto del BI incompleto
 
+            // Creacion etiqueta
+            int numTercetoActual = ((Terceto)$$.obj).getSoloNumTerceto() + 1;
+            String etiqueta = "ETIQUETA"+ numTercetoActual;
+            $$= crearTerceto(new ParserVal(etiqueta),null,null);
+            listaTercetos.add((Terceto)$$.obj);
+            ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+
         } ELSE '{' parte_else '}' {
             //Saco el nro de terceto del BI incompleto de la pila para completarlo haciendo +1
 
             int numTercetoBackpatch = pila.pop(); // hago pop() del nro de terceto del BI incompleto
-
 
             Integer aux= Integer.parseInt(getReferencia($7).replaceAll("\\D","")) + 1 ;
 
             String auxString = "(" + String.valueOf(aux) + ")";
             System.out.println(listaTercetos.get(numTercetoBackpatch -1));
             listaTercetos.get(numTercetoBackpatch -1).addSecond(auxString);// completo el tercer operando del BI
+
+            // Creacion etiqueta
+            int numTercetoActual = listaTercetos.get(listaTercetos.size()-1).getSoloNumTerceto() + 1;
+            String etiqueta = "ETIQUETA" + numTercetoActual;
+            $$= crearTerceto(new ParserVal(etiqueta),null,null);
+            listaTercetos.add((Terceto)$$.obj);
+            ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
 
             $$=$7;
             }
@@ -169,9 +182,11 @@ cuerpo_seleccion
         }
     |   cuerpo_seleccion_error
     ;
+
 cuerpo_seleccion_error
     :   '{' '}' {Logger.logError(cursor.getCurrentLine(), "Falta de cuerpo en seleccion");}
     ;
+
 parte_if
     :   cuerpo_ejecutable {
             //aca se completa BF con nro de terceto del cuerpo_ejecutable + 1
@@ -187,6 +202,7 @@ parte_if
             $$=$1;
         }
     ;
+
 parte_else
     :   cuerpo_ejecutable
     ;
@@ -194,6 +210,7 @@ parte_else
 sentencia_seleccion_sin_endif
     :   IF parametros_seleccion cuerpo_seleccion  {Logger.logError(cursor.getCurrentLine(), "Falta de endif");}
     ;
+
 sentencia_iteracion
     :   FOR parametros_iteracion cuerpo_iteracion  {
         //Creo el terceto de incremento/decremento de la variable de control del for
