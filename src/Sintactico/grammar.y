@@ -658,7 +658,7 @@ semantica_pasaje_error
 
 sentencia_seleccion_retorno
     :   IF parametros_seleccion cuerpo_seleccion_retorno ENDIF {
-
+            $$=$3;
         }
     |   sentencia_seleccion_sin_endif_retorno  {Logger.logError(cursor.getCurrentLine(), "Falta de endif");}
     ;
@@ -666,7 +666,33 @@ sentencia_seleccion_sin_endif_retorno
     :   IF parametros_seleccion cuerpo_seleccion_retorno  {Logger.logError(cursor.getCurrentLine(), "Falta de endif");}
     ;
 sentencia_iteracion_retorno
-    :   FOR parametros_iteracion cuerpo_iteracion_retorno  {Logger.logRule(cursor.getCurrentLine(), "Sentencia ITERACION");}
+    :   FOR parametros_iteracion cuerpo_iteracion_retorno  {
+
+        //Creo el terceto de incremento/decremento de la variable de control del for
+
+        if (((Terceto)$2.obj).getFirst() == "<"){
+            // terceto de incremento
+
+            $$= crearTerceto(new ParserVal("+"), new ParserVal(((Terceto)$2.obj).getSecond()), new ParserVal("1"));
+        }
+        else{
+            //terceto de decremento
+            $$= crearTerceto(new ParserVal("-"), new ParserVal(((Terceto)$2.obj).getSecond()), new ParserVal("1"));
+        }
+        //agrego terceto de incremento/decremento al arraylist
+        listaTercetos.add((Terceto)$$.obj);
+        ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+
+        //Creo terceto BI para volver al inicio de la iteracion y lo agrego
+        $$= crearTerceto(new ParserVal("BI"), $2, null);
+
+        listaTercetos.add((Terceto)$$.obj);
+        ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+
+
+        $$=$3;
+
+        }
     ;
 
 factor
@@ -680,12 +706,62 @@ factor
     ;
 
 cuerpo_seleccion_retorno
-    :  '{' parte_if_retorno '}' {} ELSE '{' parte_else_retorno '}'
-    |  '{' parte_if_retorno '}'
+    :  '{' parte_if_retorno '}' {
+        //Saco el nro de terceto del BF incompleto de la pila
+        int numTercetoBackpatch = pila.pop(); // hago pop() del nro de terceto del BF incompleto
+
+        //Obtengo referencia BF, obtengo su nro de terceto al que salta, parseo a integer  y hago + 1
+        //porque tengo terceto BI y vuelvo agregarlo al BF terceto
+        String auxString= listaTercetos.get(numTercetoBackpatch -1).getThird();
+        Integer aux= Integer.parseInt(auxString.replaceAll("\\D","")) + 1 ;
+
+        auxString = "(" + String.valueOf(aux) + ")";
+        listaTercetos.get(numTercetoBackpatch -1).addThird(auxString); // completo el tercer operando del BF
+
+        //Creo el BI incompleto,agrego al arraylist y su nro de terceto en la pila
+        $$=crearTerceto(new ParserVal("BI"), null, null);
+
+        listaTercetos.add((Terceto)$$.obj);
+        ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+
+        pila.push( ((Terceto)$$.obj).getSoloNumTerceto() ); // pusheo el nro de terceto del BI incompleto
+
+        } ELSE '{' parte_else_retorno '}' {
+            //Saco el nro de terceto del BI incompleto de la pila para completarlo haciendo +1
+
+            int numTercetoBackpatch = pila.pop(); // hago pop() del nro de terceto del BI incompleto
+
+
+            Integer aux= Integer.parseInt(getReferencia($7).replaceAll("\\D","")) + 1 ;
+
+            String auxString = "(" + String.valueOf(aux) + ")";
+            System.out.println(listaTercetos.get(numTercetoBackpatch -1));
+            listaTercetos.get(numTercetoBackpatch -1).addSecond(auxString);// completo el tercer operando del BI
+
+            $$=$7;
+        }
+    |  '{' parte_if_retorno '}' {
+            //Saco el nro de terceto del BF incompleto de la pila ya que no hay ELSE
+            //Aca no creo BI y no hago +1
+            pila.pop();
+            $$=$2;
+        }
     ;
 
 parte_if_retorno
-    :   cuerpo_ejecutable_retorno
+    :   cuerpo_ejecutable_retorno {
+            //aca se completa BF con nro de terceto del cuerpo_ejecutable + 1
+            //
+            int numTercetoBackpatch = pila.peek();
+
+            //obtengo referencia terceto de cuerpo_ejecutable, parseo a integer  y hago + 1
+            Integer aux= Integer.parseInt(getReferencia($1).replaceAll("\\D","")) + 1 ;
+
+            String auxString = "(" + String.valueOf(aux) + ")";
+            listaTercetos.get(numTercetoBackpatch -1).addThird(auxString); /* completo el tercer operando del BF*/
+
+            $$=$1;
+        }
     ;
 
 parte_else_retorno
@@ -693,11 +769,26 @@ parte_else_retorno
     ;
 
 cuerpo_iteracion_retorno
-    :   '{' cuerpo_ejecutable_retorno '}'
+    :   '{' cuerpo_ejecutable_retorno '}' {
+            //Saco el nro de terceto del BF incompleto de la pila
+            int numTercetoBackpatch = pila.pop();
+
+
+            //obtengo referencia terceto de cuerpo_ejecutable, parseo a integer  y hago + 3
+            // porque tengo terceto BI y terceto de incremeto de variable de control del for
+            System.out.println("Raaa: " + $2.obj);
+            Integer aux= Integer.parseInt(getReferencia($2).replaceAll("\\D","")) + 3 ;
+
+            String auxString = "(" + String.valueOf(aux) + ")";
+            listaTercetos.get(numTercetoBackpatch -1).addThird(auxString); /* completo el tercer operando del BF*/
+
+        }
 //    |   cuerpo_iteracion_error
     ;
 cuerpo_ejecutable_retorno
-    :   cuerpo_ejecutable sentencia_retorno
+    :   cuerpo_ejecutable sentencia_retorno {
+            $$=$2;
+        }
     |   sentencia_retorno
     ;
 
