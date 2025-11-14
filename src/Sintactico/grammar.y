@@ -178,6 +178,14 @@ cuerpo_seleccion
             //Saco el nro de terceto del BF incompleto de la pila ya que no hay ELSE
             //Aca no creo BI y no hago +1
             pila.pop();
+
+            // Creacion etiqueta
+            int numTercetoActual = listaTercetos.get(listaTercetos.size()-1).getSoloNumTerceto() + 1;
+            String etiqueta = "ETIQUETA" + numTercetoActual;
+            $$= crearTerceto(new ParserVal(etiqueta),null,null);
+            listaTercetos.add((Terceto)$$.obj);
+            ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+
             $$=$2;
         }
     |   cuerpo_seleccion_error
