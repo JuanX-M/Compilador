@@ -118,7 +118,6 @@ sentencia_print_error
     :   PRINT '(' ')'       {Logger.logError(cursor.getCurrentLine(), "Falta argumento en sentencia PRINT");}
     ;
 
-
 sentencia_seleccion
     :   IF parametros_seleccion cuerpo_seleccion  ENDIF  {
             $$=$3;
@@ -236,12 +235,21 @@ sentencia_iteracion
         listaTercetos.add((Terceto)$$.obj);
         ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
 
+        int aux = ((Terceto)$2.obj).getSoloNumTerceto()-1; //Necesito la posicion de la etiqueta
+        String aux2 = "(" + String.valueOf(aux) + ")";
+
         //Creo terceto BI para volver al inicio de la iteracion y lo agrego
-        $$= crearTerceto(new ParserVal("BI"), $2, null);
+        $$= crearTerceto(new ParserVal("BI"), new ParserVal(aux2), null);
 
         listaTercetos.add((Terceto)$$.obj);
         ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
 
+        // Creacion etiqueta
+        int numTercetoActual = listaTercetos.get(listaTercetos.size()-1).getSoloNumTerceto() + 1;
+        String etiqueta = "ETIQUETA" + numTercetoActual;
+        $$= crearTerceto(new ParserVal(etiqueta),null,null);
+        listaTercetos.add((Terceto)$$.obj);
+        ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
 
         $$=$3;
         }
@@ -347,6 +355,7 @@ parametros_seleccion_error
 
 parametros_iteracion
     :   '(' encabezado_iteracion ')' {
+
             //creacion de terceto BF incompleto, pusheamos a la pila su nro de terceto y agregamos arraylist
             $$= crearTerceto(new ParserVal("BF"), $2, null);
 
@@ -542,10 +551,19 @@ encabezado_iteracion
             Logger.logError(cursor.getCurrentLine(), "Redeclaracion de variable");}
         else {
             //Creacion y Asignacion de variable de control del for
+
             TablaSimbolos.TABLA_SIMBOLOS.put(aux, new Info($1.sval, "CTE_INT", "INT", "Variable", ambito));
             $$ = crearTerceto(new ParserVal(":="),new ParserVal(aux),$3);
             listaTercetos.add((Terceto)$$.obj);
             ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+
+            // Creacion etiqueta
+            int numTercetoActual = listaTercetos.get(listaTercetos.size()-1).getSoloNumTerceto() + 1;
+            String etiqueta = "ETIQUETA" + numTercetoActual;
+            $$= crearTerceto(new ParserVal(etiqueta),null,null);
+            listaTercetos.add((Terceto)$$.obj);
+            ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+
         };
         if (aux1 == aux2)
             Logger.logWarning(cursor.getCurrentLine(), "Cuerpo de for no ejecutado debido a constantes iguales");
@@ -561,9 +579,6 @@ encabezado_iteracion
             ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
             Logger.logRule(cursor.getCurrentLine(), "Sentencia FOR");
         }
-
-
-
     }
     |   encabezado_iteracion_error
     ;
