@@ -118,39 +118,106 @@ sentencia_print_error
     :   PRINT '(' ')'       {Logger.logError(cursor.getCurrentLine(), "Falta argumento en sentencia PRINT");}
     ;
 
-//TODO: Se puede permitir declaracion de varibles de lso cuerpos if/else???
+
 sentencia_seleccion
-    :   IF parametros_seleccion cuerpo_seleccion ELSE  cuerpo_seleccion ENDIF    {
-            auxParserVal = pila.pop();
-            String auxString = getReferencia($5).replaceAll("\\D",""); //Agarramos el valor sin los parentesis
-            Integer aux = Integer.parseInt(auxString);
-            aux++;
-            auxString = "(" + String.valueOf(aux) + ")";
-            ((Terceto)auxParserVal.obj).addSecond(auxString);
-            listaTercetos.add((Terceto)auxParserVal.obj);
-            ((Terceto)auxParserVal.obj).addLine(cursor.getCurrentLine());
-            //Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");
-            $$ = $5;
-        }
-    |   IF parametros_seleccion cuerpo_seleccion ENDIF{
-            pila.pop(); // Sacamos el BI sin uso
-            auxParserVal = pila.pop();
-            listaTercetos.add((Terceto)auxParserVal.obj);
-            ((Terceto)auxParserVal.obj).addLine(cursor.getCurrentLine());
-            $$ = $3;
-            Logger.logRule(cursor.getCurrentLine(), "Sentencia IF");
+    :   IF parametros_seleccion cuerpo_seleccion  ENDIF  {
+            $$=$3;
         }
     |   sentencia_seleccion_sin_endif  {Logger.logError(cursor.getCurrentLine(), "Falta de endif");}
     ;
 
-sentencia_seleccion_sin_endif
-    :   IF parametros_seleccion cuerpo_seleccion ELSE cuerpo_seleccion
-    |   IF parametros_seleccion cuerpo_seleccion
+cuerpo_seleccion
+    :  '{' parte_if '}' {
+            //Saco el nro de terceto del BF incompleto de la pila
+            int numTercetoBackpatch = pila.pop(); // hago pop() del nro de terceto del BF incompleto
+
+            //Obtengo referencia BF, obtengo su nro de terceto al que salta, parseo a integer  y hago + 1
+            //porque tengo terceto BI y vuelvo agregarlo al BF terceto
+            String auxString= listaTercetos.get(numTercetoBackpatch -1).getThird();
+            Integer aux= Integer.parseInt(auxString.replaceAll("\\D","")) + 1 ;
+
+            auxString = "(" + String.valueOf(aux) + ")";
+            listaTercetos.get(numTercetoBackpatch -1).addThird(auxString); // completo el tercer operando del BF
+
+            //Creo el BI incompleto,agrego al arraylist y su nro de terceto en la pila
+            $$=crearTerceto(new ParserVal("BI"), null, null);
+
+            listaTercetos.add((Terceto)$$.obj);
+            ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+
+            pila.push( ((Terceto)$$.obj).getSoloNumTerceto() ); // pusheo el nro de terceto del BI incompleto
+
+        } ELSE '{' parte_else '}' {
+            //Saco el nro de terceto del BI incompleto de la pila para completarlo haciendo +1
+
+            int numTercetoBackpatch = pila.pop(); // hago pop() del nro de terceto del BI incompleto
+
+
+            Integer aux= Integer.parseInt(getReferencia($7).replaceAll("\\D","")) + 1 ;
+
+            String auxString = "(" + String.valueOf(aux) + ")";
+            System.out.println(listaTercetos.get(numTercetoBackpatch -1));
+            listaTercetos.get(numTercetoBackpatch -1).addSecond(auxString);// completo el tercer operando del BI
+
+            $$=$7;
+            }
+    |  '{' parte_if '}' {
+            //Saco el nro de terceto del BF incompleto de la pila ya que no hay ELSE
+            //Aca no creo BI y no hago +1
+            pila.pop();
+            $$=$2;
+        }
+    |   cuerpo_seleccion_error
+    ;
+cuerpo_seleccion_error
+    :   '{' '}' {Logger.logError(cursor.getCurrentLine(), "Falta de cuerpo en seleccion");}
+    ;
+parte_if
+    :   cuerpo_ejecutable {
+            //aca se completa BF con nro de terceto del cuerpo_ejecutable + 1
+            //
+            int numTercetoBackpatch = pila.peek();
+
+            //obtengo referencia terceto de cuerpo_ejecutable, parseo a integer  y hago + 1
+            Integer aux= Integer.parseInt(getReferencia($1).replaceAll("\\D","")) + 1 ;
+
+            String auxString = "(" + String.valueOf(aux) + ")";
+            listaTercetos.get(numTercetoBackpatch -1).addThird(auxString); /* completo el tercer operando del BF*/
+
+            $$=$1;
+        }
+    ;
+parte_else
+    :   cuerpo_ejecutable
     ;
 
+sentencia_seleccion_sin_endif
+    :   IF parametros_seleccion cuerpo_seleccion  {Logger.logError(cursor.getCurrentLine(), "Falta de endif");}
+    ;
 sentencia_iteracion
     :   FOR parametros_iteracion cuerpo_iteracion  {
-        Logger.logRule(cursor.getCurrentLine(), "Sentencia ITERACION");
+        //Creo el terceto de incremento/decremento de la variable de control del for
+
+        if (((Terceto)$2.obj).getFirst() == "<"){
+            // terceto de incremento
+
+            $$= crearTerceto(new ParserVal("+"), new ParserVal(((Terceto)$2.obj).getSecond()), new ParserVal("1"));
+        }
+        else{
+            //terceto de decremento
+            $$= crearTerceto(new ParserVal("-"), new ParserVal(((Terceto)$2.obj).getSecond()), new ParserVal("1"));
+        }
+        //agrego terceto de incremento/decremento al arraylist
+        listaTercetos.add((Terceto)$$.obj);
+        ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+
+        //Creo terceto BI para volver al inicio de la iteracion y lo agrego
+        $$= crearTerceto(new ParserVal("BI"), $2, null);
+
+        listaTercetos.add((Terceto)$$.obj);
+        ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+
+
         $$=$3;
         }
     ;
@@ -215,20 +282,9 @@ declaracion_unaria_error
 
 lista_exp_aritmeticas
     :   lista_exp_aritmeticas ',' expresion_aritmetica  {
-            auxParserVal = pila.pop();
-            auxParserVal=crearTerceto(new ParserVal(":="),auxParserVal, $3);
-            listaTercetos.add((Terceto)auxParserVal.obj);
-            ((Terceto)auxParserVal.obj).addLine(cursor.getCurrentLine());
-
 
         }
     |   expresion_aritmetica                            {
-
-            auxParserVal = pila.pop();
-            auxParserVal= crearTerceto(new ParserVal(":="),auxParserVal, $1);
-
-            listaTercetos.add((Terceto)auxParserVal.obj);
-            ((Terceto)auxParserVal.obj).addLine(cursor.getCurrentLine());
 
         }
     |   lista_exp_aritmeticas_error
@@ -240,10 +296,14 @@ lista_exp_aritmeticas_error
 
 parametros_seleccion
     :   '(' condicion ')'  {
-    		contadorParaBF++;
-		String bf = "BFIF" + contadorParaBF;
-		pila.push(crearTerceto(new ParserVal(bf),$2, null));
-		Logger.logRule(cursor.getCurrentLine(), "Sentencia CONDICION");
+            //Creamos terceto BF incompleto, pusheamos a la pila su nro de terceto y agregamos arraylist
+            $$= crearTerceto(new ParserVal("BF"), $2, null);
+
+            int numTercetoActual = ((Terceto)$$.obj).getSoloNumTerceto();
+            pila.push(numTercetoActual);;
+
+            listaTercetos.add((Terceto)$$.obj);
+            ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
         }
     |   parametros_seleccion_error
     ;
@@ -254,44 +314,21 @@ parametros_seleccion_error
     |   condicion       {Logger.logError(cursor.getCurrentLine(), "Falta de '()' en condicion de seleccion");}
     ;
 
-cuerpo_seleccion
-    :   '{' cuerpo_ejecutable '}' {
-            if (((Terceto)pila.peek().obj).getFirst().contains("BFIF")) {
-                auxParserVal = pila.pop();
-                System.out.println($2.obj);
-                String auxString = getReferencia($2).replaceAll("\\D","");
-                Integer aux = Integer.parseInt(auxString);
-                aux++;
-                auxString = "(" + String.valueOf(aux) + ")";
-                ((Terceto)auxParserVal.obj).addThird(auxString);
-                pila.push(auxParserVal);
-                pila.push(crearTerceto(new ParserVal("BI"), null, null));
-            } else{
-                if (((Terceto)pila.peek().obj).getFirst().contains("BI")) {
-                    auxParserVal = pila.pop(); //BI esta en la pila con dest. +1
-                    auxParserVal2 = pila.pop(); //Tiene el BF
-                    String auxString = ((Terceto)auxParserVal2.obj).getThird().replaceAll("\\D","");
-                    Integer aux = Integer.parseInt(auxString);
-                    aux++;
-                    auxString = "(" + String.valueOf(aux) + ")";
-                    ((Terceto)auxParserVal2.obj).addThird(auxString);
-                    listaTercetos.add((Terceto)auxParserVal2.obj);
-                    ((Terceto)auxParserVal2.obj).addLine(cursor.getCurrentLine());
-                    pila.push(auxParserVal);
-                };
-            };
-            $$ = $2;
-        }
-    |   cuerpo_seleccion_error
-    ;
 
-cuerpo_seleccion_error
-    :   '{' '}' {Logger.logError(cursor.getCurrentLine(), "Falta de cuerpo en seleccion");}
 
 parametros_iteracion
     :   '(' encabezado_iteracion ')' {
-    		$$= crearTerceto(new ParserVal("BF"),$2,null);
-    		pila.push($$);
+            //creacion de terceto BF incompleto, pusheamos a la pila su nro de terceto y agregamos arraylist
+            $$= crearTerceto(new ParserVal("BF"), $2, null);
+
+            int numTercetoActual = ((Terceto)$$.obj).getSoloNumTerceto();
+            pila.push(numTercetoActual);
+
+            listaTercetos.add((Terceto)$$.obj);
+            ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+
+            // tengo terceto de condicion de iteracion, para usarlo en creacion de BI y terceto de itereacion del for
+            $$=$2;
     	}
     |   parametros_iteracion_error
     ;
@@ -304,35 +341,18 @@ parametros_iteracion_error
 
 cuerpo_iteracion
     :   '{' cuerpo_ejecutable '}'{
-    		System.out.println("Entra");
-    		if (pila.isEmpty())
-    			System.out.println("bbbbb");
-    		$$=pila.pop(); //Saco BF incompleto de la fila
-    		// Hago suma con mas 3
-    		String auxString = getReferencia($2).replaceAll("\\D",""); //Agarramos el valor sin los parentesis
-    		Integer aux = Integer.parseInt(auxString);
-	        aux=aux+3;
-	    	auxString = "(" + String.valueOf(aux) + ")";
+                //Saco el nro de terceto del BF incompleto de la pila
+                int numTercetoBackpatch = pila.pop();
 
-    		((Terceto)$$.obj).addThird(auxString); // completo BF y agrego a arraylist
-    		listaTercetos.add((Terceto)$$.obj);
-	        ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
 
-	        auxString = String.valueOf(((Terceto)$$.obj).getSecond()).replaceAll("\\D",""); // obtengo referencia del terceto de la condicion que esta en BF
-            System.out.println("aaaa: "+$$.obj);
-	        int indice = Integer.parseInt(auxString)-1;
-	        System.out.println(indice);
-	        auxString = listaTercetos.get(indice).getSecond(); // accedo a al arraylist para obtener el terceto de la condicion
-		    System.out.println(auxString);
-	        auxParserVal = crearTerceto(new ParserVal("+"),new ParserVal(auxString),new ParserVal("1")); // creo hago terceto de suma +1 del for
-	        listaTercetos.add((Terceto)auxParserVal.obj);
+                //obtengo referencia terceto de cuerpo_ejecutable, parseo a integer  y hago + 3
+                // porque tengo terceto BI y terceto de incremeto de variable de control del for
+                System.out.println("Raaa: " + $2.obj);
+                Integer aux= Integer.parseInt(getReferencia($2).replaceAll("\\D","")) + 3 ;
 
-            ((Terceto)auxParserVal.obj).addLine(cursor.getCurrentLine());
-		    auxString = "(" + Integer.toString(indice+1) + ")";
-		    auxParserVal = crearTerceto(new ParserVal("BI"),new ParserVal(auxString),null); // creo BI con direccion al terceto de condicion
-		    listaTercetos.add((Terceto)auxParserVal.obj);
-		    ((Terceto)auxParserVal.obj).addLine(cursor.getCurrentLine());
-            $$=auxParserVal;
+                String auxString = "(" + String.valueOf(aux) + ")";
+                listaTercetos.get(numTercetoBackpatch -1).addThird(auxString); /* completo el tercer operando del BF*/
+
     	}
 
     |   cuerpo_iteracion_error
@@ -362,13 +382,7 @@ sentencia_asignacion_unaria_error
 
 sentencia_asignacion_multiple
     :   lista_variables {
-            Stack<ParserVal> tempStack = new Stack<>();
-            while (!pila.isEmpty()) {
-                tempStack.push(pila.pop());
-            }
 
-            // Volver a llenar el Stack original
-            pila.addAll(tempStack);
         } '=' lista_exp_aritmeticas %prec SENTENCIA_ASIGNACION_PREC {
 
         }
@@ -449,7 +463,8 @@ expresion_aritmetica_error
 
 condicion
     :   expresion_aritmetica simbolo_comparador expresion_aritmetica    {
-            $$=crearTerceto($2,$1,$3);
+            //Crea el terceto de la condicion
+            $$ = crearTerceto($2, $1, $3);
             listaTercetos.add((Terceto)$$.obj);
             ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
         }
@@ -482,33 +497,34 @@ encabezado_iteracion
     	int aux1;
     	aux1 = Integer.parseInt($3.sval);
     	int aux2;
-	aux2 = Integer.parseInt($5.sval);
+        aux2 = Integer.parseInt($5.sval);
 
-	String aux = ambito + '.' + $1.sval;
-	if (TablaSimbolos.TABLA_SIMBOLOS.containsKey(aux)) {
-		Logger.logError(cursor.getCurrentLine(), "Redeclaracion de variable");}
-	else {
-		TablaSimbolos.TABLA_SIMBOLOS.put(aux, new Info($1.sval, "CTE_INT", "INT", "Variable", ambito));
-		$$ = crearTerceto(new ParserVal(":="),new ParserVal(aux),$3);
-		listaTercetos.add((Terceto)$$.obj);
-		((Terceto)$$.obj).addLine(cursor.getCurrentLine());
-	};
-	if (aux1 == aux2)
-		Logger.logWarning(cursor.getCurrentLine(), "Cuerpo de for no ejecutado debido a constantes iguales");
-	else{
-		if (aux1 < aux2){
-			$$=crearTerceto(new ParserVal("<"), $1, $5); //Creamos el Terceto de la condicion sin la direccion de la suma
-		}
-		else{
-			$$=crearTerceto(new ParserVal(">"), $1, $5); //Creamos el Terceto de la condicion sin la direccion de la resta
-	     	}
+        String aux = ambito + '.' + $1.sval;
+        if (TablaSimbolos.TABLA_SIMBOLOS.containsKey(aux)) {
+            Logger.logError(cursor.getCurrentLine(), "Redeclaracion de variable");}
+        else {
+            //Creacion y Asignacion de variable de control del for
+            TablaSimbolos.TABLA_SIMBOLOS.put(aux, new Info($1.sval, "CTE_INT", "INT", "Variable", ambito));
+            $$ = crearTerceto(new ParserVal(":="),new ParserVal(aux),$3);
+            listaTercetos.add((Terceto)$$.obj);
+            ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+        };
+        if (aux1 == aux2)
+            Logger.logWarning(cursor.getCurrentLine(), "Cuerpo de for no ejecutado debido a constantes iguales");
+        else{
+            if (aux1 < aux2){
+                $$=crearTerceto(new ParserVal("<"), $1, $5); //Creamos el Terceto de la condicion menor
+            }
+            else{
+                $$=crearTerceto(new ParserVal(">"), $1, $5); //Creamos el Terceto de la condicion mayor
+                }
 
-		listaTercetos.add((Terceto)$$.obj);
-		((Terceto)$$.obj).addLine(cursor.getCurrentLine());
-		Logger.logRule(cursor.getCurrentLine(), "Sentencia FOR");
-	}
+            listaTercetos.add((Terceto)$$.obj);
+            ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+            Logger.logRule(cursor.getCurrentLine(), "Sentencia FOR");
+        }
 
-	//pila.push(crearTerceto(new ParserVal("BF"), $$, null));
+
 
     }
     |   encabezado_iteracion_error
@@ -524,10 +540,8 @@ encabezado_iteracion_error
 
 lista_variables
     :   lista_variables ',' variable        {
-              pila.push($3);
         }
     |   variable  {
-           pila.push($1);
 
         }
     |   lista_variables_error
@@ -643,36 +657,14 @@ semantica_pasaje_error
     ;
 
 sentencia_seleccion_retorno
-    :   IF parametros_seleccion cuerpo_seleccion_retorno ELSE {} cuerpo_seleccion_retorno ENDIF {
-            /*
-            auxParserVal = pila.pop();
-            String auxString = getReferencia($5).replaceAll("\\D",""); //Agarramos el valor sin los parentesis
-            Integer aux = Integer.parseInt(auxString);
-            aux++;
-            auxString = "(" + String.valueOf(aux) + ")";
-            ((Terceto)auxParserVal.obj).addSecond(auxString);
-            //System.out.println(" if-else : "+ pila);
-            listaTercetos.add((Terceto)auxParserVal.obj);
-            ((Terceto)auxParserVal.obj).addLine(cursor.getCurrentLine());
-            //Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");
-            $$ = $5;
-            */
-            //Logger.logRule(cursor.getCurrentLine(), "Sentencia IF-ELSE");
-        }
-    |   IF parametros_seleccion cuerpo_seleccion_retorno ENDIF {
-            /*
-            pila.pop(); // Sacamos el BI sin uso
-            auxParserVal = pila.pop();
-            listaTercetos.add((Terceto)auxParserVal.obj);
-            ((Terceto)auxParserVal.obj).addLine(cursor.getCurrentLine());
-            $$ = $3;
-            //Logger.logRule(cursor.getCurrentLine(), "Sentencia IF");
-            //Logger.logRule(cursor.getCurrentLine(), "Sentencia IF");
-            */
-        }
-//    |   sentencia_seleccion_sin_endif  {Logger.logError(cursor.getCurrentLine(), "Falta de endif");}
-    ;
+    :   IF parametros_seleccion cuerpo_seleccion_retorno ENDIF {
 
+        }
+    |   sentencia_seleccion_sin_endif_retorno  {Logger.logError(cursor.getCurrentLine(), "Falta de endif");}
+    ;
+sentencia_seleccion_sin_endif_retorno
+    :   IF parametros_seleccion cuerpo_seleccion_retorno  {Logger.logError(cursor.getCurrentLine(), "Falta de endif");}
+    ;
 sentencia_iteracion_retorno
     :   FOR parametros_iteracion cuerpo_iteracion_retorno  {Logger.logRule(cursor.getCurrentLine(), "Sentencia ITERACION");}
     ;
@@ -688,33 +680,16 @@ factor
     ;
 
 cuerpo_seleccion_retorno
-    :   '{' cuerpo_ejecutable_retorno '}' {
-            /*
-            if (pila.size() == 1 ) {
-                auxParserVal = pila.pop();
-                String auxString = getReferencia($2).replaceAll("\\D","");
-                Integer aux = Integer.parseInt(auxString);
-                aux++;
-                auxString = "(" + String.valueOf(aux) + ")";
-                ((Terceto)auxParserVal.obj).addThird(auxString);
-                pila.push(crearTerceto(new ParserVal("BI"), null, null));
-                pila.push(auxParserVal);
-            } else{
-                if (pila.size() == 2 ) {
-                    auxParserVal = pila.pop(); //BF esta en la pila con dest. +1
-                    String auxString = ((Terceto)auxParserVal.obj).getThird().replaceAll("\\D","");
-                    Integer aux = Integer.parseInt(auxString);
-                    aux++;
-                    auxString = "(" + String.valueOf(aux) + ")";
-                    ((Terceto)auxParserVal.obj).addThird(auxString);
-                    listaTercetos.add((Terceto)auxParserVal.obj);
-                    ((Terceto)auxParserVal.obj).addLine(cursor.getCurrentLine());
-                };
-            };
-            $$ = $2;
-            */
-        }
-//    |   cuerpo_seleccion_error
+    :  '{' parte_if_retorno '}' {} ELSE '{' parte_else_retorno '}'
+    |  '{' parte_if_retorno '}'
+    ;
+
+parte_if_retorno
+    :   cuerpo_ejecutable_retorno
+    ;
+
+parte_else_retorno
+    :   cuerpo_ejecutable_retorno
     ;
 
 cuerpo_iteracion_retorno
@@ -761,10 +736,9 @@ static Parser par = null;
 static Cursor cursor = null;
 static Integer numTerceto = 0;
 static String ambito = null;
-static Stack<ParserVal> pila = new Stack<>();
+static Stack<Integer> pila = new Stack<>();
 static ArrayList<Terceto> listaTercetos = new ArrayList<>();
-static ParserVal auxParserVal = new ParserVal();
-static ParserVal auxParserVal2 = new ParserVal();
+
 static int contadorParaBF = 0;
 public static void main (String [] args) {
 
