@@ -282,10 +282,14 @@ declaracion_unaria_error
 
 lista_exp_aritmeticas
     :   lista_exp_aritmeticas ',' expresion_aritmetica  {
-
+            // $1.obj ya es un ArrayList<ParserVal>
+            ((ArrayList<ParserVal>)$1.obj).add($3); // $3 es el ParserVal de la expresion
+            $$ = $1; // Pasa la lista modificada hacia arriba
         }
-    |   expresion_aritmetica                            {
-
+    |   expresion_aritmetica  {
+            ArrayList<ParserVal> exprs = new ArrayList<>();
+            exprs.add($1); // $1 es el ParserVal de 'expresion_aritmetica'
+            $$ = new ParserVal(exprs); // Crea un nuevo ParserVal para contener la lista
         }
     |   lista_exp_aritmeticas_error
     ;
@@ -381,9 +385,18 @@ sentencia_asignacion_unaria_error
     ;
 
 sentencia_asignacion_multiple
-    :   lista_variables {
+    :   lista_variables  '=' lista_exp_aritmeticas %prec SENTENCIA_ASIGNACION_PREC {
+            ArrayList<ParserVal> listaVariables = (ArrayList<ParserVal>)$1.obj;
+            ArrayList<ParserVal> listaExpresiones = (ArrayList<ParserVal>)$3.obj;
+            for (int i = 0; i < listaVariables.size(); i++) {
+                ParserVal variable = listaVariables.get(i);   // El ParserVal de la variable (contiene sval)
+                ParserVal expresion = listaExpresiones.get(i); // El ParserVal de la expresion (contiene sval o obj)
 
-        } '=' lista_exp_aritmeticas %prec SENTENCIA_ASIGNACION_PREC {
+                $$ = crearTerceto(new ParserVal(":="), variable, expresion);
+
+                listaTercetos.add((Terceto)$$.obj);
+                ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+            }
 
         }
     ;
@@ -540,9 +553,13 @@ encabezado_iteracion_error
 
 lista_variables
     :   lista_variables ',' variable        {
+            ((ArrayList<ParserVal>)$1.obj).add($3); // Agrega la nueva variable
+            $$ = $1; // Pasa la lista modificada hacia arriba
         }
     |   variable  {
-
+            ArrayList<ParserVal> vars = new ArrayList<>();
+            vars.add($1); // $1 es el ParserVal de la regla 'variable'
+            $$ = new ParserVal(vars); // Crea un nuevo ParserVal para contener la lista
         }
     |   lista_variables_error
     ;
