@@ -262,7 +262,7 @@ sentencia_asignacion
 
 encabezado_funcion
     :   lista_tipos FUN ID {
-            String aux = ambito + '.' + $3.sval;
+            String aux = $3.sval + '.' + ambito;
             if (TablaSimbolos.TABLA_SIMBOLOS.containsKey($3.sval)) {
                 Logger.logError(cursor.getCurrentLine(), "Redeclaracion de funcion");
             } else {
@@ -293,7 +293,7 @@ sentencia_lambda
 
 declaracion_unaria
     :   VAR ID TWO_POINTS_ASSIGNATION expresion_aritmetica {
-            String aux = ambito + '.' + $2.sval;
+            String aux = $2.sval + '.' + ambito;
             //TODO: PONER TIPO
             if (TablaSimbolos.TABLA_SIMBOLOS.containsKey(aux)) {
                 Logger.logError(cursor.getCurrentLine(), "Redeclaracion de variable");}
@@ -402,7 +402,7 @@ cuerpo_iteracion_error
 
 sentencia_asignacion_unaria
     :   ID TWO_POINTS_ASSIGNATION expresion_aritmetica {
-            String aux = ambito + '.' + $1.sval;
+            String aux = $1.sval + '.' + ambito;
             if (!(TablaSimbolos.TABLA_SIMBOLOS.containsKey(aux))) {
                 Logger.logError(cursor.getCurrentLine(), "Variable sin declarar");
             };
@@ -546,7 +546,7 @@ encabezado_iteracion
     	int aux2;
         aux2 = Integer.parseInt($5.sval);
 
-        String aux = ambito + '.' + $1.sval;
+        String aux = $1.sval + '.' + ambito;
         if (TablaSimbolos.TABLA_SIMBOLOS.containsKey(aux)) {
             Logger.logError(cursor.getCurrentLine(), "Redeclaracion de variable");}
         else {
@@ -685,14 +685,14 @@ simbolo_comparador
 
 variable
     :   ID          {
-            String aux = ambito + '.' + $1.sval;
+            String aux = $1.sval + '.' + ambito;
             if (!(TablaSimbolos.TABLA_SIMBOLOS.containsKey(aux))) {
                 Logger.logError(cursor.getCurrentLine(), "Variable sin declarar");
             };
             $$.sval = aux;
         }
     |   ID  '.' ID {
-            String aux = ambito + '.' + $1.sval + "." + $3.sval;
+            String aux = $1.sval + "." + $3.sval + "." + ambito;
             System.out.println("Variable compuesta: " + aux);
             if (!(TablaSimbolos.TABLA_SIMBOLOS.containsKey(aux))) {
                 Logger.logError(cursor.getCurrentLine(), "Variable sin declarar");
