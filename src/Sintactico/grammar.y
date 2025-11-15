@@ -157,7 +157,7 @@ cuerpo_seleccion
             ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
 
             pila.push( ((Terceto)$$.obj).getSoloNumTerceto() ); // pusheo el nro de terceto del BI incompleto
-
+               //a
             // Creacion etiqueta
             int numTercetoActual = ((Terceto)$$.obj).getSoloNumTerceto() + 1;
             String etiqueta = "ETIQUETA"+ numTercetoActual;
