@@ -274,8 +274,12 @@ sentencia_asignacion
 
 encabezado_funcion
     :   lista_tipos FUN ID {
+
+            //Creacion etiqueta
+
             String aux = $3.sval + '.' + ambito;
-            if (TablaSimbolos.TABLA_SIMBOLOS.containsKey($3.sval)) {
+
+            if (TablaSimbolos.TABLA_SIMBOLOS.containsKey(aux)) {
                 Logger.logError(cursor.getCurrentLine(), "Redeclaracion de funcion");
             } else {
                 TablaSimbolos.TABLA_SIMBOLOS.put( aux ,new InfoFuncion($3.sval,"FUN","FUNCION",ambito, (ArrayList<String>)$1.obj));
@@ -284,7 +288,7 @@ encabezado_funcion
             $$.sval=aux;
             //System.out.println(aux);
         } '(' lista_param_formales ')' {
-                String aux = ambito;
+                String aux = $4.sval;
                 System.out.println("aaaa"+ aux);
                 ((InfoFuncion)TablaSimbolos.TABLA_SIMBOLOS.get(aux)).setListaPrFormales((ArrayList<Info>)$6.obj);
             $$ = $4;
@@ -298,7 +302,7 @@ encabezado_funcion_error
 
 cuerpo_funcion
     :   lista_sentencias_funcion sentencia_retorno {
-            $$=$2;
+            $$ = $2;
         }
     |   sentencia_retorno
     ;
@@ -319,7 +323,8 @@ declaracion_unaria
             if (TablaSimbolos.TABLA_SIMBOLOS.containsKey(aux)) {
                 Logger.logError(cursor.getCurrentLine(), "Redeclaracion de variable");}
             else {
-                TablaSimbolos.TABLA_SIMBOLOS.put(aux, new Info($2.sval, "CTE_INT", "INT", "Variable", ambito));
+                //$4.sval tiene el tipo
+                TablaSimbolos.TABLA_SIMBOLOS.put(aux, new Info($2.sval, "ID", $4.sval.toUpperCase(), "Variable", ambito));
                 //System.out.println(TablaSimbolos.TABLA_SIMBOLOS.get($2.sval));
             };
             $2.sval = aux;
@@ -426,17 +431,31 @@ sentencia_asignacion_unaria
             String aux = $1.sval + '.' + ambito;
             if (!(TablaSimbolos.TABLA_SIMBOLOS.containsKey(aux))) {
                 Logger.logError(cursor.getCurrentLine(), "Variable sin declarar");
+
             };
+
             $1.sval = aux;
             $$ = crearTerceto($2, $1, $3);
             listaTercetos.add((Terceto)$$.obj);
             ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+        }
+    |   ID'.'ID TWO_POINTS_ASSIGNATION expresion_aritmetica {
+                    String aux = $1.sval + '.' + ambito;
+                    if (!(TablaSimbolos.TABLA_SIMBOLOS.containsKey(aux))) {
+                        Logger.logError(cursor.getCurrentLine(), "Variable sin declarar");
+                    };
+
+                    $1.sval = aux;
+                    $$ = crearTerceto($2, $1, $3);
+                    listaTercetos.add((Terceto)$$.obj);
+                    ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
         }
     |   sentencia_asignacion_unaria_error
     ;
 
 sentencia_asignacion_unaria_error
     :   ID expresion_aritmetica     {Logger.logError(cursor.getCurrentLine(), "Falta de asignacion");}
+    |   ID'.'ID expresion_aritmetica     {Logger.logError(cursor.getCurrentLine(), "Falta de asignacion");}
     ;
 
 sentencia_asignacion_multiple
@@ -839,19 +858,21 @@ cuerpo_seleccion_retorno
         pila.push( ((Terceto)$$.obj).getSoloNumTerceto() ); // pusheo el nro de terceto del BI incompleto
 
         } ELSE '{' parte_else_retorno '}' {
-            //Saco el nro de terceto del BI incompleto de la pila para completarlo haciendo +1
+            //Saco el nro de terceto del BI incompleto de la pila para completarlo
+            int numTercetoBackpatch = pila.pop(); // pop() del BI
 
-            int numTercetoBackpatch = pila.pop(); // hago pop() del nro de terceto del BI incompleto
+            // $7 (parte_else_retorno) ya añadió sus tercetos a 'listaTercetos'.
+            // Obtenemos el último terceto de la lista global para el backpatch.
+            Terceto ultimoTercetoDelBloque = listaTercetos.get(listaTercetos.size() - 1);
 
-
-            Integer aux= Integer.parseInt(getReferencia($7).replaceAll("\\D","")) + 1 ;
+            Integer aux = ultimoTercetoDelBloque.getSoloNumTerceto() + 1;
 
             String auxString = "(" + String.valueOf(aux) + ")";
-            System.out.println(listaTercetos.get(numTercetoBackpatch -1));
-            listaTercetos.get(numTercetoBackpatch -1).addSecond(auxString);// completo el tercer operando del BI
+            listaTercetos.get(numTercetoBackpatch - 1).addSecond(auxString);/* completo el segundo operando del BI*/
 
-            $$=$7;
+            $$ = $7; // Propagamos el ArrayList de la parte else
         }
+
     |  '{' parte_if_retorno '}' {
             //Saco el nro de terceto del BF incompleto de la pila ya que no hay ELSE
             //Aca no creo BI y no hago +1
@@ -862,17 +883,20 @@ cuerpo_seleccion_retorno
 
 parte_if_retorno
     :   cuerpo_ejecutable_retorno {
-            //aca se completa BF con nro de terceto del cuerpo_ejecutable + 1
-            //
+            // $1 (cuerpo_ejecutable_retorno) ya añadió sus tercetos a 'listaTercetos'.
+
             int numTercetoBackpatch = pila.peek();
 
-            //obtengo referencia terceto de cuerpo_ejecutable, parseo a integer  y hago + 1
-            Integer aux= Integer.parseInt(getReferencia($1).replaceAll("\\D","")) + 1 ;
+            // Obtenemos el *último* terceto añadido a la lista global para el backpatch.
+            Terceto ultimoTercetoDelBloque = listaTercetos.get(listaTercetos.size() - 1);
+
+            // Usamos el número de ese último terceto
+            Integer aux = ultimoTercetoDelBloque.getSoloNumTerceto() + 1 ;
 
             String auxString = "(" + String.valueOf(aux) + ")";
             listaTercetos.get(numTercetoBackpatch -1).addThird(auxString); /* completo el tercer operando del BF*/
 
-            $$=$1;
+            $$ = $1; /* Propagamos el valor de $1 (el ArrayList de sentencia_retorno) */
         }
     ;
 
@@ -1028,4 +1052,7 @@ private ParserVal crearTerceto(ParserVal operador, ParserVal operando1, ParserVa
     resultado.obj = nuevoTerceto;
     resultado.sval = null;
     return resultado;
+}
+public static boolean chequeoTipos(String str1, String str2) {
+    return str1.toUpperCase().equals(str2.toUpperCase());
 }
