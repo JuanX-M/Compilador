@@ -13,6 +13,7 @@
     import Tools.Logger;
     import Tools.Cursor;
     import Tools.Info;
+    import Tools.InfoFuncion;
     import Tools.Terceto;
 
 %}
@@ -83,10 +84,14 @@ sentencia_ejecucion_sin_coma
 funcion
     :   encabezado_funcion '{' cuerpo_funcion '}'   {
             Logger.logRule(cursor.getCurrentLine(), "Sentencia DECLARACION FUNCION");
+            System.out.println("BBB: "+ $1.sval);
+            ((InfoFuncion)TablaSimbolos.TABLA_SIMBOLOS.get( $1.sval)).setListaExpAritmeticas((ArrayList<Terceto>)$3.obj);
             int pos = ambito.lastIndexOf('.');
             if (pos != -1) {
                 ambito = ambito.substring(0, pos);
             }
+
+
         }
     |   sentencia_lambda    {Logger.logRule(cursor.getCurrentLine(), "Sentencia LAMBDA");}
     //|   funcion_error
@@ -107,9 +112,16 @@ sentencia_print
             ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
         }
     |   PRINT '(' lista_exp_aritmeticas ')' {
-            $$ = crearTerceto($1,$3,null);
-            listaTercetos.add((Terceto)$$.obj);
-            ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+            /* $3.obj es el ArrayList<ParserVal> de las expresiones */
+            ArrayList<ParserVal> expresiones = (ArrayList<ParserVal>)$3.obj;
+
+            /* Iterar y crear un terceto PRINT por cada expresion */
+            for (ParserVal expr : expresiones) {
+                /* 'expr' es el ParserVal (Terceto o ID) que queremos imprimir */
+                $$ = crearTerceto($1, expr, null);
+                listaTercetos.add((Terceto)$$.obj);
+                ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+            }
         }
     |   sentencia_print_error
     ;
@@ -266,10 +278,17 @@ encabezado_funcion
             if (TablaSimbolos.TABLA_SIMBOLOS.containsKey($3.sval)) {
                 Logger.logError(cursor.getCurrentLine(), "Redeclaracion de funcion");
             } else {
-                TablaSimbolos.TABLA_SIMBOLOS.put( aux ,new Info($3.sval, $2.sval, "INT", "Funcion", ambito));
+                TablaSimbolos.TABLA_SIMBOLOS.put( aux ,new InfoFuncion($3.sval,"FUN","FUNCION",ambito, (ArrayList<String>)$1.obj));
                 ambito += '.' + $3.sval;
             }
-        } '(' lista_param_formales ')'
+            $$.sval=aux;
+            //System.out.println(aux);
+        } '(' lista_param_formales ')' {
+                String aux = ambito;
+                System.out.println("aaaa"+ aux);
+                ((InfoFuncion)TablaSimbolos.TABLA_SIMBOLOS.get(aux)).setListaPrFormales((ArrayList<Info>)$6.obj);
+            $$ = $4;
+            }
     |   encabezado_funcion_error
     ;
 
@@ -278,7 +297,9 @@ encabezado_funcion_error
     ;
 
 cuerpo_funcion
-    :   lista_sentencias_funcion sentencia_retorno
+    :   lista_sentencias_funcion sentencia_retorno {
+            $$=$2;
+        }
     |   sentencia_retorno
     ;
 
@@ -436,8 +457,15 @@ sentencia_asignacion_multiple
     ;
 
 lista_tipos
-    :   lista_tipos ',' tipo    {$$.sval = $1.sval + (",") + $3.sval;}
-    |   tipo                    {$$ = $1;}
+    :   lista_tipos ',' tipo    {
+            ((ArrayList<String>)$1.obj).add($3.sval); // Agrega el nuevo tipo
+            $$ = $1; // Pasa la lista modificada hacia arriba
+        }
+    |   tipo                    {
+            ArrayList<String> listaTipos = new ArrayList<>();
+            listaTipos.add($1.sval);
+            $$ = new ParserVal(listaTipos);
+        }
     |   lista_tipos_error
     ;
 
@@ -446,8 +474,16 @@ lista_tipos_error
     ;
 
 lista_param_formales
-    :   lista_param_formales ',' parametro_formal
-    |   parametro_formal
+    :   lista_param_formales ',' parametro_formal{
+            ((ArrayList<Info>)$1.obj).add((Info)$3.obj); // Agrega el nuevo parametro formal
+            $$ = $1; // Pasa la lista modificada hacia arriba
+
+        }
+    |   parametro_formal {
+            ArrayList<Info> listaPrFormales = new ArrayList<>();
+            listaPrFormales.add((Info)$1.obj);
+            $$ = new ParserVal(listaPrFormales);
+        }
     ;
 
 sentencia_funcion
@@ -541,6 +577,7 @@ sentencia_ejecutable
 
 encabezado_iteracion
     :   ID FROM CTE_INT TO CTE_INT {
+
     	int aux1;
     	aux1 = Integer.parseInt($3.sval);
     	int aux2;
@@ -565,6 +602,9 @@ encabezado_iteracion
             ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
 
         };
+
+        //ACA
+
         if (aux1 == aux2)
             Logger.logWarning(cursor.getCurrentLine(), "Cuerpo de for no ejecutado debido a constantes iguales");
         else{
@@ -615,8 +655,12 @@ tipo
     ;
 
 parametro_formal
-    :   semantica_pasaje tipo ID
-    |   tipo ID
+    :   semantica_pasaje tipo ID {
+            $$.obj = new Info($3.sval, "ID", $2.sval, $1.sval,ambito);
+        }
+    |   tipo ID{
+            $$.obj = new Info($2.sval, "ID", $1.sval, "CV",ambito);
+        }
     |   parametro_formal_error
     ;
 
@@ -633,7 +677,13 @@ sentencia_ejecucion_retorno
     ;
 
 sentencia_retorno
-    : RETURN '(' lista_exp_aritmeticas ')' ';'
+    : RETURN '(' lista_exp_aritmeticas ')' ';' {
+             ArrayList<Terceto> tercetos = new ArrayList<>();
+             for (ParserVal val : (ArrayList<ParserVal>)$3.obj) {
+                 tercetos.add((Terceto) val.obj);
+             }
+       $$.obj= tercetos;
+       }
     | sentencia_retorno_sin_coma
     ;
 sentencia_retorno_sin_coma
@@ -702,8 +752,12 @@ variable
     ;
 
 semantica_pasaje
-    :   CR SE
-    |   CR LE
+    :   CR SE {
+            $$.sval = $1.sval + " " + $2.sval;
+        }
+    |   CR LE{
+            $$.sval = $1.sval + " " + $2.sval;
+        }
     |   semantica_pasaje_error
     ;
 
@@ -741,6 +795,7 @@ sentencia_iteracion_retorno
         ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
 
         //Creo terceto BI para volver al inicio de la iteracion y lo agrego
+
         $$= crearTerceto(new ParserVal("BI"), $2, null);
 
         listaTercetos.add((Terceto)$$.obj);
