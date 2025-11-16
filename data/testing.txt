@@ -1,0 +1,9 @@
+## Constantes con el primer y ultimo valor dentro del rango (Para cada tipo de datos asignado). ##
+
+TESTING{
+    if(A - B > C + 1I){
+        var A := B + C;
+    } else {
+        var A := B - C;
+    } endif;
+}

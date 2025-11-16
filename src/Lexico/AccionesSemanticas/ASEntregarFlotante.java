@@ -51,7 +51,7 @@ public class ASEntregarFlotante extends AccionSemantica{
             if (Float.isInfinite(numero))
                 throw new NumberFormatException();
             if(!TABLA_SIMBOLOS.containsKey(aux)){
-                TABLA_SIMBOLOS.put(aux,new Info(aux,TABLA_PALABRAS_RESERVADAS.get("CTE_FLOAT")));
+                TABLA_SIMBOLOS.put(aux,new Info("CTE_FLOAT", "FLOAT"));
             }
         } catch (NumberFormatException e) {
             BUFFER.setLength(0);

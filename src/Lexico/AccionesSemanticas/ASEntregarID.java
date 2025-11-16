@@ -16,16 +16,14 @@ public class ASEntregarID extends AccionSemantica {
 
     @Override
     public Pair<String, Integer> run(Character simbolo, Cursor cursor) {
-        if(BUFFER.length() > 20){
+        if (BUFFER.length() > 20) {
             BUFFER.setLength(20);
-            Logger.logWarning(cursor.getCurrentLine(),"Identificador " + BUFFER + " truncado");
+            Logger.logWarning(cursor.getCurrentLine(), "Identificador " + BUFFER + " truncado");
         }
         String aux = BUFFER.toString();
-        if(!TABLA_SIMBOLOS.containsKey(aux))
-            TABLA_SIMBOLOS.put(aux,new Info(aux,TABLA_PALABRAS_RESERVADAS.get("id")));
         cursor.gobackCharacter();
         BUFFER.setLength(0);
-        return new Pair<>(aux,TABLA_PALABRAS_RESERVADAS.get("id"));
+        return new Pair<>(aux, TABLA_PALABRAS_RESERVADAS.get("id"));
 
     }
 

@@ -73,33 +73,37 @@ public class AnalizadorLexico {
             char caracter = cursor.getCharacter();
             as = matrizTransicion.getAccionSemantica(estado, caracter);
             ESTADO_ANTERIOR = estado;
+            //System.out.print("estado: " + estado + " caracter: " + caracter);
             estado = matrizTransicion.getEstado(estado, caracter);
+            //System.out.println(" siguiente estado: " + estado);
             boolean reiniciar = false;
             if (estado == -1) {
                 new ASError().run(caracter, cursor);
                 estado = 0;
                 reiniciar = true;
             }
-            else if (estado == 28) {
-                Logger.logWarning(cursor.getCurrentLine(),
-                        "Símbolo '" + cursor.getCharacter() + "' inválido, descartado.");
-                new ASVaciarBuffer().run(caracter, cursor);
-                estado = 0;
-                reiniciar = true;
-            }
             else
-                if (as != null) {
-                Pair<String, Integer> posibleToken = as.run(caracter, cursor);
-                    if (posibleToken == null) {
-                        Logger.logWarning(cursor.getCurrentLine(),
-                                "Token inválido descartado. Reiniciando análisis léxico...");
-                        new ASVaciarBuffer().run(caracter, cursor);
-                        estado = 0;
-                        reiniciar = true;
-                    } else {
-                        token = posibleToken;
-                    }
+                if (estado == 28) {
+                    Logger.logWarning(cursor.getCurrentLine(),
+                        "Símbolo '" + cursor.getCharacter() + "' inválido, descartado.");
+                    new ASVaciarBuffer().run(caracter, cursor);
+                    estado = 0;
+                    reiniciar = true;
                 }
+                else
+                    if (as != null) {
+                        Pair<String, Integer> posibleToken = as.run(caracter, cursor);
+                        if (posibleToken == null) {
+                            Logger.logWarning(cursor.getCurrentLine(),
+                                "Token inválido descartado. Reiniciando análisis léxico...");
+                            new ASVaciarBuffer().run(caracter, cursor);
+                            estado = 0;
+                            reiniciar = true;
+                        }
+                        else {
+                            token = posibleToken;
+                        }
+                    }
             if (reiniciar) {
                 new ASVaciarBuffer().run(caracter, cursor);
                 cursor.next();
@@ -111,15 +115,15 @@ public class AnalizadorLexico {
                     return token;
                 }
                 cursor.next();
+                }
             }
-        }
-        if (cursor.hasFinished()) {
+            if (cursor.hasFinished()) {
+                new ASVaciarBuffer().run(' ', cursor);
+                return new Pair<>("EOF", 0);
+            }
             new ASVaciarBuffer().run(' ', cursor);
-            return new Pair<>("EOF", 0);
+            return generarToken();
         }
-        new ASVaciarBuffer().run(' ', cursor);
-        return generarToken();
-    }
 
     public ArrayList<Pair<String,Integer>> getTodosLosTokens() {
         ArrayList<Pair<String,Integer>> salida = new ArrayList<>();
