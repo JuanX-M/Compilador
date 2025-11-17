@@ -969,7 +969,12 @@ termino_error
     ;
 
 expresion_aritmetica_toi
-    :   TOI '(' expresion_aritmetica ')'
+    :   TOI '(' expresion_aritmetica ')' {
+            //CREAR TERCETO toi
+            $$=crearTerceto($1,$2,null);
+            listaTercetos.add((Terceto)$$.obj);
+            ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+    }
     |   expresion_aritmetica_toi_error
     ;
 
