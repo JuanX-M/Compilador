@@ -1,8 +1,7 @@
 ##Falta de comparador en sentencia if##
+
 FALTA%COMPARADOR{
     if (X 1I){
         print("prueba");
-    }endif;
-
-
+    } endif;
 }

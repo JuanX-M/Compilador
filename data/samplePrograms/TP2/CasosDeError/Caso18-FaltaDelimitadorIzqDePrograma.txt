@@ -1,5 +1,5 @@
 ##Caso error cuando Falta Delimitador IZQ de Programa##
+
 FALTADELIMITADORIZQ
     var X:= A;
-
 }

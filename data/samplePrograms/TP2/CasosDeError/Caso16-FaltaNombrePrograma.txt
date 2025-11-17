@@ -1,4 +1,5 @@
 ##Caso error cuando Falta Nombre de Programa##
+
 {
     var X:= A;
 }

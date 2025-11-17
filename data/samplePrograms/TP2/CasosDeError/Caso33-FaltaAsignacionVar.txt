@@ -1,5 +1,5 @@
 ##Falta de asignacion en sentencia asignacion##
+
 FALTA%ASIGNACION{
     var X 2I;
-
 }

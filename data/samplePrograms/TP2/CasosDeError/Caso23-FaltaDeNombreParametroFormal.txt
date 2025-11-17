@@ -1,6 +1,7 @@
 ##Caso error cuando  en declaracion de funcion falta nombre del parametro formal##
+
 FALTA%NOMBRE%PARAMETRO%FORMAL%{
-  int fun FUNCION (int ){
-    return (A);
-  }
+    int fun FUNCION (int ){
+        return (A);
+    }
 }

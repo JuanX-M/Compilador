@@ -1,13 +1,11 @@
 PROGRAMACOMPLEJO{
-
+    var X := 0I;
+    var Y := 0.;
     X, Y = 10I, 20.5;
-
     var Z := toi(Y / 2.0);
-
     var PACIENTE := 0I;
     var A := 123I;
-        if (toi (3.7) == 3I) {
-            print("TOI OK");
-        } endif;
-    }
+    if (toi (3.7) == 3I) {
+        print("TOI OK");
+    } endif;
 }

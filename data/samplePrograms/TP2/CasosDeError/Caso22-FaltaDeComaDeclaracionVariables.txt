@@ -1,5 +1,6 @@
 ##Caso error cuando  en declaracion de variables del lado izquierdo falta , ##
+
 FALTA%COMA%DECLARACACION%VARIABLES%{
-  A B C = X,Z,1I*3I;
+    A B C = X,Z,1I*3I;
 }
 

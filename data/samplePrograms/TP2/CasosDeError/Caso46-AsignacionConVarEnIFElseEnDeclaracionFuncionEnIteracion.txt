@@ -1,12 +1,11 @@
 ##Prueba error cuando se realiza una asignacion de una variable con
 "var" dentro Sentencias Lambda en una declaracion de funcion en un cuerpo iteracion ##
+
 ASIGVARITERIFELSE{
     for (J from 2I to 4I){
         int fun F1(int X) {
             (int A)  {var RESULTADO := VALOR * 2I;} (R)
-
         return (X);
         }
-
     };
 }

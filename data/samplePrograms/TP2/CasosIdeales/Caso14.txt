@@ -1,8 +1,8 @@
 RETORNO%IF{
-int fun F1(int Y){
-    var J:= 1I;
-    if (X < A){
-        var X2 := X1;
-        return (X1);
-    }endif:
+    int fun F1(int Y){
+        var J:= 1I;
+        if (X < A){
+            var X2 := X1;
+            return (X1);
+        }endif:
 }

@@ -1,15 +1,15 @@
 DECLARACIO%NFUNCION {
-int fun F1(int Y){
-
-    for (J from 0I to 5I) {
-         A:=1I;
-         int fun F11(int X1, int X2){
-            X2 := X1;
-            if (A <= X1){
-                A:= A+ 3I;
+    int fun F1(int Y){
+        for (J from 0I to 5I) {
+            A:=1I;
+            int fun F11(int X1, int X2){
+                X2 := X1;
+                if (A <= X1){
+                    A:= A+ 3I;
+                }
+                return (X2);
             }
-            return (X2);
-         }
-    };
+        };
     return(Y);
+    }
 }

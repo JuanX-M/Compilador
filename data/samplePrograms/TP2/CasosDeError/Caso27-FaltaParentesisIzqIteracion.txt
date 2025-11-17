@@ -1,6 +1,7 @@
 ##Caso error cuando  faltan parentesis IZQ en iteracion##
+
 FALTA%PARENTESIS%IZQ%{
- for J from 0I to 5I) {
-     print("prueba");
-     };
+    for J from 0I to 5I) {
+        print("prueba");
+    };
 }

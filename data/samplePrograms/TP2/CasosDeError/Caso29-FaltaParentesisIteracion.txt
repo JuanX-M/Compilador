@@ -1,7 +1,8 @@
 ##Caso error cuando  faltan parentesis DER en iteracion##
 ##Este caso por ahora no anda por##
+
 FALTA%PARENTESIS%{
- for (J from 0I to 5I {
-     print("prueba");
-     };
+    for (J from 0I to 5I {
+        print("prueba");
+    };
 }
