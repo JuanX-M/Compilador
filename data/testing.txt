@@ -1,21 +1,12 @@
-TESTING{
-    float,float,float fun F1 (int X,cr se int Y, cr le int Z){
-        Z:=9I;
-
-        var G := X;
-        var H := 6I;
-        var J := Z;
-
-        Y := 10I;
-
-        return (G,H,J+11I);
-
-    }
-
-    var   D := 2I;
-    var   E := 3I;
-    var   F := 4I;
-
-    A,B,C = fun F1 (D+1I->X,E->Y,F->Z);
-
+MAIN {
+    var X := 1I;
+    int fun F1(int A) {
+        var Y := 2I;
+        int fun F2(int A){
+            var Z :=3I;
+            return(A);
+            var A :=1I;
+        };
+        return(A);
+    };
 }

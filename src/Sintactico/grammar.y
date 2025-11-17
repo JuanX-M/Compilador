@@ -101,7 +101,7 @@ sentencia_declarativa
     ;
 
 sentencia_declarativa_sin_coma
-    :   sentencia_declarativa
+    :   sentencia_declarativa {Logger.logError(cursor.getCurrentLine(), "Falta de ';' al final de las sentencias.");}
     ;
 
 sentencia_ejecucion
@@ -131,7 +131,7 @@ funcion
                 ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
             }
             System.out.println("aaaa" + listaVariables);
-            for (int i = 0; i < listaVariables.size(); i++){
+            for (int i = 0; i < listaVariables.size() && i < listaExpAritmeticas.size(); i++){
                     String auxString=TablaSimbolos.TABLA_SIMBOLOS.get(listaVariables.get(i)).getVarAux();
                     $$=crearTerceto(new ParserVal(":="),new ParserVal(auxString),new ParserVal(listaVariables.get(i)));
                     listaTercetos.add((Terceto)$$.obj);
@@ -451,6 +451,14 @@ cuerpo_funcion
             $$ = $2;
         }
     |   sentencia_retorno
+    |   lista_sentencias_funcion_error
+    ;
+
+lista_sentencias_funcion_error
+    :   lista_sentencias_funcion sentencia_retorno lista_sentencias_funcion{
+        $$ = $2;
+        Logger.logError(cursor.getCurrentLine(), "Sentencias ejecutables luego de un error obligatorio");
+    }
     ;
 
 lista_sentencias_funcion
@@ -818,9 +826,11 @@ cuerpo_ejecutable
     |   sentencia_ejecutable
     |   cuerpo_ejecutable_error
     ;
+
 cuerpo_ejecutable_error
     :   sentencia_declarativa {Logger.logError(cursor.getCurrentLine(), "No se permiten declaraciones dentro de cuerpos ejecutables");}
     ;
+
 sentencia_ejecutable
     :   sentencia_ejecucion ';'
     |   sentencia_ejecucion_sin_coma
@@ -1033,9 +1043,11 @@ sentencia_seleccion_retorno
         }
     |   sentencia_seleccion_sin_endif_retorno  {Logger.logError(cursor.getCurrentLine(), "Falta de endif");}
     ;
+
 sentencia_seleccion_sin_endif_retorno
     :   IF parametros_seleccion cuerpo_seleccion_retorno  {Logger.logError(cursor.getCurrentLine(), "Falta de endif");}
     ;
+
 sentencia_iteracion_retorno
     :   FOR parametros_iteracion cuerpo_iteracion_retorno  {
 
