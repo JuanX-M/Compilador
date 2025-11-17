@@ -6,6 +6,7 @@ import java.util.regex.*;
 
 public class GeneradorAssembler {
 
+    // Estructura interna para manejar los datos del terceto
     private static class Terceto {
         int id;
         String operador;
@@ -24,6 +25,9 @@ public class GeneradorAssembler {
     private Set<String> variablesDeclaradas = new HashSet<>();
     private Map<Integer, String> mapaComparaciones = new HashMap<>();
 
+    // NUEVO: Mapa para guardar las constantes de string (ej: "Hola" -> str_const_1)
+    private Map<String, String> constantesString = new HashMap<>();
+    private int contadorStrings = 0;
 
     public void generarArchivoASM(String rutaEntrada, String rutaSalida) {
         leerTercetos(rutaEntrada);
@@ -40,6 +44,9 @@ public class GeneradorAssembler {
         }
     }
 
+    // ---------------------------------------------------------
+    // 1. LECTURA Y PARSEO
+    // ---------------------------------------------------------
     private void leerTercetos(String ruta) {
         Pattern pattern = Pattern.compile("\\{(\\d+)}\\[(.*?),(.*?),(.*?)\\]");
 
@@ -57,6 +64,7 @@ public class GeneradorAssembler {
 
                     Terceto t = new Terceto(id, op, arg1, arg2);
                     listaTercetos.add(t);
+
                     recolectarVariable(t.op1);
                     recolectarVariable(t.op2);
                 }
@@ -71,9 +79,22 @@ public class GeneradorAssembler {
         if (esReferencia(token)) return;
         if (esNumero(token)) return;
         if (token.startsWith("ETIQUETA")) return;
+
+        // NUEVO: Si empieza con comillas, es un string. Lo guardamos en el mapa.
+        if (token.startsWith("\"")) {
+            if (!constantesString.containsKey(token)) {
+                constantesString.put(token, "str_const_" + (contadorStrings++));
+            }
+            return; // No lo agregamos a variablesDeclaradas (DD)
+        }
+
+        // Si no es nada de lo anterior, es una variable numérica
         variablesDeclaradas.add(limpiarNombre(token));
     }
 
+    // ---------------------------------------------------------
+    // 2. ESCRITURA DEL ASSEMBLER
+    // ---------------------------------------------------------
     private void escribirEncabezado(PrintWriter w) {
         w.println(".386");
         w.println(".model flat, stdcall");
@@ -101,21 +122,21 @@ public class GeneradorAssembler {
         w.println("    pause_msg DB 13, 10, \"Presione Enter para salir...\", 0");
         w.println("    input_char DB ?");
 
-        // Variables temporales
+        // Variables temporales aritméticas
         for (Terceto t : listaTercetos) {
             if (esOperacionAritmetica(t.operador)) {
-                // CORRECCIÓN: Se agrega @ para coincidir con el uso en el código
                 w.println("    @temp_terceto_" + t.id + " DD 0");
             }
         }
-        w.println();
-    }
 
-    private void generarPrint(PrintWriter w, Terceto t) {
-        String valorPrint = resolverOperando(t.op1);
-        w.println("    invoke dwtoa, " + valorPrint + ", addr buffer_print");
-        w.println("    invoke StdOut, addr buffer_print");
-        w.println("    invoke StdOut, addr newline");
+        // Constantes de String (Tu corrección)
+        w.println("    ; Constantes de texto");
+        for (Map.Entry<String, String> entry : constantesString.entrySet()) {
+            // entry.getValue() es la etiqueta (str_const_0)
+            // entry.getKey() es el valor ("Hola")
+            w.println("    " + entry.getValue() + " DB " + entry.getKey() + ", 0");
+        }
+        w.println();
     }
 
     private void escribirSeccionCode(PrintWriter w) {
@@ -138,12 +159,14 @@ public class GeneradorAssembler {
                     w.println("    MOV EAX, " + origen);
                     w.println("    MOV " + destino + ", EAX");
                     break;
+
                 case "+":
                 case "-":
                 case "*":
                 case "/":
                     generarAritmetica(w, t);
                     break;
+
                 case "<":
                 case ">":
                 case "<=":
@@ -153,18 +176,23 @@ public class GeneradorAssembler {
                 case "<>":
                     generarComparacion(w, t);
                     break;
+
                 case "BI":
                     w.println("    JMP " + resolverLabel(t.op1));
                     break;
+
                 case "BF":
                     generarSaltoBF(w, t);
                     break;
+
                 case "CALL":
                     w.println("    CALL " + resolverLabel(t.op1));
                     break;
+
                 case "RET":
                     w.println("    RET");
                     break;
+
                 case "print":
                     generarPrint(w, t);
                     break;
@@ -180,6 +208,28 @@ public class GeneradorAssembler {
         w.println("    invoke StdIn, addr input_char, 1");
         w.println("    invoke ExitProcess, 0");
         w.println("end start");
+    }
+
+    // ---------------------------------------------------------
+    // 3. MÉTODOS AUXILIARES DE GENERACIÓN
+    // ---------------------------------------------------------
+
+    private void generarPrint(PrintWriter w, Terceto t) {
+        String token = t.op1;
+
+        // NUEVO: Lógica inteligente para saber si imprimir Texto o Número
+        if (token.startsWith("\"")) {
+            // Es un string constante (ej: "Nicolas Ortiz")
+            String nombreEtiqueta = constantesString.get(token);
+            w.println("    invoke StdOut, addr " + nombreEtiqueta);
+        } else {
+            // Es una variable numérica o constante numérica
+            String valorPrint = resolverOperando(token);
+            w.println("    invoke dwtoa, " + valorPrint + ", addr buffer_print");
+            w.println("    invoke StdOut, addr buffer_print");
+        }
+
+        w.println("    invoke StdOut, addr newline");
     }
 
     private void generarAritmetica(PrintWriter w, Terceto t) {
@@ -199,7 +249,6 @@ public class GeneradorAssembler {
             w.println("    CDQ");
             w.println("    IDIV ECX");
         }
-        // Uso correcto con @
         w.println("    MOV @temp_terceto_" + t.id + ", EAX");
     }
 
@@ -233,6 +282,10 @@ public class GeneradorAssembler {
         }
         w.println("    " + instruccionSalto + " " + destino);
     }
+
+    // ---------------------------------------------------------
+    // 4. UTILIDADES
+    // ---------------------------------------------------------
 
     private String resolverLabel(String raw) {
         if (raw == null) return "Label_Error";
