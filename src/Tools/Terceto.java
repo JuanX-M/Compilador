@@ -58,8 +58,7 @@ public class Terceto {
 
     @Override
     public String toString() {
-        if (second == null && third == null)
-            return "{" + numTerceto + "}[" + first + "]";
+
         return "{" + numTerceto + "}[" + first + "," + second + "," + third + "]";
     }
 

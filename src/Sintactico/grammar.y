@@ -4,9 +4,9 @@
     import java.util.Stack;
     import java.util.ArrayList;
     import java.util.Comparator;
-
+    import Tools.GeneradorAssembler;
     import Lexico.AnalizadorLexico;
-
+    import Tools.GeneradorAssembler;
     import Tools.TablaSimbolos;
     import Tools.Pair;
     import Tools.TablaPalabrasReservadas;
@@ -55,6 +55,30 @@ nombre_programa
             }
             Logger.logRule(cursor.getCurrentLine(), "Sentencia PROG");
             ambito = $1.sval;
+
+            // -------------------------------------------------------
+            // NUEVO CÓDIGO: Salto al inicio del programa
+            // -------------------------------------------------------
+
+            // 1. Crear el BI (será el Terceto #1)
+            ParserVal tercetoBI = crearTerceto(new ParserVal("BI"), null, null);
+            listaTercetos.add((Terceto)tercetoBI.obj);
+            ((Terceto)tercetoBI.obj).addLine(cursor.getCurrentLine());
+
+            // 2. Crear la Etiqueta de Inicio (será el Terceto #2)
+            // Esto marca explícitamente donde empieza la ejecución lógica
+            int numTercetoEtiqueta = ((Terceto)tercetoBI.obj).getSoloNumTerceto() + 1;
+            String nombreEtiqueta = "ETIQUETA_MAIN"; // O "ETIQUETA" + numTercetoEtiqueta
+            ParserVal tercetoLabel = crearTerceto(new ParserVal(nombreEtiqueta), null, null);
+            listaTercetos.add((Terceto)tercetoLabel.obj);
+            ((Terceto)tercetoLabel.obj).addLine(cursor.getCurrentLine());
+
+            // 3. Completar el BI inmediatamente para que apunte a la etiqueta
+            // Usamos setSecond o setThird según tu convención para BI (usualmente es el destino)
+            String destino = "(" + String.valueOf(numTercetoEtiqueta) + ")";
+            ((Terceto)tercetoBI.obj).addSecond(destino);
+
+            // -------------------------------------------------------
         }
     ;
 
@@ -70,7 +94,8 @@ sentencia
     ;
 
 sentencia_declarativa
-    :   funcion  {Logger.logRule(cursor.getCurrentLine(), "Sentencia DECLARACION FUNCION");}
+    :   funcion  {
+        Logger.logRule(cursor.getCurrentLine(), "Sentencia DECLARACION FUNCION");}
     |   declaracion_variable
 //    |   declaracion_variable_sin_coma
     ;
@@ -123,6 +148,19 @@ funcion
             if (pos != -1) {
                 ambito = ambito.substring(0, pos);
             }
+
+
+            // 1. Sacamos de la pila el número de terceto del BI que se creó en 'lista_tipos'
+            int numTercetoBI = pila.pop();
+
+            // 2. Calculamos a dónde debe saltar (al siguiente terceto disponible después de la función)
+            // Obtenemos el último terceto generado (que es el RET o asignaciones previas) y sumamos 1
+            int numTercetoDestino = listaTercetos.get(listaTercetos.size()-1).getSoloNumTerceto() + 1;
+            String destino = "(" + String.valueOf(numTercetoDestino) + ")";
+
+            // 3. Completamos el BI. Como el BI se creó con (BI, null, null),
+            // el destino suele ir en el segundo operando.
+            listaTercetos.get(numTercetoBI - 1).addSecond(destino);
         }
 
 
@@ -639,6 +677,15 @@ lista_tipos
             $$ = $1; // Pasa la lista modificada hacia arriba, no terceto auxiliar creado ni auxString
         }
     |   tipo                    {
+
+            //Aca se genera Terceto BI incompleto para saltar al siguiente nro terceto para no ejecutar la funcion
+            $$=crearTerceto(new ParserVal ("BI"), null,null);
+            contadorVariablesAuxTercetos++;
+            listaTercetos.add((Terceto)$$.obj);
+            ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+            pila.push( ((Terceto)$$.obj).getSoloNumTerceto());
+
+
             ArrayList<String> listaVariablesAux = new ArrayList<>();
             //lista con variables aux con ambito, se utilizan para chequeos y asignacion luego en los return
 
@@ -1158,7 +1205,7 @@ invocacion_funcion
                 String etiquetaFunc = funcInfo.getNroTercetoEtiqueta();
 
                 // Creamos: [ CALL , etiquetaFunc , null ]
-                ParserVal callTerceto = crearTerceto(new ParserVal("CALL"), new ParserVal("(" + etiquetaFunc + ")"), new ParserVal("null"));
+                ParserVal callTerceto = crearTerceto(new ParserVal("CALL"), new ParserVal(etiquetaFunc ), null);
                 listaTercetos.add((Terceto)callTerceto.obj);
                 ((Terceto)callTerceto.obj).addLine(cursor.getCurrentLine());
 
@@ -1230,7 +1277,6 @@ parametro_real_error
     :   expresion_aritmetica ARROW  {Logger.logError(cursor.getCurrentLine(), "Falta especificacion del parametro formal");}
     ;
 %%
-
 private static int yylval_recognition = 0;
 
 static AnalizadorLexico lex = null;
@@ -1269,12 +1315,21 @@ public static void main (String [] args) {
     for(Terceto t : listaTercetos){
         Logger.logTerceto(t.getLinea(), t);
     }
+    String rutaTercetos = "data/tercetos.txt";
+    String rutaASM = "data/programa.asm";
+
+    Logger.exportarTercetos(rutaTercetos);
+
+    System.out.println("Generando código Assembler...");
+    GeneradorAssembler generador = new GeneradorAssembler();
+    generador.generarArchivoASM(rutaTercetos, rutaASM);
 
     System.out.println("TablaSimbolos: " + TablaSimbolos.TABLA_SIMBOLOS);
     System.out.println(Logger.generateLog());
 
     System.out.println("\nFin compilación");
 }
+
 
 
 int yylex() {

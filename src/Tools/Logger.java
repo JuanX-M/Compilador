@@ -1,10 +1,12 @@
 package Tools;
 
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+
 
 public final class Logger {
     private static final String OUTPUT = "/output/";
@@ -52,7 +54,22 @@ public final class Logger {
         String numeroComoString = linea.substring(inicio + 1, fin);
         return Integer.parseInt(numeroComoString);
     }
+    public static void exportarTercetos(String rutaArchivo) {
+        try (FileWriter writer = new FileWriter(rutaArchivo)) {
+            for (String terceto : tercetos) {
+                String contenido = extraerContenidoTerceto(terceto);
+                writer.write(contenido + "\n");
+            }
+            System.out.println("Archivo de tercetos generado exitosamente en: " + rutaArchivo);
+        } catch (IOException e) {
+            System.err.println("Error al generar el archivo de tercetos: " + e.getMessage());
+        }
+    }
 
+    public static String extraerContenidoTerceto(String linea) {
+        int inicio = linea.indexOf('{');
+        return linea.substring(inicio);
+    }
     public static String generateLog() {
         String out = null;
         out = "\n>>>    LOG \n\n";
