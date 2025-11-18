@@ -36,7 +36,11 @@
     * concatenar cada arralyst de cada funcion con todo lo que esta del lado derecho
     * hacer un for que itere con arralist de variables de lado izq e ir asignando lo del lado derecho, al salir del for descartar resto de variables del lado derecho e informar con warning
 * Chequeo de parametro formal SE,LE
-* Lambda
+* Caracter no disponible en matriz transicion tira error por mas que sea en comentario
+* Errores de Lambda
+  * Falta Tipo
+  * Falta ID
+  * Falta Parametro
 
 
 ### Cosas que andan:
@@ -55,6 +59,7 @@
   * Copia resultado
   * Solo escritura
   * Etc
+* Lambda
 
 ### Aclaraciones de diseño:
 
