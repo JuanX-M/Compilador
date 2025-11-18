@@ -784,7 +784,10 @@ cuerpo_lambda_error
     ;
 
 argumento_lambda
-    :   '(' ID ')'  {$$.sval = $2.sval + "." + ambito;}
+    :   '(' ID ')'  {
+            reducirAmbito();
+            $$.sval = $2.sval + "." + ambito;
+        }
     |   '(' CTE_INT ')'
     |   '(' CTE_FLOAT ')'
     ;
