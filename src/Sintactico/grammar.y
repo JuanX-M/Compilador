@@ -467,7 +467,18 @@ lista_sentencias_funcion
     ;
 
 sentencia_lambda
-    :   parametro_lambda cuerpo_lambda argumento_lambda
+    :   parametro_lambda {
+            // asignamos el argumento al paramtero
+            $$ = crearTerceto(new ParserVal(":="),$1,null);
+            int numTercetoActual = ((Terceto)$$.obj).getSoloNumTerceto();
+            pila.push(numTercetoActual);;
+            listaTercetos.add((Terceto)$$.obj);
+            ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+        } cuerpo_lambda argumento_lambda {
+            reducirAmbito();
+            int numTercetoBackpatch = pila.pop();
+            listaTercetos.get(numTercetoBackpatch -1).addThird(getReferencia($4));
+        }
     ;
 
 declaracion_unaria
@@ -572,7 +583,6 @@ cuerpo_iteracion
 
                 //obtengo referencia terceto de cuerpo_ejecutable, parseo a integer  y hago + 3
                 // porque tengo terceto BI y terceto de incremeto de variable de control del for
-                System.out.println("Raaa: " + $2.obj);
                 Integer aux= Integer.parseInt(getReferencia($2).replaceAll("\\D","")) + 3 ;
 
                 String auxString = "(" + String.valueOf(aux) + ")";
@@ -589,6 +599,8 @@ cuerpo_iteracion_error
 
 sentencia_asignacion_unaria
     :   ID TWO_POINTS_ASSIGNATION expresion_aritmetica {
+
+
             String aux = $1.sval + '.' + ambito;
             if (!(TablaSimbolos.TABLA_SIMBOLOS.containsKey(aux))) {
                 Logger.logError(cursor.getCurrentLine(), "Variable sin declarar");
@@ -753,7 +765,12 @@ sentencia_ejecucion_retorno_sin_coma
     :   sentencia_ejecucion_retorno  {Logger.logError(cursor.getCurrentLine(), "Falta de ';' al final de las sentencias.");}
     ;
 parametro_lambda
-    :    '(' tipo ID ')'
+    :   '(' tipo ID ')' {
+            ambito += ".lambda" + cursor.getCurrentLine();
+            String aux = $3.sval + "." + ambito;
+            TablaSimbolos.TABLA_SIMBOLOS.put(aux, new Info($3.sval, "ID", $2.sval, "Variable", ambito));
+            $$.sval = aux;
+        }
     ;
 
 cuerpo_lambda
@@ -767,7 +784,7 @@ cuerpo_lambda_error
     ;
 
 argumento_lambda
-    :   '(' ID ')'
+    :   '(' ID ')'  {$$.sval = $2.sval + "." + ambito;}
     |   '(' CTE_INT ')'
     |   '(' CTE_FLOAT ')'
     ;
@@ -1419,4 +1436,13 @@ public String getScope(String ambito,String clave){
     }
 
     return null;
+}
+
+private void reducirAmbito(){
+    String auxAmbito = ambito;
+    int pos = auxAmbito.lastIndexOf('.');
+    if (pos != -1) {
+        auxAmbito = auxAmbito.substring(0, pos);
+    }
+    ambito = auxAmbito;
 }
