@@ -615,12 +615,13 @@ sentencia_asignacion_unaria
             };
             Info infoID = TablaSimbolos.TABLA_SIMBOLOS.get(aux);
             Info infoEA = TablaSimbolos.TABLA_SIMBOLOS.get($3.sval);
-            if(infoID.getTipo().equals(infoEA.getTipo())){
+            if(infoEA != null && infoID.getTipo().equals(infoEA.getTipo())){
                 $1.sval = aux;
                 $$ = crearTerceto($2, $1, $3);
                 listaTercetos.add((Terceto)$$.obj);
                 ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
             } else {
+
                 Logger.logError(cursor.getCurrentLine(), "Incompatibilidad de tipos en asignacion unaria");
             }
         }
@@ -826,9 +827,24 @@ argumento_lambda
 expresion_aritmetica
     :   expresion_aritmetica '+' termino  {
             //chequeo semantico de tipo
-            $$ = crearTerceto($2, $1, $3);
-            listaTercetos.add((Terceto)$$.obj);
-            ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+
+            Info infoEA = TablaSimbolos.TABLA_SIMBOLOS.get($1.sval);
+            System.out.println("InfoT sval : "+$1.sval);
+            Info infoT = TablaSimbolos.TABLA_SIMBOLOS.get($3.sval);
+            System.out.println("InfoT: "+TablaSimbolos.TABLA_SIMBOLOS.get($3.sval));
+            System.out.println("InfoEA: "+TablaSimbolos.TABLA_SIMBOLOS.get($3.sval));
+
+            if ( infoEA !=null && infoEA.getTipo().equals(infoT.getTipo()) && infoT !=null ){
+
+                $$ = crearTerceto($2, $1, $3);
+                listaTercetos.add((Terceto)$$.obj);
+                ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+            } else {
+                $$=$3;
+
+            }
+
+
             Logger.logRule(cursor.getCurrentLine(), "Sentencia EXPRESION ARITMETICA");
         }
     |   expresion_aritmetica '-' termino{
@@ -1132,6 +1148,8 @@ sentencia_iteracion_retorno
 
 factor
     :   CTE_INT     {$$=$1;}
+
+
     |   CTE_FLOAT   {$$=$1;}
     |   invocacion_funcion {
             //Crear BI a con dest al primer terceto de la funcion
