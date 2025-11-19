@@ -14,10 +14,12 @@ public class Info {
     private final String tipo;
     private final String uso;
     private final String ambito;
-    private String varAux;
+    private String varAux=null;
 
     private String nroTercetoEtiqueta;
-    private ArrayList<String> listaVariablesRetorno;
+    private ArrayList<String> listaVariablesRetorno=null;
+
+    private ArrayList<String> listaParametrosFormales=null;
 
     public Info(String token, String tipo) {
         this.nombre = null;
@@ -26,8 +28,7 @@ public class Info {
         this.uso = null;
         this.ambito = null;
         this.nroTercetoEtiqueta=null;
-        this.varAux=null;
-        this.listaVariablesRetorno=null;
+
     }
 
     public Info(String nombre, String token, String tipo, String ambito) {
@@ -37,8 +38,7 @@ public class Info {
         this.uso = null;
         this.ambito = ambito;
         this.nroTercetoEtiqueta=null;
-        this.varAux=null;
-        this.listaVariablesRetorno=null;
+
     }
 
     public Info(String nombre, String token, String tipo, String uso, String ambito) {
@@ -48,8 +48,7 @@ public class Info {
         this.uso = uso;
         this.ambito = ambito;
         this.nroTercetoEtiqueta=null;
-        this.varAux=null;
-        this.listaVariablesRetorno=null;
+
     }
 
     public Info(String nombre, String token, String tipo, String uso, String ambito,String nroTercetoEtiqueta) {
@@ -59,8 +58,7 @@ public class Info {
         this.uso = uso;
         this.ambito = ambito;
         this.nroTercetoEtiqueta=nroTercetoEtiqueta;
-        this.varAux=null;
-        this.listaVariablesRetorno=null;
+
     }
 
     @Override
@@ -72,6 +70,7 @@ public class Info {
                 ", Uso: " + uso +
                 ", Ambito: " + ambito +
                 ", listaVariablesRetorno: " + listaVariablesRetorno +
+                ", listaParametrosFormales: " + listaParametrosFormales +
                 "}";
     }
 
@@ -112,5 +111,13 @@ public class Info {
 
     public ArrayList<String> getListaVariablesRetorno() {
         return this.listaVariablesRetorno;
+    }
+
+    public ArrayList<String> getListaParametrosFormales() {
+        return listaParametrosFormales;
+    }
+
+    public void setListaParametrosFormales(ArrayList<String> listaParametrosFormales) {
+        this.listaParametrosFormales = listaParametrosFormales;
     }
 }
