@@ -17,8 +17,7 @@
   * Declaracion de funcion
 
 
-  * TOI
-    * Que no sea de tipo entero (Dar warning)
+
 * Conversiones Explicitas de Float a Int
 * Cuando se detecte una invocacion, se debera generar codigo para la misma, chequeando que el tipo de los
     parametros reales sean compatibles con el tipo de los parametros formales correspondientes, o incluyan la
@@ -65,6 +64,8 @@
 
 
 ### Haciendo:
+* TOI
+    * Que no sea de tipo entero (Dar warning)
 
 
 ### Aclaraciones de diseño:
