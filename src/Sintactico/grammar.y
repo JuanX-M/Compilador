@@ -698,48 +698,23 @@ sentencia_asignacion_multiple
 
             ArrayList<ParserVal> listaVariables = (ArrayList<ParserVal>)$1.obj;
             ArrayList<ParserVal> listaExpresiones = (ArrayList<ParserVal>)$3.obj;
-
-            System.out.println("Variables (Lado Izq): " + listaVariables.size() + " items");
-            for (int i = 0; i < listaVariables.size(); i++) {
-                // Las variables siempre guardan su nombre en .sval
-                System.out.println("  Var[" + i + "]: " + listaVariables.get(i).sval);
+            //TODO: CHEQUEAR COMO ES EL TEMA CON LAS FUNCIONES CON MULTIPLES RETORNOS
+            if (listaVariables.size() != listaExpresiones.size()) {
+                Logger.logError(cursor.getCurrentLine(),
+                    "La cantidad de variables (" + listaVariables.size() + ") no coincide con la cantidad de expresiones (" + listaExpresiones.size() + ").");
             }
 
-            // Imprimir listaExpresiones
-            System.out.println("Expresiones (Lado Der): " + listaExpresiones.size() + " items");
-            for (int i = 0; i < listaExpresiones.size(); i++) {
-                ParserVal expr = listaExpresiones.get(i);
-                String info = "";
+            for (int i = 0; i < listaVariables.size() && i < listaExpresiones.size() ; i++) {
 
-                if (expr.obj != null) {
-                    info = "Terceto/Objeto -> " + expr.obj.toString();
-                } else {
-                    info = "ID/CTE/Aux -> " + expr.sval;
+                ParserVal variable = listaVariables.get(i);   // El ParserVal de la variable (contiene sval)
+                ParserVal expresion = listaExpresiones.get(i); // El ParserVal de la expresion (contiene sval o obj)
+                if (!checkTipo(variable, expresion)) {
+                     Logger.logError(cursor.getCurrentLine(), "Tipo en asignación múltiple (pos " + (i+1) + "): " + "No se puede asignar " + getTipoParserVal(expresion) + " a " + getTipoParserVal(variable));
                 }
-                System.out.println("  Exp[" + i + "]: " + info);
-            }
+                $$ = crearTerceto(new ParserVal(":="), variable, expresion);
 
-            if (listaVariables.size() == listaExpresiones.size()){
-                for (int i = 0; i < listaVariables.size(); i++) {
-                    ParserVal variable = listaVariables.get(i);   // El ParserVal de la variable (contiene sval)
-                    ParserVal expresion = listaExpresiones.get(i); // El ParserVal de la expresion (contiene sval o obj)
-
-                    String aux1 = variable.sval;
-                    String aux2 = expresion.sval;
-                    Info infoID = TablaSimbolos.TABLA_SIMBOLOS.get(aux1);
-                    Info infoEA = TablaSimbolos.TABLA_SIMBOLOS.get(aux2);
-
-                    if(infoID.getTipo().equals(infoEA.getTipo())){
-                        $$ = crearTerceto(new ParserVal(":="), variable, expresion);
-                        listaTercetos.add((Terceto)$$.obj);
-                        ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
-                    } else {
-                        Logger.logError(cursor.getCurrentLine(), "Incompatibilidad de tipos en asignacion multiple");
-                    }
-                }
-            }
-            else {
-                Logger.logError(cursor.getCurrentLine(), "Asignacion multiple con distinto numero de elementos en cada lado");
+                listaTercetos.add((Terceto)$$.obj);
+                ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
             }
         }
     ;

@@ -29,9 +29,11 @@
     * hacer un for que itere con arraylist de variables de lado izq e ir asignando lo del lado derecho, al salir del for descartar resto de variables del lado derecho e informar con warning
 * Chequeo de parametro formal SE,LE
 * Lambda
-
+* Chequeto de ambito
+  * Chequeo de variable
 
 ### Cosas que andan:
+* Misma cantidad de elementos en asignacion multiple
 * Chequeo de tipos
   * Asignacion unaria
   * Expresiones aritmeticas
@@ -58,7 +60,7 @@
 
 ### Haciendo:
 
-* Misma cantidad de elementos en asignacion multiple
+
 
 ### Aclaraciones de diseño:
 
@@ -88,5 +90,3 @@
 
 #### Por hacer
 
-* Chequeto de ambito
-  * Chequeo de variable
