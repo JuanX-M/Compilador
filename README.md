@@ -54,13 +54,13 @@
   * Solo escritura
   * Etc
 * Chequeo de tipos
-  * Asignacion unaria
   * Asignacion multiple
   * Lambda
 
 ### Haciendo:
 * Expresiones aritmeticas
-* Asignacion unaria
+* Chequeo de tipos
+  * Asignacion unaria
 
 ### Aclaraciones de diseño:
 
