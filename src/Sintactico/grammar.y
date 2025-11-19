@@ -475,9 +475,16 @@ sentencia_lambda
             listaTercetos.add((Terceto)$$.obj);
             ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
         } cuerpo_lambda argumento_lambda {
-            reducirAmbito();
+            //reducirAmbito();
+            Info infoPar = TablaSimbolos.TABLA_SIMBOLOS.get($1.sval);
+            Info infoArg = TablaSimbolos.TABLA_SIMBOLOS.get($4.sval);
             int numTercetoBackpatch = pila.pop();
-            listaTercetos.get(numTercetoBackpatch -1).addThird(getReferencia($4));
+            if(infoPar.getTipo().equals(infoArg.getTipo()))
+                listaTercetos.get(numTercetoBackpatch -1).addThird(getReferencia($4));
+            else {
+                listaTercetos.remove(numTercetoBackpatch -1);
+                Logger.logError(cursor.getCurrentLine(), "Incompatibilidad de tipos en parametro y argumento de sentencia Lambda");
+            }
         }
     ;
 
@@ -786,7 +793,7 @@ parametro_lambda
     :   '(' tipo ID ')' {
             ambito += ".lambda" + cursor.getCurrentLine();
             String aux = $3.sval + "." + ambito;
-            TablaSimbolos.TABLA_SIMBOLOS.put(aux, new Info($3.sval, "ID", $2.sval, "Variable", ambito));
+            TablaSimbolos.TABLA_SIMBOLOS.put(aux, new Info($3.sval, "ID", $2.sval.toUpperCase(), "Variable", ambito));
             $$.sval = aux;
         }
     ;
@@ -806,8 +813,14 @@ argumento_lambda
             reducirAmbito();
             $$.sval = $2.sval + "." + ambito;
         }
-    |   '(' CTE_INT ')'
-    |   '(' CTE_FLOAT ')'
+    |   '(' CTE_INT ')' {
+            reducirAmbito();
+            $$.sval = $2.sval;
+        }
+    |   '(' CTE_FLOAT ')' {
+            reducirAmbito();
+            $$.sval = $2.sval;
+        }
     ;
 
 expresion_aritmetica
