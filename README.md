@@ -16,7 +16,6 @@
 
   * Declaracion de funcion
 
-  * Condicion if
 
   * TOI
     * Que no sea de tipo entero (Dar warning)
@@ -36,6 +35,7 @@
   * Chequeo de variable
 
 ### Cosas que andan:
+* Condicion if
 * Misma cantidad de elementos en asignacion multiple
 * Chequeo de tipos
   * Asignacion unaria

@@ -900,7 +900,11 @@ expresion_aritmetica_error
 
 condicion
     :   expresion_aritmetica simbolo_comparador expresion_aritmetica    {
-            //chequeo semantico de tipo
+            //TODO: HAY QUE CHEQUEAR SI ES UNA FUNCION CON MULTIPLES RETORNOS, SI HAY EN ALGUNO DE AMBOS LADOS TIRAR ERROR SEMANTICO
+            //Y AGARRAR EL DEL POSICION 0
+            if (!checkTipo($1, $3)) {
+                 Logger.logError(cursor.getCurrentLine(), "Tipos incompatibles en condicion entre " + getTipoParserVal($1) + " y " + getTipoParserVal($3));
+            }
             //Crea el terceto de la condicion
             $$ = crearTerceto($2, $1, $3);
             listaTercetos.add((Terceto)$$.obj);
