@@ -5,7 +5,6 @@
 * Redeclaracion de variables en diferentes ambitos
 * Chequeo de ambito
   * Chequeo de funcion
-  * Chequeo de variable
 * Chequeo de tipos
   * Parametros formales
   * Parametros reales
@@ -15,7 +14,7 @@
     * Mismo tipo de funcion
     * Mismo tipo que la variable donde se asigna 
   * Condicion if
-  * Expresiones aritmeticas
+
   * TOI
     * Que no sea de tipo entero (Dar warning)
 * Conversiones Explicitas de Float a Int
@@ -50,13 +49,13 @@
   * Solo escritura
   * Etc
 * Chequeo de tipos
-  * Asignacion unaria
   * Asignacion multiple
   * Lambda
 * For
 
 
 ### Haciendo:
+* Expresiones aritmeticas
 
 
 ### Aclaraciones de diseño:
@@ -86,5 +85,7 @@
 
 
 #### Por hacer
-
-hacer set de parametros formales en gramtica a info de la funcion
+* Chequeo de tipos
+  * Asignacion unaria
+* Chequeto de ambito
+  * Chequeo de variable
