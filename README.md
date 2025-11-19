@@ -60,6 +60,7 @@
 
 ### Haciendo:
 * Expresiones aritmeticas
+* Asignacion unaria
 
 ### Aclaraciones de diseño:
 
