@@ -1216,7 +1216,7 @@ cuerpo_iteracion_retorno
 
             //obtengo referencia terceto de cuerpo_ejecutable, parseo a integer  y hago + 3
             // porque tengo terceto BI y terceto de incremeto de variable de control del for
-            System.out.println("Raaa: " + $2.obj);
+            System.out.println("Raaa: " + $2.obj + "Juan que carajo es esto? 19/11/25");
             Integer aux= Integer.parseInt(getReferencia($2).replaceAll("\\D","")) + 3 ;
 
             String auxString = "(" + String.valueOf(aux) + ")";
