@@ -488,8 +488,11 @@ declaracion_unaria
             if (TablaSimbolos.TABLA_SIMBOLOS.containsKey(aux)) {
                 Logger.logError(cursor.getCurrentLine(), "Redeclaracion de variable");}
             else {
-                //$4.sval tiene el tipo
-                TablaSimbolos.TABLA_SIMBOLOS.put(aux, new Info($2.sval, "ID", $4.sval.toUpperCase(), "Variable", ambito));
+                //$4.sval contiene el valor
+                if($4.sval.contains("."))
+                    TablaSimbolos.TABLA_SIMBOLOS.put(aux, new Info($2.sval, "ID", "FLOAT", "Variable", ambito));
+                else
+                    TablaSimbolos.TABLA_SIMBOLOS.put(aux, new Info($2.sval, "ID", "INT", "Variable", ambito));
                 //System.out.println(TablaSimbolos.TABLA_SIMBOLOS.get($2.sval));
             };
             $2.sval = aux;
@@ -599,18 +602,20 @@ cuerpo_iteracion_error
 
 sentencia_asignacion_unaria
     :   ID TWO_POINTS_ASSIGNATION expresion_aritmetica {
-
-
             String aux = $1.sval + '.' + ambito;
             if (!(TablaSimbolos.TABLA_SIMBOLOS.containsKey(aux))) {
                 Logger.logError(cursor.getCurrentLine(), "Variable sin declarar");
-
             };
-
-            $1.sval = aux;
-            $$ = crearTerceto($2, $1, $3);
-            listaTercetos.add((Terceto)$$.obj);
-            ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+            Info infoID = TablaSimbolos.TABLA_SIMBOLOS.get(aux);
+            Info infoEA = TablaSimbolos.TABLA_SIMBOLOS.get($3.sval);
+            if(infoID.getTipo().equals(infoEA.getTipo())){
+                $1.sval = aux;
+                $$ = crearTerceto($2, $1, $3);
+                listaTercetos.add((Terceto)$$.obj);
+                ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+            } else {
+                Logger.logError(cursor.getCurrentLine(), "Incompatibilidad de tipos en asignacion unaria");
+            }
         }
     |   ID'.'ID TWO_POINTS_ASSIGNATION expresion_aritmetica {
                     String aux = $1.sval + '.' + ambito;

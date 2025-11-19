@@ -8,7 +8,6 @@
   * Chequeo de variable
 * Chequeo de tipos
   * Asignacion multiple
-  * Asignacion unaria
   * Parametros formales
   * Parametros reales
     * Asociacion con tipo parametro formal
