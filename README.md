@@ -58,8 +58,7 @@
 
 ### Haciendo:
 * Expresiones aritmeticas
-* Chequeo de tipos
-  * Asignacion unaria
+
 
 ### Aclaraciones de diseño:
 
