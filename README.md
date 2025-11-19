@@ -5,14 +5,9 @@
 * Redeclaracion de variables en diferentes ambitos
 * Chequeo de ambito
   * Chequeo de funcion
-* Chequeo de tipos
-  * Parametros formales
-  * Parametros reales
-    * Asociacion con tipo parametro formal
+
   * Declaracion de funcion
-  * Retorno
-    * Mismo tipo de funcion
-    * Mismo tipo que la variable donde se asigna 
+
   * Condicion if
 
   * TOI
@@ -60,7 +55,13 @@
 
 ### Haciendo:
 
-
+* Chequeo de tipos
+  * Parametros formales
+  * Parametros reales
+    * Asociacion con tipo parametro formal
+* Retorno
+    * Mismo tipo de funcion
+    * Mismo tipo que la variable donde se asigna
 
 ### Aclaraciones de diseño:
 
