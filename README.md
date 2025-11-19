@@ -11,7 +11,6 @@
   * Parametros reales
     * Asociacion con tipo parametro formal
   * Declaracion de funcion
-  * Lambda
   * Retorno
     * Mismo tipo de funcion
     * Mismo tipo que la variable donde se asigna 
@@ -57,6 +56,7 @@
 * Chequeo de tipos
   * Asignacion unaria
   * Asignacion multiple
+  * Lambda
 
 ### Aclaraciones de diseño:
 
