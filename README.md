@@ -32,8 +32,10 @@
 
 
 ### Cosas que andan:
+* Chequeo de tipos
+  * Asignacion unaria
+  * Expresiones aritmeticas
 * Variable sin declarar
-* Misma cantidad de elementos en asignacion multiple
 * Redeclaracion de variables
 * Funcion sin declarar
 * Redeclaracion de funcion
@@ -55,8 +57,8 @@
 
 
 ### Haciendo:
-* Expresiones aritmeticas
 
+* Misma cantidad de elementos en asignacion multiple
 
 ### Aclaraciones de diseño:
 
@@ -85,7 +87,6 @@
 
 
 #### Por hacer
-* Chequeo de tipos
-  * Asignacion unaria
+
 * Chequeto de ambito
   * Chequeo de variable
