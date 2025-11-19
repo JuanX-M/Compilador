@@ -38,6 +38,9 @@
   * Copia resultado
   * Solo escritura
   * Etc
+* Solucionar '.' en el lexico para que tome ID cuando viene una letra mayuscula y no salte error de falta digito
+* revisar sentencias if/else e iteraciones con retorno una vez finalizado cheques tipos en funcion
+* '-' en expresion aritmetica cuando esta solo o con espacio
 ### Cosas que andan:
 * En asignacion multiple chequear si cant lado izq = cant lado derecho, por posicion, chequear tipos de forma individual
 * Condicion if
