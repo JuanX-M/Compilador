@@ -6,14 +6,37 @@
 * Chequeo de ambito
   * Chequeo de funcion
   * Chequeo de variable
-* Chequeo de tipo en codigo intermedio
+* Chequeo de tipos
+  * Asignacion multiple
+  * Asignacion unaria
+  * Parametros formales
+  * Parametros reales
+    * Asociacion con tipo parametro formal
+  * Declaracion de funcion
+  * Lambda
+  * Retorno
+    * Mismo tipo de funcion
+    * Mismo tipo que la variable donde se asigna 
+  * Condicion if
+  * Expresiones aritmeticas
+  * TOI
+    * Que no sea de tipo entero (Dar warning)
+    * 
+  
 * Conversiones Explicitas de Float a Int
 * Cuando se detecte una invocacion, se debera generar codigo para la misma, chequeando que el tipo de los
     parametros reales sean compatibles con el tipo de los parametros formales correspondientes, o incluyan la
     conversion correspondiente.
 * For
   * Falta de parametro en el for
-
+* Chequeo retornos
+  * En asignacion unaria al invocar funcion y que esta devuelve varios, tirar error semantico
+  * En asignacion multiple chequear si cant lado izq = cant lado derecho, por posicion, chequear tipos de forma individual
+  * En lado derecho de una asignacion multiple, que tiene varias funcion que retornan muchas cosas, 
+    * concatenar cada arralyst de cada funcion con todo lo que esta del lado derecho
+    * hacer un for que itere con arralist de variables de lado izq e ir asignando lo del lado derecho, al salir del for descartar resto de variables del lado derecho e informar con warning
+* Chequeo de parametro formal SE,LE
+* Lambda
 
 
 ### Cosas que andan:
@@ -46,7 +69,7 @@
 
 
 
-* Lambda
+
 * Chequeos en tiempo de ejecucion
   * Division por cero para Int y Float
   * Overflow en productos de datos de Float
@@ -60,3 +83,5 @@
 
 
 #### Por hacer
+
+hacer set de parametros formales en gramtica a info de la funcion
