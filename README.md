@@ -7,7 +7,6 @@
   * Chequeo de funcion
   * Chequeo de variable
 * Chequeo de tipos
-  * Asignacion multiple
   * Parametros formales
   * Parametros reales
     * Asociacion con tipo parametro formal
@@ -40,6 +39,7 @@
 
 ### Cosas que andan:
 * Variable sin declarar
+* Misma cantidad de elementos en asignacion multiple
 * Redeclaracion de variables
 * Funcion sin declarar
 * Redeclaracion de funcion
@@ -54,6 +54,9 @@
   * Copia resultado
   * Solo escritura
   * Etc
+* Chequeo de tipos
+  * Asignacion unaria
+  * Asignacion multiple
 
 ### Aclaraciones de diseño:
 

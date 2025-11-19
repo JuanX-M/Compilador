@@ -662,14 +662,27 @@ sentencia_asignacion_multiple
                 System.out.println("  Exp[" + i + "]: " + info);
             }
 
-            for (int i = 0; i < listaVariables.size(); i++) {
-                ParserVal variable = listaVariables.get(i);   // El ParserVal de la variable (contiene sval)
-                ParserVal expresion = listaExpresiones.get(i); // El ParserVal de la expresion (contiene sval o obj)
+            if (listaVariables.size() == listaExpresiones.size()){
+                for (int i = 0; i < listaVariables.size(); i++) {
+                    ParserVal variable = listaVariables.get(i);   // El ParserVal de la variable (contiene sval)
+                    ParserVal expresion = listaExpresiones.get(i); // El ParserVal de la expresion (contiene sval o obj)
 
-                $$ = crearTerceto(new ParserVal(":="), variable, expresion);
+                    String aux1 = variable.sval;
+                    String aux2 = expresion.sval;
+                    Info infoID = TablaSimbolos.TABLA_SIMBOLOS.get(aux1);
+                    Info infoEA = TablaSimbolos.TABLA_SIMBOLOS.get(aux2);
 
-                listaTercetos.add((Terceto)$$.obj);
-                ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+                    if(infoID.getTipo().equals(infoEA.getTipo())){
+                        $$ = crearTerceto(new ParserVal(":="), variable, expresion);
+                        listaTercetos.add((Terceto)$$.obj);
+                        ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+                    } else {
+                        Logger.logError(cursor.getCurrentLine(), "Incompatibilidad de tipos en asignacion multiple");
+                    }
+                }
+            }
+            else {
+                Logger.logError(cursor.getCurrentLine(), "Asignacion multiple con distinto numero de elementos en cada lado");
             }
         }
     ;
