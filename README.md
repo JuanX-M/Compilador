@@ -1,6 +1,14 @@
 # Compilador
 
 ### Cosas que hay que hacer andar:
+
+* Chequeo de tipos ( no se puede hcaer hasta definir como detectar una funcion con retorno multiples)
+  * Parametros formales
+  * Parametros reales
+    * Asociacion con tipo parametro formal
+* Retorno
+  * Mismo tipo de funcion
+  * Mismo tipo que la variable donde se asigna
 * Cantidad de retornos para una asignacion multiple
 * Redeclaracion de variables en diferentes ambitos
 * Chequeo de ambito
@@ -55,13 +63,6 @@
 
 ### Haciendo:
 
-* Chequeo de tipos
-  * Parametros formales
-  * Parametros reales
-    * Asociacion con tipo parametro formal
-* Retorno
-    * Mismo tipo de funcion
-    * Mismo tipo que la variable donde se asigna
 
 ### Aclaraciones de diseño:
 
