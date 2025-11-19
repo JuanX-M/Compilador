@@ -25,7 +25,7 @@
     conversion correspondiente.
 * Chequeo retornos
   * En asignacion unaria al invocar funcion y que esta devuelve varios, tirar error semantico
-  * En asignacion multiple chequear si cant lado izq = cant lado derecho, por posicion, chequear tipos de forma individual
+  
   * En lado derecho de una asignacion multiple, que tiene varias funcion que retornan muchas cosas, 
     * concatenar cada arraylist de cada funcion con todo lo que esta del lado derecho
     * hacer un for que itere con arraylist de variables de lado izq e ir asignando lo del lado derecho, al salir del for descartar resto de variables del lado derecho e informar con warning
@@ -33,8 +33,13 @@
 * Lambda
 * Chequeto de ambito
   * Chequeo de variable
-
+* Permitir mas retornos que el numero de lados izquierdos
+* Chequeo de los tipos en parametro:
+  * Copia resultado
+  * Solo escritura
+  * Etc
 ### Cosas que andan:
+* En asignacion multiple chequear si cant lado izq = cant lado derecho, por posicion, chequear tipos de forma individual
 * Condicion if
 * Misma cantidad de elementos en asignacion multiple
 * Chequeo de tipos
@@ -50,11 +55,6 @@
   * Semantica de pasaje de parametros
 * Inferencia obligatoria
 * Asignacion con igual numero de elementos de ambos lados de la asignacion
-* Permitir mas retornos que el numero de lados izquierdos
-* Chequeo de los tipos en parametro:
-  * Copia resultado
-  * Solo escritura
-  * Etc
 * Chequeo de tipos
   * Asignacion multiple
   * Lambda
