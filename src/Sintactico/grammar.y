@@ -303,40 +303,41 @@ sentencia_seleccion_sin_endif
     ;
 
 sentencia_iteracion
-    :   FOR parametros_iteracion cuerpo_iteracion  {
-        //Creo el terceto de incremento/decremento de la variable de control del for
+    :   FOR parametros_iteracion cuerpo_iteracion {
+	if ($2.obj != null){
+		//Creo el terceto de incremento/decremento de la variable de control del for
 
-        if (((Terceto)$2.obj).getFirst() == "<"){
-            // terceto de incremento
+		if (((Terceto)$2.obj).getFirst() == "<"){
+		    // terceto de incremento
+		    $$= crearTerceto(new ParserVal("+"), new ParserVal(((Terceto)$2.obj).getSecond()), new ParserVal("1"));
+		}
+		else{
+		    //terceto de decremento
+		    $$= crearTerceto(new ParserVal("-"), new ParserVal(((Terceto)$2.obj).getSecond()), new ParserVal("1"));
+		}
+		//agrego terceto de incremento/decremento al arraylist
+		listaTercetos.add((Terceto)$$.obj);
+		((Terceto)$$.obj).addLine(cursor.getCurrentLine());
 
-            $$= crearTerceto(new ParserVal("+"), new ParserVal(((Terceto)$2.obj).getSecond()), new ParserVal("1"));
-        }
-        else{
-            //terceto de decremento
-            $$= crearTerceto(new ParserVal("-"), new ParserVal(((Terceto)$2.obj).getSecond()), new ParserVal("1"));
-        }
-        //agrego terceto de incremento/decremento al arraylist
-        listaTercetos.add((Terceto)$$.obj);
-        ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+		int aux = ((Terceto)$2.obj).getSoloNumTerceto()-1; //Necesito la posicion de la etiqueta
+		String aux2 = "(" + String.valueOf(aux) + ")";
 
-        int aux = ((Terceto)$2.obj).getSoloNumTerceto()-1; //Necesito la posicion de la etiqueta
-        String aux2 = "(" + String.valueOf(aux) + ")";
+		//Creo terceto BI para volver al inicio de la iteracion y lo agrego
+		$$= crearTerceto(new ParserVal("BI"), new ParserVal(aux2), null);
 
-        //Creo terceto BI para volver al inicio de la iteracion y lo agrego
-        $$= crearTerceto(new ParserVal("BI"), new ParserVal(aux2), null);
+		listaTercetos.add((Terceto)$$.obj);
+		((Terceto)$$.obj).addLine(cursor.getCurrentLine());
 
-        listaTercetos.add((Terceto)$$.obj);
-        ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+		// Creacion etiqueta
+		int numTercetoActual = listaTercetos.get(listaTercetos.size()-1).getSoloNumTerceto() + 1;
+		String etiqueta = "ETIQUETA" + numTercetoActual;
+		$$= crearTerceto(new ParserVal(etiqueta),null,null);
+		listaTercetos.add((Terceto)$$.obj);
+		((Terceto)$$.obj).addLine(cursor.getCurrentLine());
 
-        // Creacion etiqueta
-        int numTercetoActual = listaTercetos.get(listaTercetos.size()-1).getSoloNumTerceto() + 1;
-        String etiqueta = "ETIQUETA" + numTercetoActual;
-        $$= crearTerceto(new ParserVal(etiqueta),null,null);
-        listaTercetos.add((Terceto)$$.obj);
-        ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
-
-        $$=$3;
-        }
+		$$=$3;
+	}
+				       }
     ;
 
 sentencia_asignacion
@@ -361,7 +362,7 @@ encabezado_funcion
          }
 
 
-     }'(' lista_param_formales ')' {
+    } '(' lista_param_formales ')' {
 
                 //creacion de tercetos auxiliares con ambito del padre de la funcion
 
@@ -404,38 +405,38 @@ encabezado_funcion
                     listaTercetos.add((Terceto)$$.obj);
                     ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
                     contadorVariablesAuxTercetos++;
-                 }
+		}
 
 
-                 // Creacion etiqueta
-                 int numTercetoActual = listaTercetos.get(listaTercetos.size()-1).getSoloNumTerceto() + 1;
-                 String etiqueta = "ETIQUETA" + numTercetoActual;
-                 $$= crearTerceto(new ParserVal(etiqueta),null,null);
-                 listaTercetos.add((Terceto)$$.obj);
-                 ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
-                 TablaSimbolos.TABLA_SIMBOLOS.get($3.sval + '.' + auxambito).setNroTercetoEtiqueta(getReferencia($$));
+		// Creacion etiqueta
+		int numTercetoActual = listaTercetos.get(listaTercetos.size()-1).getSoloNumTerceto() + 1;
+		String etiqueta = "ETIQUETA" + numTercetoActual;
+		$$= crearTerceto(new ParserVal(etiqueta),null,null);
+		listaTercetos.add((Terceto)$$.obj);
+		((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+		TablaSimbolos.TABLA_SIMBOLOS.get($3.sval + '.' + auxambito).setNroTercetoEtiqueta(getReferencia($$));
 
-                 //creacion de tercetos que inicializan parametros formales
+		//creacion de tercetos que inicializan parametros formales
 
-                 for (String parametro : listaParametros) {
-                        if (TablaSimbolos.TABLA_SIMBOLOS.get(parametro).getUso().contains("CV")){
-                            $$= crearTerceto(new ParserVal(":="),
-                                new ParserVal(parametro),
-                                new ParserVal(TablaSimbolos.TABLA_SIMBOLOS.get(parametro).getVarAux()));
-                        } else{
-                            if (TablaSimbolos.TABLA_SIMBOLOS.get(parametro).getTipo().equalsIgnoreCase("FLOAT")){
-                                valorDefecto = "-1.0";
-                            } else {
-                                valorDefecto = "-1";
-                            }
-                            $$= crearTerceto(new ParserVal(":="),
-                            new ParserVal(parametro),
-                            new ParserVal(valorDefecto));
-                        }
+		for (String parametro : listaParametros) {
+			if (TablaSimbolos.TABLA_SIMBOLOS.get(parametro).getUso().contains("CV")){
+			    $$= crearTerceto(new ParserVal(":="),
+				new ParserVal(parametro),
+				new ParserVal(TablaSimbolos.TABLA_SIMBOLOS.get(parametro).getVarAux()));
+			} else{
+			    if (TablaSimbolos.TABLA_SIMBOLOS.get(parametro).getTipo().equalsIgnoreCase("FLOAT")){
+				valorDefecto = "-1.0";
+			    } else {
+				valorDefecto = "-1";
+			    }
+			    $$= crearTerceto(new ParserVal(":="),
+			    new ParserVal(parametro),
+			    new ParserVal(valorDefecto));
+			}
 
-                        listaTercetos.add((Terceto)$$.obj);
-                        ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
-                 }
+		listaTercetos.add((Terceto)$$.obj);
+		((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+		}
 
             $$.obj = $1.obj; //devuelvo arraylist de variables auxiliares de tipos + parametros formales
             }
@@ -587,16 +588,19 @@ parametros_iteracion_error
 
 cuerpo_iteracion
     :   '{' cuerpo_ejecutable '}'{
-                //Saco el nro de terceto del BF incompleto de la pila
-                int numTercetoBackpatch = pila.pop();
-
+    		System.out.println("Pasa a cuerpo_ejecutable");
 
                 //obtengo referencia terceto de cuerpo_ejecutable, parseo a integer  y hago + 3
                 // porque tengo terceto BI y terceto de incremeto de variable de control del for
-                Integer aux= Integer.parseInt(getReferencia($2).replaceAll("\\D","")) + 3 ;
-
-                String auxString = "(" + String.valueOf(aux) + ")";
-                listaTercetos.get(numTercetoBackpatch -1).addThird(auxString); /* completo el tercer operando del BF*/
+                System.out.println($2.sval);
+                if ($2.sval != null){
+                	//Saco el nro de terceto del BF incompleto de la pila
+                	int numTercetoBackpatch = pila.pop();
+                	Integer aux= Integer.parseInt(getReferencia($2).replaceAll("\\D","")) + 3 ;
+			String auxString = "(" + String.valueOf(aux) + ")";
+			listaTercetos.get(numTercetoBackpatch -1).addThird(auxString); /* completo el tercer operando del BF*/
+		}
+                System.out.println("Llega al fin");
 
     	}
 
