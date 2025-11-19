@@ -15,7 +15,7 @@
     * Mismo tipo de funcion
     * Mismo tipo que la variable donde se asigna 
   * Condicion if
-  * Expresiones aritmeticas
+
   * TOI
     * Que no sea de tipo entero (Dar warning)
     * 
@@ -59,7 +59,7 @@
   * Lambda
 
 ### Haciendo:
-
+* Expresiones aritmeticas
 
 ### Aclaraciones de diseño:
 
