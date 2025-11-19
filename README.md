@@ -5,7 +5,6 @@
 * Redeclaracion de variables en diferentes ambitos
 * Chequeo de ambito
   * Chequeo de funcion
-  * Chequeo de variable
 * Chequeo de tipos
   * Parametros formales
   * Parametros reales
@@ -89,5 +88,7 @@
 
 
 #### Por hacer
-
-hacer set de parametros formales en gramtica a info de la funcion
+* Chequeo de tipos
+  * Asignacion unaria
+* Chequeto de ambito
+  * Chequeo de variable
