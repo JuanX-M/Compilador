@@ -58,6 +58,9 @@
   * Asignacion multiple
   * Lambda
 
+### Haciendo:
+
+
 ### Aclaraciones de diseño:
 
 
