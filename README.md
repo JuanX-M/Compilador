@@ -17,6 +17,7 @@
 * '-' en expresion aritmetica cuando esta solo o con espacio
 * chequeo en asignacion multiple y que en lado derecho tengo muchas funciones con multiples retornos, que hago?
 * No se rompe si hay menor cantidad de parametros formales a comparacion de los reales
+* Asignacion multiple con funciones anda raro X, Y, Z, W = fun F1(Z->C), fun F1(Z->C), fun F3(Z->C); //f1 tiene 2 retornos y f3 tiene 1
 
 
 ### Cosas que andan:
