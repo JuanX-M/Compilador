@@ -126,8 +126,14 @@ funcion
                     "La función retorna " + listaExpAritmeticas.size() +
                     " valores, pero solo se declararon " + listaVariablesRetorno.size() + " tipos de retorno.");
             }
-            //Asignar Expresión Return -> Variable Auxiliar de Retorno
+            //Asigno Expresión Return -> Variable Auxiliar de Retorno
             for (int i = 0; i < listaVariablesRetorno.size() && i < listaExpAritmeticas.size(); i++){
+                ParserVal variableEsperada = new ParserVal(listaVariablesRetorno.get(i)); // La variable auxiliar que guarda el tipo declarado
+                ParserVal expresionRetornada = listaExpAritmeticas.get(i); // La expresión que viene en el return
+
+                if (!checkTipo(variableEsperada, expresionRetornada)) {
+                    Logger.logError(cursor.getCurrentLine(), "Error de tipo en retorno (posición " + (i+1) + "): " + "Se esperaba " + getTipoParserVal(variableEsperada) + " pero se encontró " + getTipoParserVal(expresionRetornada));
+                }
                 $$ = crearTerceto(new ParserVal(":="), new ParserVal(listaVariablesRetorno.get(i)), listaExpAritmeticas.get(i));
                 listaTercetos.add((Terceto)$$.obj);
                 ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
@@ -1456,7 +1462,7 @@ invocacion_funcion
                 }
                 if (!paramInfo.getTipo().equals(getTipoParserVal(expresion))){
 
-                    Logger.logError(cursor.getCurrentLine(), "Incompatibilidad de tipos");
+                    Logger.logError(cursor.getCurrentLine(), "Incompatibilidad de tipos en pasaje de parametros");
                 }
                 // Solo actuamos si es CV
                 if (paramInfo != null && paramInfo.getUso() != null && paramInfo.getUso().contains("CV")) {
