@@ -66,7 +66,10 @@
 
 
 ### Haciendo:
-
+* Chequeo de tipos ( no se puede hcaer hasta definir como detectar una funcion con retorno multiples) JuanX
+  * Parametros formales
+  * Parametros reales
+    * Asociacion con tipo parametro formal
 ### Aclaraciones de diseño:
 
 ### Testeando
