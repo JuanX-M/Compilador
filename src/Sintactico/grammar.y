@@ -1181,13 +1181,15 @@ termino_error
     ;
 
 expresion_aritmetica_toi
-    :   TOI '(' expresion_aritmetica ')' { //lautaro
-            // TODO: para ambito tendriamos que hacer algo para que agarre solo el global, es decir antes del primer punto
+    :   TOI '(' expresion_aritmetica ')' {
+           int indice = ambito.indexOf('.');
+           String ambitotoi = ambito.substring(0,indice); // Ejemplo con múltiples puntos
+           System.out.println("Ambito TOI: " + ambitotoi);
             if (getTipoParserVal($3).equals("INT"))
             	Logger.logWarning(cursor.getCurrentLine(), "Variable en sentencia TOI ya es de tipo entero");
 	        else{
 	    	    if (!TablaSimbolos.TABLA_SIMBOLOS.containsKey("auxtoi")){
-		            TablaSimbolos.TABLA_SIMBOLOS.put("auxtoi", new Info("auxtoi", "ID", "INT", "Variable", ambito));
+		            TablaSimbolos.TABLA_SIMBOLOS.put("auxtoi", new Info("auxtoi", "ID", "INT", "Variable", ambitotoi));
 	            }
 	            $$=crearTerceto($1,$3,null);
 	            listaTercetos.add((Terceto)$$.obj);
