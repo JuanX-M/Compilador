@@ -30,14 +30,13 @@
     * hacer un for que itere con arraylist de variables de lado izq e ir asignando lo del lado derecho, al salir del for descartar resto de variables del lado derecho e informar con warning
 * Chequeo de parametro formal SE,LE
 * Lambda
-* Chequeto de ambito
-  * Chequeo de variable
+
 * Permitir mas retornos que el numero de lados izquierdos
 * Chequeo de los tipos en parametro:
   * Copia resultado
   * Solo escritura
   * Etc
-* Solucionar '.' en el lexico para que tome ID cuando viene una letra mayuscula y no salte error de falta digito
+
 * revisar sentencias if/else e iteraciones con retorno una vez finalizado cheques tipos en funcion
 * '-' en expresion aritmetica cuando esta solo o con espacio
 ### Cosas que andan:
@@ -70,8 +69,12 @@
 
 ### Aclaraciones de diseño:
 
+### Testeando
 
-
+* Solucionar '.' en el lexico para que tome ID cuando viene una letra mayuscula y no salte error de falta digito
+* Chequeto de ambito
+  * Chequeo de variable
+  * Chequeo de Funcion
 
 ### Cosas
 
