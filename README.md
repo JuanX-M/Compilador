@@ -11,11 +11,8 @@
   * Mismo tipo que la variable donde se asigna
 * Cantidad de retornos para una asignacion multiple
 * Redeclaracion de variables en diferentes ambitos
-* Chequeo de ambito
-  * Chequeo de funcion
-  * Declaracion de funcion
+
 * chequear en asignacion multiple que haya como minimo 2 variables y 2 exp aritmetcas
-* Conversiones Explicitas de Float a Int
 * Cuando se detecte una invocacion, se debera generar codigo para la misma, chequeando que el tipo de los
     parametros reales sean compatibles con el tipo de los parametros formales correspondientes, o incluyan la
     conversion correspondiente.
@@ -70,6 +67,9 @@
   * Parametros formales
   * Parametros reales
     * Asociacion con tipo parametro formal
+
+* Chequeo de ambito
+    * Declaracion de funcion
 ### Aclaraciones de diseño:
 
 ### Testeando
