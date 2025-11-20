@@ -137,6 +137,7 @@ funcion
                     "La función retorna " + listaExpAritmeticas.size() +
                     " valores, pero solo se declararon " + listaVariablesRetorno.size() + " tipos de retorno.");
             }
+
             //Asignar Expresión Return -> Variable Auxiliar de Retorno
             for (int i = 0; i < listaVariablesRetorno.size() && i < listaExpAritmeticas.size(); i++){
                 $$ = crearTerceto(new ParserVal(":="), new ParserVal(listaVariablesRetorno.get(i)), listaExpAritmeticas.get(i));
@@ -513,7 +514,13 @@ declaracion_unaria
     :   VAR ID TWO_POINTS_ASSIGNATION expresion_aritmetica {
             String aux = $2.sval + '.' + ambito;
             ParserVal auxParserVal= $4;
-            //TODO: CHEQUEAR SI ES UNA FUNCION CON MULTIPLES RETORNOS
+            if ( auxParserVal.obj!=null && auxParserVal.obj.getClass().equals(java.util.ArrayList.class)){
+
+                 Logger.logError(cursor.getCurrentLine(), "Error: Funcion con retorno multiple en declaracion simple.");
+                 // Recuperación de error: tomamos el primero para seguir compilando
+                 auxParserVal = ((ArrayList<ParserVal>)auxParserVal.obj).get(0);
+
+            }
 
             String tipoInferido = getTipoParserVal(auxParserVal);
 
@@ -538,17 +545,33 @@ declaracion_unaria_error
 
 lista_exp_aritmeticas
     :   lista_exp_aritmeticas ',' expresion_aritmetica  {
-            // $1.obj ya es un ArrayList<ParserVal>
-            ((ArrayList<ParserVal>)$1.obj).add($3); // $3 es el ParserVal de la expresion
-            $$ = $1; // Pasa la lista modificada hacia arriba
+            ArrayList<ParserVal> listaPrincipal = (ArrayList<ParserVal>)$1.obj;
+            ParserVal nuevaExpresion = $3;
+
+            // Chequeo si lo que viene es una lista (retorno múltiple) usando getClass
+            if (nuevaExpresion.obj != null && nuevaExpresion.obj.getClass().equals(java.util.ArrayList.class)) {
+                // CASO: Función con múltiples retornos.
+                // Concatenamos los retornos a la lista principal.
+                ArrayList<ParserVal> retornosFuncion = (ArrayList<ParserVal>) nuevaExpresion.obj;
+                listaPrincipal.addAll(retornosFuncion);
+            } else {
+                // CASO: Expresión simple o función con 1 retorno.
+                // Lo agregamos como un elemento más.
+                listaPrincipal.add(nuevaExpresion);
+            }
+
+            $$ = $1; // Pasa la lista acumulada hacia arriba
         }
     |   expresion_aritmetica  {
-            // $1 es el ParserVal de 'expresion_aritmetica'
-            if ($1.obj != null && $1.obj instanceof java.util.ArrayList) {
-                // Es de una funcion, $1.obj ya es el ArrayList<ParserVal> que queremos
+
+
+
+            if ($1.obj != null && $1.obj.getClass().equals(java.util.ArrayList.class)) {
+                // Es de una funcion con multiples retornos, ya es una lista, la pasamos tal cual.
                 $$ = $1;
             } else {
-                // Es una expresion simple, la envolvemos en una lista nueva
+                // Es una expresion simple o funcion con 1 retorno.
+                // Creamos una nueva lista y lo agregamos.
                 ArrayList<ParserVal> exprs = new ArrayList<>();
                 exprs.add($1);
                 $$ = new ParserVal(exprs);
@@ -644,7 +667,10 @@ sentencia_asignacion_unaria
             }
 
             ParserVal auxParserVal = $3;
-            //TODO:CHEQUEAR SI HAY UNA FUNCION CON MULTIPLES RETORNOS, SI LA HAY ES TIRAR ERROR SEMANTICO Y TOMAS EL PRIMERO IGUALMENTE
+            if (auxParserVal.obj!=null && auxParserVal.obj.getClass().equals(java.util.ArrayList.class)){
+                Logger.logError(cursor.getCurrentLine(), "Error: Asignación de retorno múltiple a variable simple.");
+                auxParserVal = ((ArrayList<ParserVal>)auxParserVal.obj).get(0);
+            }
 
             if (!checkTipo($1, auxParserVal)) {
                 Logger.logError(cursor.getCurrentLine(), "Error de tipo en asignación entre " + getTipoParserVal($1) + " y " + getTipoParserVal(auxParserVal) );
@@ -655,7 +681,21 @@ sentencia_asignacion_unaria
             ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
         }
     |   ID'.'ID TWO_POINTS_ASSIGNATION expresion_aritmetica {
+
             //Chequeo ambito
+
+            String nombreAmbitoActual = "";
+            int ultimoPunto = ambito.lastIndexOf('.');
+            if (ultimoPunto != -1) {
+                nombreAmbitoActual = ambito.substring(ultimoPunto + 1);
+            } else {
+                nombreAmbitoActual = ambito;
+            }
+
+            // Comparamos si el ID del ámbito especificado ($1.sval) es igual al actual
+            if ($1.sval.equals(nombreAmbitoActual)) {
+                 Logger.logError(cursor.getCurrentLine(), "No se permite especificar mismo ambito en variables de ambito local.");
+            }
             String ambitoaux = ambito;
             System.out.println( "ambito aaa: "+$1.sval + " ambito bbbb: "+$3.sval);
             if (ambito.contains($1.sval)) {
@@ -674,8 +714,14 @@ sentencia_asignacion_unaria
             }
 
 
+
+
             ParserVal auxParserVal =$5;
-            //TODO:CHEQUEAR SI HAY UNA FUNCION CON MULTIPLES RETORNOS, SI LA HAY ES TIRAR ERROR SEMANTICO Y TOMAS EL PRIMERO IGUALMENTE
+            if (auxParserVal.obj!=null && auxParserVal.obj.getClass().equals(java.util.ArrayList.class)){
+                Logger.logError(cursor.getCurrentLine(), "Error: Asignación de retorno múltiple a variable simple.");
+                auxParserVal= ((ArrayList<ParserVal>)auxParserVal.obj).get(0);
+
+            }
 
             if (!checkTipo($3, auxParserVal)) {
                 Logger.logError(cursor.getCurrentLine(), "Error de tipo en asignación entre " + getTipoParserVal($3) + " y " + getTipoParserVal(auxParserVal) );
@@ -700,6 +746,7 @@ sentencia_asignacion_multiple
             ArrayList<ParserVal> listaVariables = (ArrayList<ParserVal>)$1.obj;
             ArrayList<ParserVal> listaExpresiones = (ArrayList<ParserVal>)$3.obj;
             //TODO: CHEQUEAR COMO ES EL TEMA CON LAS FUNCIONES CON MULTIPLES RETORNOS
+
             if (listaVariables.size() != listaExpresiones.size()) {
                 Logger.logError(cursor.getCurrentLine(),
                     "La cantidad de variables (" + listaVariables.size() + ") no coincide con la cantidad de expresiones (" + listaExpresiones.size() + ").");
@@ -854,7 +901,25 @@ expresion_aritmetica
             ParserVal opIzq = $1;
             ParserVal opDer = $3;
 
-            //TODO:CHEQUEAR SI HAY FUNCION CON RETORNOS MULTIPLES EN LADO IZQ Y LADO DER
+            if (opIzq.obj != null && opIzq.obj.getClass().equals(java.util.ArrayList.class)){
+                Logger.logError(cursor.getCurrentLine(), "Operando izquierdo es función con retorno múltiple.");
+                opIzq = ((ArrayList<ParserVal>)opIzq.obj).get(0);
+                if (TablaSimbolos.TABLA_SIMBOLOS.get(opIzq.sval).getTipo().contains("INT")){
+                       opIzq.ival = 1;
+                } else {
+                    opIzq.ival = 2;
+                }
+            }
+
+            if (opDer.obj != null && opDer.obj.getClass().equals(java.util.ArrayList.class)){
+                Logger.logError(cursor.getCurrentLine(), "Operando derecho es función con retorno múltiple.");
+                opDer = ((ArrayList<ParserVal>)opDer.obj).get(0);
+                if (TablaSimbolos.TABLA_SIMBOLOS.get(opDer.sval).getTipo().contains("INT")){
+                       opDer.ival = 1;
+                } else {
+                    opDer.ival = 2;
+                }
+            }
 
             if (!checkTipo(opIzq, opDer)) {
                  Logger.logError(cursor.getCurrentLine(), "Tipos incompatibles en suma entre " + getTipoParserVal(opIzq) + " y " + getTipoParserVal(opDer));
@@ -871,7 +936,25 @@ expresion_aritmetica
             ParserVal opIzq = $1;
             ParserVal opDer = $3;
 
-            //TODO:CHEQUEAR SI HAY FUNCION CON RETORNOS MULTIPLES EN LADO IZQ Y LADO DER
+            if (opIzq.obj != null && opIzq.obj.getClass().equals(java.util.ArrayList.class)){
+                Logger.logError(cursor.getCurrentLine(), "Operando izquierdo es función con retorno múltiple.");
+                opIzq = ((ArrayList<ParserVal>)opIzq.obj).get(0);
+                if (TablaSimbolos.TABLA_SIMBOLOS.get(opIzq.sval).getTipo().contains("INT")){
+                       opIzq.ival = 1;
+                } else {
+                    opIzq.ival = 2;
+                }
+            }
+
+            if (opDer.obj != null && opDer.obj.getClass().equals(java.util.ArrayList.class)){
+                Logger.logError(cursor.getCurrentLine(), "Operando derecho es función con retorno múltiple.");
+                opDer = ((ArrayList<ParserVal>)opDer.obj).get(0);
+                if (TablaSimbolos.TABLA_SIMBOLOS.get(opDer.sval).getTipo().contains("INT")){
+                       opDer.ival = 1;
+                } else {
+                    opDer.ival = 2;
+                }
+            }
 
             if (!checkTipo(opIzq, opDer)) {
                  Logger.logError(cursor.getCurrentLine(), "Tipos incompatibles en resta entre " + getTipoParserVal(opIzq) + " y " + getTipoParserVal(opDer));Logger.logError(cursor.getCurrentLine(), "Tipos incompatibles");
@@ -1058,7 +1141,25 @@ termino
     :   termino '*' factor {
             ParserVal opIzq = $1;
             ParserVal opDer = $3;
-            //TODO:CHEQUEAR COMO DIFERENCIAR DE UNA FUNCION CON RETORNOS MULTIPLES EN TERMINO
+            if (opIzq.obj != null && opIzq.obj.getClass().equals(java.util.ArrayList.class)){
+                Logger.logError(cursor.getCurrentLine(), "Operando izquierdo es función con retorno múltiple.");
+                opIzq = ((ArrayList<ParserVal>)opIzq.obj).get(0);
+                if (TablaSimbolos.TABLA_SIMBOLOS.get(opIzq.sval).getTipo().contains("INT")){
+                       opIzq.ival = 1;
+                } else {
+                    opIzq.ival = 2;
+                }
+            }
+
+            if (opDer.obj != null && opDer.obj.getClass().equals(java.util.ArrayList.class)){
+                Logger.logError(cursor.getCurrentLine(), "Operando derecho es función con retorno múltiple.");
+                opDer = ((ArrayList<ParserVal>)opDer.obj).get(0);
+                if (TablaSimbolos.TABLA_SIMBOLOS.get(opDer.sval).getTipo().contains("INT")){
+                       opDer.ival = 1;
+                } else {
+                    opDer.ival = 2;
+                }
+            }
 
 
 
@@ -1075,7 +1176,25 @@ termino
     |   termino '/' factor{
             ParserVal opIzq = $1;
             ParserVal opDer = $3;
-            //TODO:CHEQUEAR COMO DIFERENCIAR DE UNA FUNCION CON RETORNOS MULTIPLES EN TERMINO
+            if (opIzq.obj != null && opIzq.obj.getClass().equals(java.util.ArrayList.class)){
+                Logger.logError(cursor.getCurrentLine(), "Operando izquierdo es función con retorno múltiple.");
+                opIzq = ((ArrayList<ParserVal>)opIzq.obj).get(0);
+                if (TablaSimbolos.TABLA_SIMBOLOS.get(opIzq.sval).getTipo().contains("INT")){
+                       opIzq.ival = 1;
+                } else {
+                    opIzq.ival = 2;
+                }
+            }
+
+            if (opDer.obj != null && opDer.obj.getClass().equals(java.util.ArrayList.class)){
+                Logger.logError(cursor.getCurrentLine(), "Operando derecho es función con retorno múltiple.");
+                opDer = ((ArrayList<ParserVal>)opDer.obj).get(0);
+                if (TablaSimbolos.TABLA_SIMBOLOS.get(opDer.sval).getTipo().contains("INT")){
+                       opDer.ival = 1;
+                } else {
+                    opDer.ival = 2;
+                }
+            }
 
 
 
@@ -1152,8 +1271,24 @@ variable
         $$=$1;
         }
     |   ID  '.' ID {
-            String ambitoaux = ambito;
 
+//Chequeo ambito
+
+            String nombreAmbitoActual = "";
+            int ultimoPunto = ambito.lastIndexOf('.');
+            if (ultimoPunto != -1) {
+                nombreAmbitoActual = ambito.substring(ultimoPunto + 1);
+            } else {
+                nombreAmbitoActual = ambito;
+            }
+
+            // Comparamos si el ID del ámbito especificado ($1.sval) es igual al actual
+            if ($1.sval.equals(nombreAmbitoActual)) {
+                 Logger.logError(cursor.getCurrentLine(), "No se permite especificar mismo ambito en variables de ambito local.");
+            }
+
+
+            String ambitoaux = ambito;
             if (ambito.contains($1.sval)) {
                 int indiceInicio = ambito.indexOf($1.sval);
                 int indiceFinal = indiceInicio + $1.sval.length();
@@ -1334,84 +1469,125 @@ cuerpo_ejecutable_retorno
     |   sentencia_retorno
     ;
 
+
 invocacion_funcion
-    :   FUN ID {
-            if (getScope(ambito,$2.sval)== null) {
-                Logger.logError(cursor.getCurrentLine(), "Funcion sin declarar");
-            };
-            System.out.println($2.sval + "." + ambito +": "+TablaSimbolos.TABLA_SIMBOLOS.get($2.sval + "." + ambito));
-        } '(' lista_param_reales ')' {
-            ArrayList<ParserVal> listaParametros = (ArrayList<ParserVal>) $5.obj;
+    :   FUN ID '(' lista_param_reales ')' {
+            ArrayList<ParserVal> listaParametros = (ArrayList<ParserVal>) $4.obj;
+            String claveAcceso =$2.sval;
+            Info funcInfo;
+            if (getScope(ambito,claveAcceso)== null) {
+                //creo info nuevo para que siga compialdo el codigo
+                Logger.logError(cursor.getCurrentLine(), "Funcion no esta al alcance");
+                funcInfo = new Info($2.sval, "ID", null, "Funcion", ambito);
+                funcInfo.setListaParametrosFormales(new ArrayList<String>());
+                funcInfo.setListaVariablesRetorno(new ArrayList<String>());
+            }else {
+                claveAcceso = claveAcceso + "." + getScope(ambito, $2.sval);
+                funcInfo = TablaSimbolos.TABLA_SIMBOLOS.get(claveAcceso);
+            }
+
+            ArrayList<String> listaParametrosFormales = funcInfo.getListaParametrosFormales();
 
 
-            String claveAcceso;
-            if (getScope(ambito,$2.sval)!= null) {
-                claveAcceso = $2.sval + "." + getScope(ambito,$2.sval);
-                System.out.println("claveAcceso: "+claveAcceso);
-                Info funcInfo = TablaSimbolos.TABLA_SIMBOLOS.get(claveAcceso);
-                System.out.println(funcInfo);
-                // Copia los valores de las expresiones de la llamada a las variables auxiliares de los parametros formales con CV
-                for (ParserVal param : listaParametros) {
-                    // param.obj es un Pair<ParserVal, ParserVal>
-                    Pair<ParserVal, ParserVal> p = (Pair<ParserVal, ParserVal>) param.obj;
-                    ParserVal expresion = p.getFirst(); // expresion que se pasa
 
 
-                    Info paramInfo = TablaSimbolos.TABLA_SIMBOLOS.get(p.getSecond().sval + "."+ ambito +"."+$2.sval);
+            // Copia los valores de las expresiones de la llamada a las variables auxiliares
+            for (ParserVal param : listaParametros) {
+                Pair<ParserVal, ParserVal> p = (Pair<ParserVal, ParserVal>) param.obj;
+                ParserVal expresion = p.getFirst();
+                String nombreParametroLlamada = p.getSecond().sval; // Ej: "A"
+                String nombreParametroCompleto = null;
 
-                    // Solo actuamos si es CV
-                    if (paramInfo.getUso().contains("CV")) {
-                        String varAux = paramInfo.getVarAux(); // Obtenemos la variable aux (ej: aux1.miPrograma)
-
-                        // Creamos: [ := , varAux , expresion ]
-                        yyval = crearTerceto(new ParserVal(":="), new ParserVal(varAux), expresion);
-                        listaTercetos.add((Terceto)yyval.obj);
-                        ((Terceto)yyval.obj).addLine(cursor.getCurrentLine());
+                for(String pf : listaParametrosFormales){
+                    // "A.TESTING.F2".startsWith("A.") -> TRUE
+                    if(pf.startsWith(nombreParametroLlamada + ".")){
+                        nombreParametroCompleto = pf;
+                        break;
                     }
-
                 }
-                // --- TERCETO CALL ---
-                // Obtenemos la etiqueta de inicio de la función (ej: ETIQUETA1)
-                String etiquetaFunc = funcInfo.getNroTercetoEtiqueta();
 
-                // Creamos: [ CALL , etiquetaFunc , null ]
-                ParserVal callTerceto = crearTerceto(new ParserVal("CALL"), new ParserVal(etiquetaFunc ), null);
-                listaTercetos.add((Terceto)callTerceto.obj);
-                ((Terceto)callTerceto.obj).addLine(cursor.getCurrentLine());
+                Info paramInfo;
+                // Si es null, es que no lo encontramos
+                if(nombreParametroCompleto == null){
+                   Logger.logError(cursor.getCurrentLine(), "El parámetro '" + nombreParametroLlamada + "' no existe en la función " + $2.sval);
+                   paramInfo = new Info(nombreParametroLlamada, "ID", null, "PF NULL" , ambito,"(0)");
+                } else {
+                   paramInfo = TablaSimbolos.TABLA_SIMBOLOS.get(nombreParametroCompleto);
+                }
+                if (!paramInfo.getTipo().equals(getTipoParserVal(expresion))){
 
-                // Copia los valores DESDE las variables auxiliares DE VUELTA a las variables del llamador
-                for (ParserVal param : listaParametros) {
-                    Pair<ParserVal, ParserVal> p = (Pair<ParserVal, ParserVal>) param.obj;
-                    ParserVal parametroReal = p.getFirst();
+                    Logger.logError(cursor.getCurrentLine(), "Incompatibilidad de tipos");
+                }
+                // Solo actuamos si es CV
+                if (paramInfo != null && paramInfo.getUso() != null && paramInfo.getUso().contains("CV")) {
+                    String varAux = paramInfo.getVarAux();
+                    $$ = crearTerceto(new ParserVal(":="), new ParserVal(varAux), expresion);
+                    listaTercetos.add((Terceto)$$.obj);
+                    ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+                }
+            }
+            // --- TERCETO CALL ---
+            // Obtenemos la etiqueta de inicio de la función (ej: ETIQUETA1)
+            String etiquetaFunc = funcInfo.getNroTercetoEtiqueta();
+
+            // Creamos: [ CALL , etiquetaFunc , null ]
+            ParserVal callTerceto = crearTerceto(new ParserVal("CALL"), new ParserVal(etiquetaFunc ), null);
+            listaTercetos.add((Terceto)callTerceto.obj);
+            ((Terceto)callTerceto.obj).addLine(cursor.getCurrentLine());
 
 
-                    Info paramInfo = TablaSimbolos.TABLA_SIMBOLOS.get(p.getSecond().sval + "."+ ambito +"."+$2.sval);
+            // Copia los valores DE VUELTA (para CR)
+            for (ParserVal param : listaParametros) {
+                Pair<ParserVal, ParserVal> p = (Pair<ParserVal, ParserVal>) param.obj;
+                ParserVal parametroReal = p.getFirst();
+                String nombreParametroLlamada = p.getSecond().sval;
 
-                    // si es CR
-                    if (paramInfo.getUso().contains("CR")) {
-                        String varAux = paramInfo.getVarAux();
 
-                        // Creamos: [ := , parametroReal , varAux ]
-                        $$= crearTerceto(new ParserVal(":="), parametroReal, new ParserVal(varAux));
-                        listaTercetos.add((Terceto)yyval.obj);
-                        ((Terceto)yyval.obj).addLine(cursor.getCurrentLine());
+                String nombreParametroCompleto = null;
+                for(String pf : listaParametrosFormales){
+                    if(pf.startsWith(nombreParametroLlamada + ".")){
+                        nombreParametroCompleto = pf;
+                        break;
                     }
-
                 }
 
-                //devuelvo lista de VariablesAuxiliaresRetorno a $$, ya que se debe usar para asignaciones de valores de retornos a variables del lado izq
-                ArrayList<String> listaNombresAux = funcInfo.getListaVariablesRetorno();
-                System.out.println("addd: "+ listaNombresAux);
-                ArrayList<ParserVal> listaParserVals = new ArrayList<>();
-                for (String nombreAux : listaNombresAux) {
-                    listaParserVals.add(new ParserVal(nombreAux)); // Cada nombre en su propio ParserVal
-                }
-                $$.obj = listaParserVals;
+                Info paramInfo;
+                if(nombreParametroCompleto == null){
 
+                   paramInfo = new Info(nombreParametroLlamada, "ID", null, "PF NULL" , ambito,"(0)");
+                } else {
+                   paramInfo = TablaSimbolos.TABLA_SIMBOLOS.get(nombreParametroCompleto);
+                }
+
+                // si es CR
+                if (paramInfo != null && paramInfo.getUso() != null && paramInfo.getUso().contains("CR")) {
+                    String varAux = paramInfo.getVarAux();
+                    $$= crearTerceto(new ParserVal(":="), parametroReal, new ParserVal(varAux));
+                    listaTercetos.add((Terceto)yyval.obj);
+                    ((Terceto)yyval.obj).addLine(cursor.getCurrentLine());
+                }
+
+
+                 ArrayList<String> listaNombresAux = funcInfo.getListaVariablesRetorno();
+                 ArrayList<ParserVal> listaParserVals = new ArrayList<>();
+
+                 for (String nombreAux : listaNombresAux) {
+                     ParserVal valRetorno = new ParserVal(nombreAux);
+                     listaParserVals.add(valRetorno);
+                 }
+
+                 if (listaParserVals.size() == 1) {
+                     $$ = listaParserVals.get(0);
+                 } else {
+                     ParserVal contenedor = new ParserVal();
+                     contenedor.obj = listaParserVals;
+                     $$ = contenedor;
+                 }
             }
 
 
-        }
+
+    }
     |   invocacion_funcion_error
     ;
 
