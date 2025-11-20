@@ -848,6 +848,7 @@ cuerpo_lambda
 cuerpo_lambda_error
     :   cuerpo_ejecutable '}'          {Logger.logError(cursor.getCurrentLine(), "Falta delimitador izquierdo '{' del cuerpo lambda");}
     //|   '{' cuerpo error  {Logger.logError(cursor.getCurrentLine(), "Falta delimitador derecho '}' del cuerpo lambda");}
+    |   '{' '}' {Logger.logError(cursor.getCurrentLine(), "Falta de cuerpo en sentencia_lambda");}
     ;
 
 argumento_lambda
