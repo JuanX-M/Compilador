@@ -657,6 +657,7 @@ sentencia_asignacion_unaria
     |   ID'.'ID TWO_POINTS_ASSIGNATION expresion_aritmetica {
             //Chequeo ambito
             String ambitoaux = ambito;
+            System.out.println( "ambito aaa: "+$1.sval + " ambito bbbb: "+$3.sval);
             if (ambito.contains($1.sval)) {
                 int indiceInicio = ambito.indexOf($1.sval);
                 int indiceFinal = indiceInicio + $1.sval.length();
@@ -679,7 +680,7 @@ sentencia_asignacion_unaria
             if (!checkTipo($3, auxParserVal)) {
                 Logger.logError(cursor.getCurrentLine(), "Error de tipo en asignación entre " + getTipoParserVal($3) + " y " + getTipoParserVal(auxParserVal) );
             }
-            $$ = crearTerceto($2, $1, auxParserVal);
+            $$ = crearTerceto($4, $3, auxParserVal);
 
             listaTercetos.add((Terceto)$$.obj);
             ((Terceto)$$.obj).addLine(cursor.getCurrentLine());

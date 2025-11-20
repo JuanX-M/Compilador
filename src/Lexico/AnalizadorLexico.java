@@ -73,7 +73,6 @@ public class AnalizadorLexico {
             char caracter = cursor.getCharacter();
             as = matrizTransicion.getAccionSemantica(estado, caracter);
             ESTADO_ANTERIOR = estado;
-            //System.out.print("estado: " + estado + " caracter: " + caracter);
             estado = matrizTransicion.getEstado(estado, caracter);
             //System.out.println(" siguiente estado: " + estado);
             boolean reiniciar = false;

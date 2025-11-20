@@ -45,6 +45,10 @@ public class ASEntregarLiterales extends AccionSemantica {
                         cursor.gobackCharacter();
                         return new Pair<>("-", (int) '-');
                     }
+                    if (aux.equals(".")) {
+                        cursor.gobackCharacter(); // Devolvemos la 'L' para que sea procesada después
+                        return new Pair<>(".", (int) '.'); // Entregamos el punto
+                    }
                     return null;
             }
         }
