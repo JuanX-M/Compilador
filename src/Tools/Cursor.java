@@ -11,7 +11,7 @@ public class Cursor {
         LectorArchivo lectorArchivoAux = new LectorArchivo(programa, "data");
         this.PROGRAM = lectorArchivoAux.read();
         //this.addSalto();
-        imprimirPrograma();
+        //imprimirPrograma();
         this.currentLine = 0; //numero de linea arranca en 1 TODO:Preguntar a Marcela
         this.currentColumn = 0;
     }
