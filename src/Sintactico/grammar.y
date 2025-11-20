@@ -345,7 +345,10 @@ encabezado_funcion
     :   lista_tipos FUN ID  {
              String aux = $3.sval + '.' + ambito;
              if (TablaSimbolos.TABLA_SIMBOLOS.containsKey(aux)) {
-                 Logger.logError(cursor.getCurrentLine(), "Redeclaracion de funcion");
+             	if (TablaSimbolos.TABLA_SIMBOLOS.get(aux).getUso().contains("Variable"))
+             		Logger.logError(cursor.getCurrentLine(), "Funcion no puede ser declarada ya que existe una variable con el mismo nombre");
+		else
+                	Logger.logError(cursor.getCurrentLine(), "Redeclaracion de funcion");
              } else {
                  TablaSimbolos.TABLA_SIMBOLOS.put(aux ,new Info($3.sval, $2.sval, "INT", "Funcion", ambito));
                  TablaSimbolos.TABLA_SIMBOLOS.get(aux).setListaVariablesRetorno(new ArrayList<>((ArrayList<String>)$1.obj));
@@ -353,7 +356,9 @@ encabezado_funcion
                  System.out.println("auxInfo:"+TablaSimbolos.TABLA_SIMBOLOS.get(aux));
                  ambito += '.' + $3.sval;
              }
+
     }   '(' lista_param_formales ')' {
+
             // $1.obj trae la lista de variables auxiliares de retorno (ej: [aux0.main, aux1.main])
             int indiceCorte = ((ArrayList<String>)$1.obj).size();
             //creacion de tercetos auxiliares con ambito del padre de la funcion
@@ -725,9 +730,6 @@ sentencia_asignacion_multiple
                 Logger.logError(cursor.getCurrentLine(),
                     "La cantidad de variables (" + listaVariables.size() + ") no coincide con la cantidad de expresiones (" + listaExpresiones.size() + ").");
             }
-            if (listaVariables.size () == 1) {
-                Logger.logError(cursor.getCurrentLine(), "Asignacion multiple de una sola variable");
-            }
 
             for (int i = 0; i < listaVariables.size() && i < listaExpresiones.size() ; i++) {
                 ParserVal variable = listaVariables.get(i);   // El ParserVal de la variable (contiene sval)
@@ -839,9 +841,24 @@ parametro_lambda
             TablaSimbolos.TABLA_SIMBOLOS.put(aux, new Info($3.sval, "ID", $2.sval.toUpperCase(), "Variable", ambito));
             $$.sval = aux;
         }
-    |
-
+        | parametro_lambda_error
     ;
+
+    parametro_lambda_error
+        :   '(' ID ')' {
+                $$.sval = null;
+                Logger.logError(cursor.getCurrentLine(), "Falta del tipo en parametro_lambda");
+            }
+        |   '(' tipo ')' {
+                $$.sval = null;
+                Logger.logError(cursor.getCurrentLine(), "Falta del ID en parametro_lambda");
+            }
+        |   '(' error ')' {
+                $$.sval = null;
+                Logger.logError(cursor.getCurrentLine(), "Falta del tipo e ID en parametro_lambda");
+            }
+        ;
+
 
 cuerpo_lambda
     :   '{' cuerpo_ejecutable '}'

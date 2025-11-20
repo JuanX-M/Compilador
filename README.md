@@ -2,9 +2,7 @@
 
 ### Cosas que hay que hacer andar:
 
-* Redeclaracion de variables en diferentes ambitos
-
-* chequear en asignacion multiple que haya como minimo 2 variables y 2 exp aritmetcas
+* chequear en asignacion multiple que haya como minimo 2 variables y 2 exp aritmeticas
 * Cuando se detecte una invocacion, se debera generar codigo para la misma, chequeando que el tipo de los
     parametros reales sean compatibles con el tipo de los parametros formales correspondientes, o incluyan la
     conversion correspondiente.
@@ -19,6 +17,7 @@
 * '-' en expresion aritmetica cuando esta solo o con espacio
 * chequeo en asignacion multiple y que en lado derecho tengo muchas funciones con multiples retornos, que hago?
 ### Cosas que andan:
+* Redeclaracion de variables en diferentes ambitos
 * Chequeo de los tipos en parametro:
   * Copia resultado
   * Solo escritura
@@ -38,6 +37,7 @@
 * Chequeto de ambito
   * Chequeo de variable
   * Chequeo de Funcion
+  * Declaracion de funcion
 * En asignacion multiple chequear si cant lado izq = cant lado derecho, por posicion, chequear tipos de forma individual
 * Condicion if
 * Misma cantidad de elementos en asignacion multiple
