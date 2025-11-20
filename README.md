@@ -17,8 +17,7 @@
 * Permitir mas retornos que el numero de lados izquierdos
 * revisar sentencias if/else e iteraciones con retorno una vez finalizado cheques tipos en funcion
 * '-' en expresion aritmetica cuando esta solo o con espacio
-
-
+* chequeo en asignacion multiple y que en lado derecho tengo muchas funciones con multiples retornos, que hago?
 ### Cosas que andan:
 * Chequeo de los tipos en parametro:
   * Copia resultado
@@ -61,13 +60,13 @@
 * For
 * Todo de lambda
 
-
-### Haciendo:
 * Chequeo de tipos ( no se puede hcaer hasta definir como detectar una funcion con retorno multiples) JuanX
   * Parametros formales
   * Parametros reales
     * Asociacion con tipo parametro formal
 * Chequeo de SE y LE de parametro formal
+### Haciendo:
+
 ### Aclaraciones de diseño:
 
 ### Testeando
