@@ -489,7 +489,7 @@ lista_sentencias_funcion
 
 sentencia_lambda
     :   parametro_lambda {
-            // asignamos el argumento al paramtero
+            // asignamos el argumento al parametro
             $$ = crearTerceto(new ParserVal(":="),$1,null);
             int numTercetoActual = ((Terceto)$$.obj).getSoloNumTerceto();
             pila.push(numTercetoActual);;
@@ -1104,11 +1104,21 @@ expresion_aritmetica_toi
     :   TOI '(' expresion_aritmetica ')' { //lautaro
             //CREAR TERCETO toi
             if (getTipoParserVal($3).equals("INT"))
-            	Logger.logError(cursor.getCurrentLine(), "Variable en sentencia TOI ya es de tipo entero");
+            	Logger.logWarning(cursor.getCurrentLine(), "Variable en sentencia TOI ya es de tipo entero");
 	    else{
-	         $$=crearTerceto($1,$3,null);
-		 listaTercetos.add((Terceto)$$.obj);
-		 ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+	    	String aux = $3.sval + ".toi";
+	    	if (!TablaSimbolos.TABLA_SIMBOLOS.containsKey(aux)){
+		     TablaSimbolos.TABLA_SIMBOLOS.put(aux, new Info($3.sval, "ID", "INT", "Variable", ambito));
+	    }
+	    $$=crearTerceto($1,$3,null);
+	    System.out.println("Terceto");
+      	    System.out.println($1);
+	    listaTercetos.add((Terceto)$$.obj);
+	    ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+	    $$ = crearTerceto(new ParserVal(":="),new ParserVal(aux),$$);
+	    System.out.println("printea" + $$.obj);
+            listaTercetos.add((Terceto)$$.obj);
+            ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
     	    }
     }
     |   expresion_aritmetica_toi_error
