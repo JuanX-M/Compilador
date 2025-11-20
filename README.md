@@ -16,6 +16,9 @@
 * revisar sentencias if/else e iteraciones con retorno una vez finalizado cheques tipos en funcion
 * '-' en expresion aritmetica cuando esta solo o con espacio
 * chequeo en asignacion multiple y que en lado derecho tengo muchas funciones con multiples retornos, que hago?
+* No se rompe si hay menor cantidad de parametros formales a comparacion de los reales
+
+
 ### Cosas que andan:
 * Redeclaracion de variables en diferentes ambitos
 * Chequeo de los tipos en parametro:
@@ -68,6 +71,7 @@
 ### Haciendo:
 
 ### Aclaraciones de diseño:
+Seguimos logica de asignaciones multiples por sobre mas retornos que tipos de funcion
 
 ### Testeando
 
