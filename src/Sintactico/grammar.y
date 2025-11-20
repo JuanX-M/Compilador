@@ -13,7 +13,6 @@
     import Tools.Logger;
     import Tools.Cursor;
     import Tools.Info;
-
     import Tools.Terceto;
 
 %}
@@ -29,10 +28,7 @@
 %%
 
 prog
-    :   nombre_programa '{' cuerpo '}'{
-
-
-        }
+    :   nombre_programa '{' cuerpo '}'
     |   prog_error
     ;
 
@@ -47,7 +43,6 @@ prog_error
 
 nombre_programa
     :   ID {
-
             if (TablaSimbolos.TABLA_SIMBOLOS.containsKey($1.sval)) {
                 Logger.logError(cursor.getCurrentLine(), "Nombre de programa ya existe");
             } else {
@@ -97,7 +92,6 @@ sentencia_declarativa
     :   funcion  {
         Logger.logRule(cursor.getCurrentLine(), "Sentencia DECLARACION FUNCION");}
     |   declaracion_variable
-//    |   declaracion_variable_sin_coma
     ;
 
 sentencia_declarativa_sin_coma
@@ -117,15 +111,10 @@ sentencia_ejecucion_sin_coma
 
 funcion
     :   encabezado_funcion '{' cuerpo_funcion '}'   {
-
-
             ArrayList<String> listaCombinada = (ArrayList<String>)$1.obj;      // Tiene lista de auxiliares + parametros formales
-
             ArrayList<String> listaVariablesRetorno = new ArrayList<>(listaCombinada.subList(0, $1.ival));
             ArrayList<String> listaParametrosFormales = new ArrayList<>(listaCombinada.subList($1.ival, listaCombinada.size()));
-
             ArrayList<ParserVal> listaExpAritmeticas = (ArrayList<ParserVal>)$3.obj; // Valores en el return
-
 
             if (listaVariablesRetorno.size() > listaExpAritmeticas.size()) {
                 Logger.logError(cursor.getCurrentLine(),
@@ -145,10 +134,10 @@ funcion
             }
             //asignacion a auxiliares los valores de los parametros formales CR
             for (int i = 0; i < listaParametrosFormales.size(); i++){
-                    String auxString=TablaSimbolos.TABLA_SIMBOLOS.get(listaParametrosFormales.get(i)).getVarAux();
-                    $$=crearTerceto(new ParserVal(":="),new ParserVal(auxString),new ParserVal(listaParametrosFormales.get(i)));
-                    listaTercetos.add((Terceto)$$.obj);
-                    ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+                String auxString=TablaSimbolos.TABLA_SIMBOLOS.get(listaParametrosFormales.get(i)).getVarAux();
+                $$=crearTerceto(new ParserVal(":="),new ParserVal(auxString),new ParserVal(listaParametrosFormales.get(i)));
+                listaTercetos.add((Terceto)$$.obj);
+                ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
             }
 
             //creacion terceto RET
@@ -156,12 +145,10 @@ funcion
             listaTercetos.add((Terceto)$$.obj);
             ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
 
-
             int pos = ambito.lastIndexOf('.');
             if (pos != -1) {
                 ambito = ambito.substring(0, pos);
             }
-
 
             // 1. Sacamos de la pila el número de terceto del BI que se creó en 'lista_tipos'
             int numTercetoBI = pila.pop();
@@ -175,20 +162,12 @@ funcion
             // el destino suele ir en el segundo operando.
             listaTercetos.get(numTercetoBI - 1).addSecond(destino);
         }
-
-
-
     |   sentencia_lambda    {Logger.logRule(cursor.getCurrentLine(), "Sentencia LAMBDA");}
-    //|   funcion_error
     ;
 
 declaracion_variable
     :   declaracion_unaria
     ;
-
-//declaracion_variable_sin_coma
-//    :   declaracion_variable    {Logger.logError(cursor.getCurrentLine(), "Falta de ';' al final de la declaracion de variable.");}
-//    ;
 
 sentencia_print
     :   PRINT '(' STRING ')' {
@@ -242,7 +221,6 @@ cuerpo_seleccion
             ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
 
             pila.push( ((Terceto)$$.obj).getSoloNumTerceto() ); // pusheo el nro de terceto del BI incompleto
-               //a
             // Creacion etiqueta
             int numTercetoActual = ((Terceto)$$.obj).getSoloNumTerceto() + 1;
             String etiqueta = "ETIQUETA"+ numTercetoActual;
@@ -269,7 +247,7 @@ cuerpo_seleccion
             ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
 
             $$=$7;
-            }
+        }
     |  '{' parte_if '}' {
             //Saco el nro de terceto del BF incompleto de la pila ya que no hay ELSE
             //Aca no creo BI y no hago +1
@@ -294,7 +272,6 @@ cuerpo_seleccion_error
 parte_if
     :   cuerpo_ejecutable {
             //aca se completa BF con nro de terceto del cuerpo_ejecutable + 1
-            //
             int numTercetoBackpatch = pila.peek();
 
             //obtengo referencia terceto de cuerpo_ejecutable, parseo a integer  y hago + 1
@@ -317,40 +294,40 @@ sentencia_seleccion_sin_endif
 
 sentencia_iteracion
     :   FOR parametros_iteracion cuerpo_iteracion {
-	if ($2.obj != null){
-		//Creo el terceto de incremento/decremento de la variable de control del for
+	        if ($2.obj != null){
+                //Creo el terceto de incremento/decremento de la variable de control del for
 
-		if (((Terceto)$2.obj).getFirst() == "<"){
-		    // terceto de incremento
-		    $$= crearTerceto(new ParserVal("+"), new ParserVal(((Terceto)$2.obj).getSecond()), new ParserVal("1"));
-		}
-		else{
-		    //terceto de decremento
-		    $$= crearTerceto(new ParserVal("-"), new ParserVal(((Terceto)$2.obj).getSecond()), new ParserVal("1"));
-		}
-		//agrego terceto de incremento/decremento al arraylist
-		listaTercetos.add((Terceto)$$.obj);
-		((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+                if (((Terceto)$2.obj).getFirst() == "<"){
+                // terceto de incremento
+                    $$= crearTerceto(new ParserVal("+"), new ParserVal(((Terceto)$2.obj).getSecond()), new ParserVal("1"));
+                }
+                else{
+                    //terceto de decremento
+                    $$= crearTerceto(new ParserVal("-"), new ParserVal(((Terceto)$2.obj).getSecond()), new ParserVal("1"));
+                }
+                //agrego terceto de incremento/decremento al arraylist
+                listaTercetos.add((Terceto)$$.obj);
+                ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
 
-		int aux = ((Terceto)$2.obj).getSoloNumTerceto()-1; //Necesito la posicion de la etiqueta
-		String aux2 = "(" + String.valueOf(aux) + ")";
+                int aux = ((Terceto)$2.obj).getSoloNumTerceto()-1; //Necesito la posicion de la etiqueta
+                String aux2 = "(" + String.valueOf(aux) + ")";
 
-		//Creo terceto BI para volver al inicio de la iteracion y lo agrego
-		$$= crearTerceto(new ParserVal("BI"), new ParserVal(aux2), null);
+                //Creo terceto BI para volver al inicio de la iteracion y lo agrego
+                $$= crearTerceto(new ParserVal("BI"), new ParserVal(aux2), null);
 
-		listaTercetos.add((Terceto)$$.obj);
-		((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+                listaTercetos.add((Terceto)$$.obj);
+                ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
 
-		// Creacion etiqueta
-		int numTercetoActual = listaTercetos.get(listaTercetos.size()-1).getSoloNumTerceto() + 1;
-		String etiqueta = "ETIQUETA" + numTercetoActual;
-		$$= crearTerceto(new ParserVal(etiqueta),null,null);
-		listaTercetos.add((Terceto)$$.obj);
-		((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+                // Creacion etiqueta
+                int numTercetoActual = listaTercetos.get(listaTercetos.size()-1).getSoloNumTerceto() + 1;
+                String etiqueta = "ETIQUETA" + numTercetoActual;
+                $$= crearTerceto(new ParserVal(etiqueta),null,null);
+                listaTercetos.add((Terceto)$$.obj);
+                ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
 
-		$$=$3;
-	}
-				       }
+                $$=$3;
+	        }
+	    }
     ;
 
 sentencia_asignacion
@@ -361,105 +338,102 @@ sentencia_asignacion
 encabezado_funcion
     :   lista_tipos FUN ID  {
 
-         String aux = $3.sval + '.' + ambito;
-         if (TablaSimbolos.TABLA_SIMBOLOS.containsKey(aux)) {
-             Logger.logError(cursor.getCurrentLine(), "Redeclaracion de funcion");
-         } else {
-             TablaSimbolos.TABLA_SIMBOLOS.put( aux ,new Info($3.sval, $2.sval, "INT", "Funcion", ambito));
-             TablaSimbolos.TABLA_SIMBOLOS.get(aux).setListaVariablesRetorno(new ArrayList<>((ArrayList<String>)$1.obj));
+             String aux = $3.sval + '.' + ambito;
+             if (TablaSimbolos.TABLA_SIMBOLOS.containsKey(aux)) {
+                 Logger.logError(cursor.getCurrentLine(), "Redeclaracion de funcion");
+             } else {
+                 TablaSimbolos.TABLA_SIMBOLOS.put( aux ,new Info($3.sval, $2.sval, "INT", "Funcion", ambito));
+                 TablaSimbolos.TABLA_SIMBOLOS.get(aux).setListaVariablesRetorno(new ArrayList<>((ArrayList<String>)$1.obj));
 
-             System.out.println("auxInfo:"+TablaSimbolos.TABLA_SIMBOLOS.get(aux));
-             ambito += '.' + $3.sval;
-         }
+                 System.out.println("auxInfo:"+TablaSimbolos.TABLA_SIMBOLOS.get(aux));
+                 ambito += '.' + $3.sval;
+             }
+
+    }   '(' lista_param_formales ')' {
+
+            // $1.obj trae la lista de variables auxiliares de retorno (ej: [aux0.main, aux1.main])
+            int indiceCorte = ((ArrayList<String>)$1.obj).size();
+            //creacion de tercetos auxiliares con ambito del padre de la funcion
+
+            String auxambito=ambito;
+            int pos = auxambito.lastIndexOf('.');
+
+            if (pos != -1) {
+                auxambito = auxambito.substring(0, pos);
+            }
+
+            //itero en arraylist ((ArrayList<String>)$6.obj) y creo tercetos auxiliares con el tipo
+            //del parametro formal
+
+            ArrayList<String> listaParametros = (ArrayList<String>)$6.obj;
+
+            // Buscamos la función en la tabla usando su nombre ($3) y el ámbito del padre (auxambito)
+            String claveFuncion = $3.sval + "." + auxambito;
+            TablaSimbolos.TABLA_SIMBOLOS.get(claveFuncion).setListaParametrosFormales((ArrayList<String>)$6.obj);
+
+            String valorDefecto;
+            for (String parametro : listaParametros) {
+                String auxString = "aux" + String.valueOf(contadorVariablesAuxTercetos);
+                Info pfInfo = TablaSimbolos.TABLA_SIMBOLOS.get(parametro);
 
 
-    } '(' lista_param_formales ')' {
+                //hago put en la tabla de simbolos de la nueva variable auxiliar
 
+                if (pfInfo.getTipo().equalsIgnoreCase("FLOAT")){
+                    TablaSimbolos.TABLA_SIMBOLOS.put(auxString + "."+ auxambito, new Info(auxString, "ID", "FLOAT", "Variable", auxambito));
 
-                // $1.obj trae la lista de variables auxiliares de retorno (ej: [aux0.main, aux1.main])
-                int indiceCorte = ((ArrayList<String>)$1.obj).size();
-                //creacion de tercetos auxiliares con ambito del padre de la funcion
-
-                String auxambito=ambito;
-                int pos = auxambito.lastIndexOf('.');
-
-                if (pos != -1) {
-                    auxambito = auxambito.substring(0, pos);
+                    valorDefecto = "-1.0";
+                } else {
+                    TablaSimbolos.TABLA_SIMBOLOS.put(auxString + "."+ auxambito, new Info(auxString, "ID", "INT", "Variable", auxambito));
+                    valorDefecto = "-1";
                 }
 
-                //itero en arraylist ((ArrayList<String>)$6.obj) y creo tercetos auxiliares con el tipo
-                //del parametro formal
+                //asociacion de aux con parametro formal, para usar en asgincaciones de return
+                TablaSimbolos.TABLA_SIMBOLOS.get(parametro).setVarAux(auxString + "."+ auxambito);
+                if (!TablaSimbolos.TABLA_SIMBOLOS.get(parametro).getUso().contains("CV")) {
+                    ((ArrayList<String>)$1.obj).add(parametro); // hago esto para para luego realizar asignaciones de return al finalizar funcion, solo con parametros CR
+                }
 
-                ArrayList<String> listaParametros = (ArrayList<String>)$6.obj;
+                $$= crearTerceto(new ParserVal(":="), new ParserVal(auxString + "."+ auxambito), new ParserVal(valorDefecto));
 
-                // Buscamos la función en la tabla usando su nombre ($3) y el ámbito del padre (auxambito)
-                String claveFuncion = $3.sval + "." + auxambito;
-                TablaSimbolos.TABLA_SIMBOLOS.get(claveFuncion).setListaParametrosFormales((ArrayList<String>)$6.obj);
+                listaTercetos.add((Terceto)$$.obj);
+                ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+                contadorVariablesAuxTercetos++;
+		    }
 
-                String valorDefecto;
-                for (String parametro : listaParametros) {
-                    String auxString = "aux" + String.valueOf(contadorVariablesAuxTercetos);
-                    Info pfInfo = TablaSimbolos.TABLA_SIMBOLOS.get(parametro);
+		    // Creacion etiqueta
+		    int numTercetoActual = listaTercetos.get(listaTercetos.size()-1).getSoloNumTerceto() + 1;
+		    String etiqueta = "ETIQUETA" + numTercetoActual;
+		    $$= crearTerceto(new ParserVal(etiqueta),null,null);
+		    listaTercetos.add((Terceto)$$.obj);
+		    ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+		    TablaSimbolos.TABLA_SIMBOLOS.get($3.sval + '.' + auxambito).setNroTercetoEtiqueta(getReferencia($$));
 
+		    //creacion de tercetos que inicializan parametros formales
 
-                    //hago put en la tabla de simbolos de la nueva variable auxiliar
-
-                    if (pfInfo.getTipo().equalsIgnoreCase("FLOAT")){
-                        TablaSimbolos.TABLA_SIMBOLOS.put(auxString + "."+ auxambito, new Info(auxString, "ID", "FLOAT", "Variable", auxambito));
-
-                        valorDefecto = "-1.0";
-                    } else {
-                        TablaSimbolos.TABLA_SIMBOLOS.put(auxString + "."+ auxambito, new Info(auxString, "ID", "INT", "Variable", auxambito));
-                        valorDefecto = "-1";
-                    }
-
-                    //asociacion de aux con parametro formal, para usar en asgincaciones de return
-                    TablaSimbolos.TABLA_SIMBOLOS.get(parametro).setVarAux(auxString + "."+ auxambito);
-                    if (!TablaSimbolos.TABLA_SIMBOLOS.get(parametro).getUso().contains("CV")) {
-                        ((ArrayList<String>)$1.obj).add(parametro); // hago esto para para luego realizar asignaciones de return al finalizar funcion, solo con parametros CR
-                    }
-
-                    $$= crearTerceto(new ParserVal(":="), new ParserVal(auxString + "."+ auxambito), new ParserVal(valorDefecto));
-
-                    listaTercetos.add((Terceto)$$.obj);
-                    ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
-                    contadorVariablesAuxTercetos++;
-		}
-
-
-		// Creacion etiqueta
-		int numTercetoActual = listaTercetos.get(listaTercetos.size()-1).getSoloNumTerceto() + 1;
-		String etiqueta = "ETIQUETA" + numTercetoActual;
-		$$= crearTerceto(new ParserVal(etiqueta),null,null);
-		listaTercetos.add((Terceto)$$.obj);
-		((Terceto)$$.obj).addLine(cursor.getCurrentLine());
-		TablaSimbolos.TABLA_SIMBOLOS.get($3.sval + '.' + auxambito).setNroTercetoEtiqueta(getReferencia($$));
-
-		//creacion de tercetos que inicializan parametros formales
-
-		for (String parametro : listaParametros) {
-			if (TablaSimbolos.TABLA_SIMBOLOS.get(parametro).getUso().contains("CV")){
-			    $$= crearTerceto(new ParserVal(":="),
-				new ParserVal(parametro),
-				new ParserVal(TablaSimbolos.TABLA_SIMBOLOS.get(parametro).getVarAux()));
-			} else{
-			    if (TablaSimbolos.TABLA_SIMBOLOS.get(parametro).getTipo().equalsIgnoreCase("FLOAT")){
-				valorDefecto = "-1.0";
+		    for (String parametro : listaParametros) {
+			    if (TablaSimbolos.TABLA_SIMBOLOS.get(parametro).getUso().contains("CV")){
+			        $$= crearTerceto(new ParserVal(":="),
+				    new ParserVal(parametro),
+				    new ParserVal(TablaSimbolos.TABLA_SIMBOLOS.get(parametro).getVarAux()));
 			    } else {
-				valorDefecto = "-1";
+			        if (TablaSimbolos.TABLA_SIMBOLOS.get(parametro).getTipo().equalsIgnoreCase("FLOAT")){
+				        valorDefecto = "-1.0";
+			        } else {
+				        valorDefecto = "-1";
+			        }
+			        $$= crearTerceto(new ParserVal(":="),
+			        new ParserVal(parametro),
+			        new ParserVal(valorDefecto));
 			    }
-			    $$= crearTerceto(new ParserVal(":="),
-			    new ParserVal(parametro),
-			    new ParserVal(valorDefecto));
-			}
 
-		listaTercetos.add((Terceto)$$.obj);
-		((Terceto)$$.obj).addLine(cursor.getCurrentLine());
-		}
+		        listaTercetos.add((Terceto)$$.obj);
+		        ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+		    }
 
             $$.obj = $1.obj; //devuelvo arraylist de variables auxiliares de tipos + parametros formales
             $$.ival = indiceCorte;
-            }
+        }
     |   encabezado_funcion_error
     ;
 
@@ -477,9 +451,9 @@ cuerpo_funcion
 
 lista_sentencias_funcion_error
     :   lista_sentencias_funcion sentencia_retorno lista_sentencias_funcion{
-        $$ = $2;
-        Logger.logError(cursor.getCurrentLine(), "Sentencias ejecutables luego de un error obligatorio");
-    }
+            $$ = $2;
+            Logger.logError(cursor.getCurrentLine(), "Sentencias ejecutables luego de un error obligatorio");
+        }
     ;
 
 lista_sentencias_funcion
@@ -497,19 +471,19 @@ sentencia_lambda
                 listaTercetos.add((Terceto)$$.obj);
                 ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
             }
-        } cuerpo_lambda argumento_lambda {
-            if ($4.sval != null && $1.sval != null) {
-                Info infoPar = TablaSimbolos.TABLA_SIMBOLOS.get($1.sval);
-                Info infoArg = TablaSimbolos.TABLA_SIMBOLOS.get($4.sval);
-                int numTercetoBackpatch = pila.pop();
-                if(infoPar.getTipo().equals(infoArg.getTipo()))
-                    listaTercetos.get(numTercetoBackpatch -1).addThird(getReferencia($4));
-                else {
-                    listaTercetos.remove(numTercetoBackpatch -1);
-                    Logger.logError(cursor.getCurrentLine(), "Incompatibilidad de tipos en parametro y argumento de sentencia Lambda");
+        }   cuerpo_lambda argumento_lambda {
+                if ($4.sval != null && $1.sval != null) {
+                    Info infoPar = TablaSimbolos.TABLA_SIMBOLOS.get($1.sval);
+                    Info infoArg = TablaSimbolos.TABLA_SIMBOLOS.get($4.sval);
+                    int numTercetoBackpatch = pila.pop();
+                    if(infoPar.getTipo().equals(infoArg.getTipo()))
+                        listaTercetos.get(numTercetoBackpatch -1).addThird(getReferencia($4));
+                    else {
+                        listaTercetos.remove(numTercetoBackpatch -1);
+                        Logger.logError(cursor.getCurrentLine(), "Incompatibilidad de tipos en parametro y argumento de sentencia Lambda");
+                    }
                 }
             }
-        }
     ;
 
 declaracion_unaria
@@ -517,15 +491,11 @@ declaracion_unaria
             String aux = $2.sval + '.' + ambito;
             ParserVal auxParserVal= $4;
             if ( auxParserVal.obj!=null && auxParserVal.obj.getClass().equals(java.util.ArrayList.class)){
-
                  Logger.logError(cursor.getCurrentLine(), "Error: Funcion con retorno multiple en declaracion simple.");
                  // Recuperación de error: tomamos el primero para seguir compilando
                  auxParserVal = ((ArrayList<ParserVal>)auxParserVal.obj).get(0);
-
             }
-
             String tipoInferido = getTipoParserVal(auxParserVal);
-
 
             if (TablaSimbolos.TABLA_SIMBOLOS.containsKey(aux)) {
                 Logger.logError(cursor.getCurrentLine(), "Redeclaracion de variable");
@@ -537,12 +507,12 @@ declaracion_unaria
             $$ = crearTerceto($3, $2, auxParserVal);
             listaTercetos.add((Terceto)$$.obj);
             ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
-      }
+        }
     |   declaracion_unaria_error
     ;
 
 declaracion_unaria_error
-    : VAR ID expresion_aritmetica    {Logger.logError(cursor.getCurrentLine(), "Falta de asignacion en declaracion de variable");}
+    :   VAR ID expresion_aritmetica    {Logger.logError(cursor.getCurrentLine(), "Falta de asignacion en declaracion de variable");}
     ;
 
 lista_exp_aritmeticas
@@ -604,8 +574,6 @@ parametros_seleccion_error
     |   condicion       {Logger.logError(cursor.getCurrentLine(), "Falta de '()' en condicion de seleccion");}
     ;
 
-
-
 parametros_iteracion
     :   '(' encabezado_iteracion ')' {
 
@@ -634,20 +602,18 @@ cuerpo_iteracion
     :   '{' cuerpo_ejecutable '}'{
     		System.out.println("Pasa a cuerpo_ejecutable");
 
-                //obtengo referencia terceto de cuerpo_ejecutable, parseo a integer  y hago + 3
-                // porque tengo terceto BI y terceto de incremeto de variable de control del for
-                System.out.println($2.sval);
-                if ($2.sval != null){
-                	//Saco el nro de terceto del BF incompleto de la pila
-                	int numTercetoBackpatch = pila.pop();
-                	Integer aux= Integer.parseInt(getReferencia($2).replaceAll("\\D","")) + 3 ;
-			String auxString = "(" + String.valueOf(aux) + ")";
-			listaTercetos.get(numTercetoBackpatch -1).addThird(auxString); /* completo el tercer operando del BF*/
-		}
-                System.out.println("Llega al fin");
-
+            //obtengo referencia terceto de cuerpo_ejecutable, parseo a integer  y hago + 3
+            // porque tengo terceto BI y terceto de incremeto de variable de control del for
+            System.out.println($2.sval);
+            if ($2.sval != null){
+                //Saco el nro de terceto del BF incompleto de la pila
+                int numTercetoBackpatch = pila.pop();
+                Integer aux= Integer.parseInt(getReferencia($2).replaceAll("\\D","")) + 3 ;
+			    String auxString = "(" + String.valueOf(aux) + ")";
+			    listaTercetos.get(numTercetoBackpatch -1).addThird(auxString); /* completo el tercer operando del BF*/
+		    }
+            System.out.println("Llega al fin");
     	}
-
     |   cuerpo_iteracion_error
     ;
 
@@ -658,7 +624,6 @@ cuerpo_iteracion_error
 sentencia_asignacion_unaria
     :   ID TWO_POINTS_ASSIGNATION expresion_aritmetica {
           //Chequeo ambito
-
             if (!TablaSimbolos.TABLA_SIMBOLOS.containsKey($1.sval + '.' + ambito)) {
                 Logger.logError(cursor.getCurrentLine(), "Variable sin declarar");
             }else {
@@ -681,9 +646,7 @@ sentencia_asignacion_unaria
             ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
         }
     |   ID'.'ID TWO_POINTS_ASSIGNATION expresion_aritmetica {
-
             //Chequeo ambito
-
             String nombreAmbitoActual = "";
             int ultimoPunto = ambito.lastIndexOf('.');
             if (ultimoPunto != -1) {
@@ -713,14 +676,10 @@ sentencia_asignacion_unaria
                 $3.sval = $3.sval + '.' + getScope(ambitoaux,$3.sval);
             }
 
-
-
-
             ParserVal auxParserVal =$5;
             if (auxParserVal.obj!=null && auxParserVal.obj.getClass().equals(java.util.ArrayList.class)){
                 Logger.logError(cursor.getCurrentLine(), "Error: Asignación de retorno múltiple a variable simple.");
                 auxParserVal= ((ArrayList<ParserVal>)auxParserVal.obj).get(0);
-
             }
 
             if (!checkTipo($3, auxParserVal)) {
@@ -730,7 +689,6 @@ sentencia_asignacion_unaria
 
             listaTercetos.add((Terceto)$$.obj);
             ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
-
         }
     |   sentencia_asignacion_unaria_error
     ;
@@ -752,7 +710,6 @@ sentencia_asignacion_multiple
             }
 
             for (int i = 0; i < listaVariables.size() && i < listaExpresiones.size() ; i++) {
-
                 ParserVal variable = listaVariables.get(i);   // El ParserVal de la variable (contiene sval)
                 ParserVal expresion = listaExpresiones.get(i); // El ParserVal de la expresion (contiene sval o obj)
                 if (!checkTipo(variable, expresion)) {
@@ -768,7 +725,6 @@ sentencia_asignacion_multiple
 
 lista_tipos
     :   lista_tipos ',' tipo    {
-
 
             //creacion variable auxiliar para poner en la tabla
             String auxString = "aux" + String.valueOf(contadorVariablesAuxTercetos);
@@ -789,19 +745,16 @@ lista_tipos
             listaTercetos.add((Terceto)$$.obj);
             ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
 
-
             ((ArrayList<String>)$1.obj).add(auxString+"."+ambito); // Agrega aux al arraylist
             $$ = $1; // Pasa la lista modificada hacia arriba, no terceto auxiliar creado ni auxString
         }
-    |   tipo                    {
-
+    |   tipo    {
             //Aca se genera Terceto BI incompleto para saltar al siguiente nro terceto para no ejecutar la funcion
             $$=crearTerceto(new ParserVal ("BI"), null,null);
             contadorVariablesAuxTercetos++;
             listaTercetos.add((Terceto)$$.obj);
             ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
             pila.push( ((Terceto)$$.obj).getSoloNumTerceto());
-
 
             ArrayList<String> listaVariablesAux = new ArrayList<>();
             //lista con variables aux con ambito, se utilizan para chequeos y asignacion luego en los return
@@ -827,7 +780,6 @@ lista_tipos
 
             listaVariablesAux.add(auxString+"."+ambito);
             $$ = new ParserVal(listaVariablesAux);//paso lista de tipos, no la variable
-
         }
     |   lista_tipos_error
     ;
@@ -838,8 +790,6 @@ lista_tipos_error
 
 lista_param_formales
     :   lista_param_formales ',' parametro_formal{
-
-
             ((ArrayList<String>)$1.obj).add($3.sval); // Agrega el nuevo parametro formal
             $$ = $1; // Pasa la lista modificada hacia arriba
         }
@@ -856,11 +806,12 @@ sentencia_funcion
     :   sentencia
     |   sentencia_ejecucion_retorno ';'
     |   sentencia_ejecucion_retorno_sin_coma
-
     ;
+
 sentencia_ejecucion_retorno_sin_coma
     :   sentencia_ejecucion_retorno  {Logger.logError(cursor.getCurrentLine(), "Falta de ';' al final de las sentencias.");}
     ;
+
 parametro_lambda
     :   '(' tipo ID ')' {
             ambito += ".lambda" + cursor.getCurrentLine();
@@ -876,8 +827,8 @@ cuerpo_lambda
     ;
 
 cuerpo_lambda_error
-    :   cuerpo_ejecutable '}'          {Logger.logError(cursor.getCurrentLine(), "Falta delimitador izquierdo '{' del cuerpo lambda");}
-    //|   '{' cuerpo error  {Logger.logError(cursor.getCurrentLine(), "Falta delimitador derecho '}' del cuerpo lambda");}
+    :   cuerpo_ejecutable '}'   {Logger.logError(cursor.getCurrentLine(), "Falta delimitador izquierdo '{' del cuerpo lambda");}
+    //|   '{' cuerpo error      {Logger.logError(cursor.getCurrentLine(), "Falta delimitador derecho '}' del cuerpo lambda");}
     ;
 
 argumento_lambda
@@ -899,7 +850,6 @@ expresion_aritmetica
     :   expresion_aritmetica '+' termino  {
             ParserVal opIzq = $1;
             ParserVal opDer = $3;
-
             if (opIzq.obj != null && opIzq.obj.getClass().equals(java.util.ArrayList.class)){
                 Logger.logError(cursor.getCurrentLine(), "Operando izquierdo es función con retorno múltiple.");
                 opIzq = ((ArrayList<ParserVal>)opIzq.obj).get(0);
@@ -929,7 +879,6 @@ expresion_aritmetica
             listaTercetos.add((Terceto)$$.obj);
             ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
             Logger.logRule(cursor.getCurrentLine(), "Sentencia EXPRESION ARITMETICA");
-
         }
     |   expresion_aritmetica '-' termino{
             ParserVal opIzq = $1;
@@ -939,7 +888,7 @@ expresion_aritmetica
                 Logger.logError(cursor.getCurrentLine(), "Operando izquierdo es función con retorno múltiple.");
                 opIzq = ((ArrayList<ParserVal>)opIzq.obj).get(0);
                 if (TablaSimbolos.TABLA_SIMBOLOS.get(opIzq.sval).getTipo().contains("INT")){
-                       opIzq.ival = 1;
+                    opIzq.ival = 1;
                 } else {
                     opIzq.ival = 2;
                 }
@@ -964,7 +913,6 @@ expresion_aritmetica
             listaTercetos.add((Terceto)$$.obj);
             ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
             Logger.logRule(cursor.getCurrentLine(), "Sentencia EXPRESION ARITMETICA");
-
         }
     |   expresion_aritmetica_toi {
             $$ = $1;
@@ -1022,49 +970,47 @@ sentencia_ejecutable
 
 encabezado_iteracion
     :   ID FROM CTE_INT TO CTE_INT {
+            int aux1;
+    	    aux1 = Integer.parseInt($3.sval);
+    	    int aux2;
+            aux2 = Integer.parseInt($5.sval);
 
-    	int aux1;
-    	aux1 = Integer.parseInt($3.sval);
-    	int aux2;
-        aux2 = Integer.parseInt($5.sval);
+            String aux = $1.sval + '.' + ambito;
+            if (TablaSimbolos.TABLA_SIMBOLOS.containsKey(aux)) {
+                Logger.logError(cursor.getCurrentLine(), "Redeclaracion de variable");}
+            else {
+                //Creacion y Asignacion de variable de control del for
 
-        String aux = $1.sval + '.' + ambito;
-        if (TablaSimbolos.TABLA_SIMBOLOS.containsKey(aux)) {
-            Logger.logError(cursor.getCurrentLine(), "Redeclaracion de variable");}
-        else {
-            //Creacion y Asignacion de variable de control del for
+                TablaSimbolos.TABLA_SIMBOLOS.put(aux, new Info($1.sval, "CTE_INT", "INT", "Variable", ambito));
+                $$ = crearTerceto(new ParserVal(":="),new ParserVal(aux),$3);
+                listaTercetos.add((Terceto)$$.obj);
+                ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
 
-            TablaSimbolos.TABLA_SIMBOLOS.put(aux, new Info($1.sval, "CTE_INT", "INT", "Variable", ambito));
-            $$ = crearTerceto(new ParserVal(":="),new ParserVal(aux),$3);
-            listaTercetos.add((Terceto)$$.obj);
-            ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+                // Creacion etiqueta
+                int numTercetoActual = listaTercetos.get(listaTercetos.size()-1).getSoloNumTerceto() + 1;
+                String etiqueta = "ETIQUETA" + numTercetoActual;
+                $$= crearTerceto(new ParserVal(etiqueta),null,null);
+                listaTercetos.add((Terceto)$$.obj);
+                ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+            };
 
-            // Creacion etiqueta
-            int numTercetoActual = listaTercetos.get(listaTercetos.size()-1).getSoloNumTerceto() + 1;
-            String etiqueta = "ETIQUETA" + numTercetoActual;
-            $$= crearTerceto(new ParserVal(etiqueta),null,null);
-            listaTercetos.add((Terceto)$$.obj);
-            ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+            //ACA
 
-        };
-
-        //ACA
-
-        if (aux1 == aux2)
-            Logger.logWarning(cursor.getCurrentLine(), "Cuerpo de for no ejecutado debido a constantes iguales");
-        else{
-            if (aux1 < aux2){
-                $$=crearTerceto(new ParserVal("<"), $1, $5); //Creamos el Terceto de la condicion menor
-            }
+            if (aux1 == aux2)
+                Logger.logWarning(cursor.getCurrentLine(), "Cuerpo de for no ejecutado debido a constantes iguales");
             else{
-                $$=crearTerceto(new ParserVal(">"), $1, $5); //Creamos el Terceto de la condicion mayor
+                if (aux1 < aux2){
+                    $$=crearTerceto(new ParserVal("<"), $1, $5); //Creamos el Terceto de la condicion menor
                 }
+                else{
+                    $$=crearTerceto(new ParserVal(">"), $1, $5); //Creamos el Terceto de la condicion mayor
+                    }
 
-            listaTercetos.add((Terceto)$$.obj);
-            ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
-            Logger.logRule(cursor.getCurrentLine(), "Sentencia FOR");
+                listaTercetos.add((Terceto)$$.obj);
+                ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+                Logger.logRule(cursor.getCurrentLine(), "Sentencia FOR");
+            }
         }
-    }
     |   encabezado_iteracion_error
     ;
 
@@ -1077,7 +1023,7 @@ encabezado_iteracion_error
     ;
 
 lista_variables
-    :   lista_variables ',' variable        {
+    :   lista_variables ',' variable    {
             ((ArrayList<ParserVal>)$1.obj).add($3); // Agrega la nueva variable
             $$ = $1; // Pasa la lista modificada hacia arriba
         }
@@ -1160,8 +1106,6 @@ termino
                 }
             }
 
-
-
             if (!checkTipo(opIzq, opDer)) {
                  Logger.logError(cursor.getCurrentLine(), "Tipos incompatibles en multiplicacion entre " + getTipoParserVal(opIzq) + " y " + getTipoParserVal(opDer));
             }
@@ -1194,8 +1138,6 @@ termino
                     opDer.ival = 2;
                 }
             }
-
-
 
             if (!checkTipo(opIzq, opDer)) {
                  Logger.logError(cursor.getCurrentLine(), "Tipos incompatibles en division entre " + getTipoParserVal(opIzq) + " y " + getTipoParserVal(opDer));
@@ -1258,21 +1200,18 @@ simbolo_comparador
     ;
 
 variable
-    :   ID          {
+    :   ID  {
             //Chequeo ambito
-
             if (!TablaSimbolos.TABLA_SIMBOLOS.containsKey($1.sval + '.' + ambito)) {
                 Logger.logError(cursor.getCurrentLine(), "Variable sin declarar");
             }else {
                 //obtengo ambito en donde fue declarada
                 $1.sval = $1.sval + '.' + ambito;
             }
-        $$=$1;
+            $$=$1;
         }
     |   ID  '.' ID {
-
-//Chequeo ambito
-
+            //Chequeo ambito
             String nombreAmbitoActual = "";
             int ultimoPunto = ambito.lastIndexOf('.');
             if (ultimoPunto != -1) {
@@ -1285,7 +1224,6 @@ variable
             if ($1.sval.equals(nombreAmbitoActual)) {
                  Logger.logError(cursor.getCurrentLine(), "No se permite especificar mismo ambito en variables de ambito local.");
             }
-
 
             String ambitoaux = ambito;
             if (ambito.contains($1.sval)) {
@@ -1335,39 +1273,30 @@ sentencia_seleccion_sin_endif_retorno
 
 sentencia_iteracion_retorno
     :   FOR parametros_iteracion cuerpo_iteracion_retorno  {
+            //Creo el terceto de incremento/decremento de la variable de control del for
+            if (((Terceto)$2.obj).getFirst() == "<"){
+                // terceto de incremento
+                $$= crearTerceto(new ParserVal("+"), new ParserVal(((Terceto)$2.obj).getSecond()), new ParserVal("1"));
+            }
+            else{
+                //terceto de decremento
+                $$= crearTerceto(new ParserVal("-"), new ParserVal(((Terceto)$2.obj).getSecond()), new ParserVal("1"));
+            }
+            //agrego terceto de incremento/decremento al arraylist
+            listaTercetos.add((Terceto)$$.obj);
+            ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
 
-        //Creo el terceto de incremento/decremento de la variable de control del for
+            //Creo terceto BI para volver al inicio de la iteracion y lo agrego
+            $$= crearTerceto(new ParserVal("BI"), $2, null);
 
-        if (((Terceto)$2.obj).getFirst() == "<"){
-            // terceto de incremento
-
-            $$= crearTerceto(new ParserVal("+"), new ParserVal(((Terceto)$2.obj).getSecond()), new ParserVal("1"));
-        }
-        else{
-            //terceto de decremento
-            $$= crearTerceto(new ParserVal("-"), new ParserVal(((Terceto)$2.obj).getSecond()), new ParserVal("1"));
-        }
-        //agrego terceto de incremento/decremento al arraylist
-        listaTercetos.add((Terceto)$$.obj);
-        ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
-
-        //Creo terceto BI para volver al inicio de la iteracion y lo agrego
-
-        $$= crearTerceto(new ParserVal("BI"), $2, null);
-
-        listaTercetos.add((Terceto)$$.obj);
-        ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
-
-
-        $$=$3;
-
+            listaTercetos.add((Terceto)$$.obj);
+            ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+            $$=$3;
         }
     ;
 
 factor
     :   CTE_INT     {$$=$1;}
-
-
     |   CTE_FLOAT   {$$=$1;}
     |   invocacion_funcion {
             //Crear BI a con dest al primer terceto de la funcion
@@ -1449,7 +1378,6 @@ cuerpo_iteracion_retorno
             //Saco el nro de terceto del BF incompleto de la pila
             int numTercetoBackpatch = pila.pop();
 
-
             //obtengo referencia terceto de cuerpo_ejecutable, parseo a integer  y hago + 3
             // porque tengo terceto BI y terceto de incremeto de variable de control del for
             System.out.println("Raaa: " + $2.obj + "Juan que carajo es esto? 19/11/25");
@@ -1461,13 +1389,13 @@ cuerpo_iteracion_retorno
         }
 //    |   cuerpo_iteracion_error
     ;
+
 cuerpo_ejecutable_retorno
     :   cuerpo_ejecutable sentencia_retorno {
             $$=$2;
         }
     |   sentencia_retorno
     ;
-
 
 invocacion_funcion
     :   FUN ID '(' lista_param_reales ')' {
@@ -1484,11 +1412,7 @@ invocacion_funcion
                 claveAcceso = claveAcceso + "." + getScope(ambito, $2.sval);
                 funcInfo = TablaSimbolos.TABLA_SIMBOLOS.get(claveAcceso);
             }
-
             ArrayList<String> listaParametrosFormales = funcInfo.getListaParametrosFormales();
-
-
-
 
             // Copia los valores de las expresiones de la llamada a las variables auxiliares
             for (ParserVal param : listaParametros) {
@@ -1534,13 +1458,11 @@ invocacion_funcion
             listaTercetos.add((Terceto)callTerceto.obj);
             ((Terceto)callTerceto.obj).addLine(cursor.getCurrentLine());
 
-
             // Copia los valores DE VUELTA (para CR)
             for (ParserVal param : listaParametros) {
                 Pair<ParserVal, ParserVal> p = (Pair<ParserVal, ParserVal>) param.obj;
                 ParserVal parametroReal = p.getFirst();
                 String nombreParametroLlamada = p.getSecond().sval;
-
 
                 String nombreParametroCompleto = null;
                 for(String pf : listaParametrosFormales){
@@ -1552,7 +1474,6 @@ invocacion_funcion
 
                 Info paramInfo;
                 if(nombreParametroCompleto == null){
-
                    paramInfo = new Info(nombreParametroLlamada, "ID", null, "PF NULL" , ambito,"(0)");
                 } else {
                    paramInfo = TablaSimbolos.TABLA_SIMBOLOS.get(nombreParametroCompleto);
@@ -1565,36 +1486,30 @@ invocacion_funcion
                     listaTercetos.add((Terceto)yyval.obj);
                     ((Terceto)yyval.obj).addLine(cursor.getCurrentLine());
                 }
-
-                }
-
-                 ArrayList<String> listaNombresAux = funcInfo.getListaVariablesRetorno();
-                 ArrayList<ParserVal> listaParserVals = new ArrayList<>();
-
-                 for (String nombreAux : listaNombresAux) {
-                     ParserVal valRetorno = new ParserVal(nombreAux);
-                     listaParserVals.add(valRetorno);
-                 }
-
-                 if (listaParserVals.size() == 1) {
-                     $$ = listaParserVals.get(0);
-                 } else {
-                     ParserVal contenedor = new ParserVal();
-                     contenedor.obj = listaParserVals;
-                     $$ = contenedor;
-                 }
             }
 
+            ArrayList<String> listaNombresAux = funcInfo.getListaVariablesRetorno();
+            ArrayList<ParserVal> listaParserVals = new ArrayList<>();
 
+            for (String nombreAux : listaNombresAux) {
+                ParserVal valRetorno = new ParserVal(nombreAux);
+                listaParserVals.add(valRetorno);
+            }
 
-    }
+            if (listaParserVals.size() == 1) {
+                $$ = listaParserVals.get(0);
+            } else {
+                ParserVal contenedor = new ParserVal();
+                contenedor.obj = listaParserVals;
+                $$ = contenedor;
+            }
+        }
     |   invocacion_funcion_error
     ;
 
 invocacion_funcion_error
     :   FUN  '(' lista_param_reales ')' {Logger.logError(cursor.getCurrentLine(), "Falta de nombre en funcion en invocacion de funcion");}
     ;
-
 
 lista_param_reales
     :   lista_param_reales ',' parametro_real {
@@ -1622,6 +1537,7 @@ parametro_real
 parametro_real_error
     :   expresion_aritmetica ARROW  {Logger.logError(cursor.getCurrentLine(), "Falta especificacion del parametro formal");}
     ;
+
 %%
 private static int yylval_recognition = 0;
 
@@ -1760,19 +1676,16 @@ public boolean checkTipo(ParserVal val1, ParserVal val2) {
 }
 public String getScope(String ambito,String clave){
     while (!ambito.isEmpty()){
-
         if (TablaSimbolos.TABLA_SIMBOLOS.containsKey(clave+ "." + ambito)) {
             return ambito;
         }
-
         int pos = ambito.lastIndexOf('.');
         if (pos != -1) {
-         ambito = ambito.substring(0, pos);
+            ambito = ambito.substring(0, pos);
         } else {
-         ambito = "";
+            ambito = "";
         }
     }
-
     return null;
 }
 
