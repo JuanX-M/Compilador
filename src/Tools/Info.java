@@ -117,6 +117,10 @@ public class Info {
         return listaParametrosFormales;
     }
 
+    public String getNombre() {
+        return nombre;
+    }
+
     public void setListaParametrosFormales(ArrayList<String> listaParametrosFormales) {
         this.listaParametrosFormales = listaParametrosFormales;
     }

@@ -2,14 +2,6 @@
 
 ### Cosas que hay que hacer andar:
 
-* Chequeo de tipos ( no se puede hcaer hasta definir como detectar una funcion con retorno multiples)
-  * Parametros formales
-  * Parametros reales
-    * Asociacion con tipo parametro formal
-* Retorno
-  * Mismo tipo de funcion
-  * Mismo tipo que la variable donde se asigna
-* Cantidad de retornos para una asignacion multiple
 * Redeclaracion de variables en diferentes ambitos
 * Chequeo de ambito
   * Chequeo de funcion
@@ -26,19 +18,27 @@
     * hacer un for que itere con arraylist de variables de lado izq e ir asignando lo del lado derecho, al salir del for descartar resto de variables del lado derecho e informar con warning
 * Chequeo de parametro formal SE,LE
 * Permitir mas retornos que el numero de lados izquierdos
-* Chequeo de los tipos en parametro:
-  * Copia resultado
-  * Solo escritura
-  * Etc
 * revisar sentencias if/else e iteraciones con retorno una vez finalizado cheques tipos en funcion
 * '-' en expresion aritmetica cuando esta solo o con espacio
 
 
 ### Cosas que andan:
+* Chequeo de los tipos en parametro:
+  * Copia resultado
+  * Solo escritura
+  * Etc
+* Cantidad de retornos para una asignacion multiple
 * Solucionar '.' en el lexico para que tome ID cuando viene una letra mayuscula y no salte error de falta digito
 * No permitir asignacion de variable con ambito especificado en el mismo ambito //Juanx
 * Chequear sentencias if/else iteracion con return dentro de funcion
 
+* Chequeo de tipos ( no se puede hcaer hasta definir como detectar una funcion con retorno multiples)
+  * Parametros formales
+  * Parametros reales
+    * Asociacion con tipo parametro formal
+* Retorno
+  * Mismo tipo de funcion
+  * Mismo tipo que la variable donde se asigna
 * Chequeto de ambito
   * Chequeo de variable
   * Chequeo de Funcion
@@ -70,6 +70,7 @@
   * Parametros formales
   * Parametros reales
     * Asociacion con tipo parametro formal
+* Chequeo de SE y LE de parametro formal
 ### Aclaraciones de diseño:
 
 ### Testeando

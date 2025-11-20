@@ -1087,7 +1087,8 @@ parametro_formal
 parametro_formal_error
     :   semantica_pasaje tipo   {Logger.logError(cursor.getCurrentLine(), "Falta el nombre de parametro formal en declaracion de funcion");}
     |   tipo                    {Logger.logError(cursor.getCurrentLine(), "Falta el nombre de parametro formal en declaracion de funcion");}
-    |   semantica_pasaje ID     {Logger.logError(cursor.getCurrentLine(), "Falta de tipo en parametro formal en declaracion de funcion");}
+    |   semantica_pasaje ID{
+        {Logger.logError(cursor.getCurrentLine(), "Falta de tipo en parametro formal en declaracion de funcion");}
     |   ID                      {Logger.logError(cursor.getCurrentLine(), "Falta de tipo en parametro formal en declaracion de funcion");}
     ;
 
@@ -1325,7 +1326,19 @@ factor
             //Crear BI a con dest al primer terceto de la funcion
             Logger.logRule(cursor.getCurrentLine(), "Sentencia INVOCACION FUNCION");
         }
-    |   variable    {$$=$1;}
+    |   variable{
+        if ($1.sval != null) {
+            Info info = TablaSimbolos.TABLA_SIMBOLOS.get($1.sval);
+            if (info != null && info.getUso() != null) {
+                // Si el uso contiene "SE"
+
+                if (info.getUso().contains("SE")) {
+                    Logger.logError(cursor.getCurrentLine(), "Error semántico: El parámetro '" + info.getNombre() + "' es de SOLO ESCRITURA (SE) y no puede estar del lado derecho (lectura).");
+                }
+            }
+        }
+
+        }
     ;
 
 cuerpo_seleccion_retorno
