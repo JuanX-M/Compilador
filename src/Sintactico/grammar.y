@@ -369,7 +369,11 @@ encabezado_funcion
 
             // Buscamos la función en la tabla usando su nombre ($3) y el ámbito del padre (auxambito)
             String claveFuncion = $3.sval + "." + auxambito;
-            TablaSimbolos.TABLA_SIMBOLOS.get(claveFuncion).setListaParametrosFormales((ArrayList<String>)$6.obj);
+            Info infoFuncion = TablaSimbolos.TABLA_SIMBOLOS.get(claveFuncion);
+
+            if (infoFuncion != null) {
+                infoFuncion.setListaParametrosFormales((ArrayList<String>)$6.obj);
+            }
 
             String valorDefecto;
             for (String parametro : listaParametros) {
@@ -407,7 +411,11 @@ encabezado_funcion
 		    $$= crearTerceto(new ParserVal(etiqueta),null,null);
 		    listaTercetos.add((Terceto)$$.obj);
 		    ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
-		    TablaSimbolos.TABLA_SIMBOLOS.get($3.sval + '.' + auxambito).setNroTercetoEtiqueta(getReferencia($$));
+
+
+		    if (infoFuncion != null) {
+                infoFuncion.setNroTercetoEtiqueta(getReferencia($$));
+            }
 
 		    //creacion de tercetos que inicializan parametros formales
 
@@ -497,9 +505,18 @@ declaracion_unaria
             }
             String tipoInferido = getTipoParserVal(auxParserVal);
 
+            // Verificamos si el símbolo ya existe en el ámbito actual
             if (TablaSimbolos.TABLA_SIMBOLOS.containsKey(aux)) {
-                Logger.logError(cursor.getCurrentLine(), "Redeclaracion de variable");
+                Info infoExistente = TablaSimbolos.TABLA_SIMBOLOS.get(aux);
+                String uso = infoExistente.getUso();
+
+                if (uso.equals("Funcion")) {
+                    Logger.logError(cursor.getCurrentLine(), "Error: El identificador '" + $2.sval + "' ya fue declarado como Función.");
+                } else {
+                    Logger.logError(cursor.getCurrentLine(), "Error: Redeclaración de variable '" + $2.sval + "'.");
+                }
             } else {
+                // Si no existe, lo agregamos normalmente
                 TablaSimbolos.TABLA_SIMBOLOS.put(aux, new Info($2.sval, "ID", tipoInferido, "Variable", ambito));
             }
 
@@ -660,13 +677,13 @@ sentencia_asignacion_unaria
                  Logger.logError(cursor.getCurrentLine(), "No se permite especificar mismo ambito en variables de ambito local.");
             }
             String ambitoaux = ambito;
-            System.out.println( "ambito aaa: "+$1.sval + " ambito bbbb: "+$3.sval);
+
             if (ambito.contains($1.sval)) {
                 int indiceInicio = ambito.indexOf($1.sval);
                 int indiceFinal = indiceInicio + $1.sval.length();
                 ambitoaux = ambito.substring(0, indiceFinal);
             }else {
-                Logger.logError(cursor.getCurrentLine(), "Funcion no esta al alcance");
+                Logger.logError(cursor.getCurrentLine(), "Funcion" + $1.sval +" no esta al alcance");
             }
 
             if (getScope(ambitoaux,$3.sval) == null) {
@@ -1231,7 +1248,7 @@ variable
                 int indiceFinal = indiceInicio + $1.sval.length();
                 ambitoaux = ambito.substring(0, indiceFinal);
             }else {
-                Logger.logError(cursor.getCurrentLine(), "Funcion no esta al alcance");
+                Logger.logError(cursor.getCurrentLine(), "Funcion" + $1.sval +" no esta al alcance");
             }
 
             if (getScope(ambitoaux,$3.sval) == null) {
@@ -1404,7 +1421,7 @@ invocacion_funcion
             Info funcInfo;
             if (getScope(ambito,claveAcceso)== null) {
                 //creo info nuevo para que siga compialdo el codigo
-                Logger.logError(cursor.getCurrentLine(), "Funcion no esta al alcance");
+                Logger.logError(cursor.getCurrentLine(), "Funcion "+$2.sval+ " no esta al alcance");
                 funcInfo = new Info($2.sval, "ID", null, "Funcion", ambito);
                 funcInfo.setListaParametrosFormales(new ArrayList<String>());
                 funcInfo.setListaVariablesRetorno(new ArrayList<String>());
@@ -1433,7 +1450,7 @@ invocacion_funcion
                 // Si es null, es que no lo encontramos
                 if(nombreParametroCompleto == null){
                    Logger.logError(cursor.getCurrentLine(), "El parámetro '" + nombreParametroLlamada + "' no existe en la función " + $2.sval);
-                   paramInfo = new Info(nombreParametroLlamada, "ID", null, "PF NULL" , ambito,"(0)");
+                   paramInfo = new Info(nombreParametroLlamada, "ID", "SIN TIPO", "PF NULL" , ambito,"(0)");
                 } else {
                    paramInfo = TablaSimbolos.TABLA_SIMBOLOS.get(nombreParametroCompleto);
                 }
