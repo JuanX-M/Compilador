@@ -15,9 +15,9 @@
   * Chequeo de funcion
 
   * Declaracion de funcion
+* chequear en asignacion multiple que haya como minimo 2 variables y 2 exp aritmetcas
 
-
-
+ 
 * Conversiones Explicitas de Float a Int
 * Cuando se detecte una invocacion, se debera generar codigo para la misma, chequeando que el tipo de los
     parametros reales sean compatibles con el tipo de los parametros formales correspondientes, o incluyan la
@@ -65,7 +65,7 @@
 ### Haciendo:
 * TOI
     * Que no sea de tipo entero (Dar warning)
-
+* No permitir asignacion de variable con ambito especificado en el mismo ambito //Juanx
 
 ### Aclaraciones de diseño:
 
