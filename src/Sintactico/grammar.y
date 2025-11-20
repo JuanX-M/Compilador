@@ -885,6 +885,7 @@ expresion_aritmetica
         }
     |   expresion_aritmetica_toi {
             $$ = $1;
+            //devolvemos el terceto
             Logger.logRule(cursor.getCurrentLine(), "Sentencia TOI");
         }
     |   termino { $$=$1;}
@@ -1099,11 +1100,15 @@ termino_error
     ;
 
 expresion_aritmetica_toi
-    :   TOI '(' expresion_aritmetica ')' {
+    :   TOI '(' expresion_aritmetica ')' { //lautaro
             //CREAR TERCETO toi
-            $$=crearTerceto($1,$2,null);
-            listaTercetos.add((Terceto)$$.obj);
-            ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+            if (getTipoParserVal($3).equals("INT"))
+            	Logger.logError(cursor.getCurrentLine(), "Variable en sentencia TOI ya es de tipo entero");
+	    else{
+	         $$=crearTerceto($1,$3,null);
+		 listaTercetos.add((Terceto)$$.obj);
+		 ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+    	    }
     }
     |   expresion_aritmetica_toi_error
     ;
