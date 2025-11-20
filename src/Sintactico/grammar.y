@@ -489,23 +489,22 @@ lista_sentencias_funcion
 
 sentencia_lambda
     :   parametro_lambda {
-            // asignamos el argumento al paramtero
-            $$ = crearTerceto(new ParserVal(":="),$1,null);
-            int numTercetoActual = ((Terceto)$$.obj).getSoloNumTerceto();
-            pila.push(numTercetoActual);;
-            listaTercetos.add((Terceto)$$.obj);
-            ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+            if ($1.sval != null){
+                // asignamos el argumento al paramtero
+                $$ = crearTerceto(new ParserVal(":="),$1,null);
+                int numTercetoActual = ((Terceto)$$.obj).getSoloNumTerceto();
+                pila.push(numTercetoActual);;
+                listaTercetos.add((Terceto)$$.obj);
+                ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+            }
         } cuerpo_lambda argumento_lambda {
-            //reducirAmbito();
-            if ($4.sval != null) {
+            if ($4.sval != null && $1.sval != null) {
                 Info infoPar = TablaSimbolos.TABLA_SIMBOLOS.get($1.sval);
                 Info infoArg = TablaSimbolos.TABLA_SIMBOLOS.get($4.sval);
                 int numTercetoBackpatch = pila.pop();
                 if(infoPar.getTipo().equals(infoArg.getTipo()))
                     listaTercetos.get(numTercetoBackpatch -1).addThird(getReferencia($4));
                 else {
-                    System.out.println("INFOP:" + infoPar);
-                    System.out.println("INFOA:" + infoArg);
                     listaTercetos.remove(numTercetoBackpatch -1);
                     Logger.logError(cursor.getCurrentLine(), "Incompatibilidad de tipos en parametro y argumento de sentencia Lambda");
                 }
@@ -520,8 +519,6 @@ declaracion_unaria
             //TODO: CHEQUEAR SI ES UNA FUNCION CON MULTIPLES RETORNOS
 
             String tipoInferido = getTipoParserVal(auxParserVal);
-
-
             if (TablaSimbolos.TABLA_SIMBOLOS.containsKey(aux)) {
                 Logger.logError(cursor.getCurrentLine(), "Redeclaracion de variable");
             } else {
@@ -661,7 +658,6 @@ sentencia_asignacion_unaria
     |   ID'.'ID TWO_POINTS_ASSIGNATION expresion_aritmetica {
             //Chequeo ambito
             String ambitoaux = ambito;
-            System.out.println( "ambito aaa: "+$1.sval + " ambito bbbb: "+$3.sval);
             if (ambito.contains($1.sval)) {
                 int indiceInicio = ambito.indexOf($1.sval);
                 int indiceFinal = indiceInicio + $1.sval.length();
@@ -751,7 +747,7 @@ lista_tipos
             ((ArrayList<String>)$1.obj).add(auxString+"."+ambito); // Agrega aux al arraylist
             $$ = $1; // Pasa la lista modificada hacia arriba, no terceto auxiliar creado ni auxString
         }
-    |   tipo                    {
+    |   tipo {
 
             //Aca se genera Terceto BI incompleto para saltar al siguiente nro terceto para no ejecutar la funcion
             $$=crearTerceto(new ParserVal ("BI"), null,null);
@@ -826,6 +822,22 @@ parametro_lambda
             TablaSimbolos.TABLA_SIMBOLOS.put(aux, new Info($3.sval, "ID", $2.sval.toUpperCase(), "Variable", ambito));
             $$.sval = aux;
         }
+    |   parametro_lambda_error
+    ;
+
+parametro_lambda_error
+    :   '(' ID ')' {
+            $$.sval = null;
+            Logger.logError(cursor.getCurrentLine(), "Falta del tipo en parametro_lambda");
+        }
+    |   '(' tipo ')' {
+            $$.sval = null;
+            Logger.logError(cursor.getCurrentLine(), "Falta del ID en parametro_lambda");
+        }
+    |   '(' error ')' {
+            $$.sval = null;
+            Logger.logError(cursor.getCurrentLine(), "Falta del tipo e ID en parametro_lambda");
+        }
     ;
 
 cuerpo_lambda
@@ -855,7 +867,7 @@ argumento_lambda
     ;
 
 argumento_lambda_error
-    :    '(' error')'   {
+    :    '(' error ')'   {
             $$.sval = null;
             Logger.logError(cursor.getCurrentLine(), "Argumento de lambda invalido");
         }
@@ -1234,10 +1246,7 @@ sentencia_iteracion_retorno
     ;
 
 factor
-    :   CTE_INT     {
-            System.out.println($1.sval);
-            $$=$1;
-        }
+    :   CTE_INT     {$$=$1;}
     |   CTE_FLOAT   {$$=$1;}
     |   invocacion_funcion {
             //Crear BI a con dest al primer terceto de la funcion
