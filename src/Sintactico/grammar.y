@@ -497,14 +497,18 @@ sentencia_lambda
             ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
         } cuerpo_lambda argumento_lambda {
             //reducirAmbito();
-            Info infoPar = TablaSimbolos.TABLA_SIMBOLOS.get($1.sval);
-            Info infoArg = TablaSimbolos.TABLA_SIMBOLOS.get($4.sval);
-            int numTercetoBackpatch = pila.pop();
-            if(infoPar.getTipo().equals(infoArg.getTipo()))
-                listaTercetos.get(numTercetoBackpatch -1).addThird(getReferencia($4));
-            else {
-                listaTercetos.remove(numTercetoBackpatch -1);
-                Logger.logError(cursor.getCurrentLine(), "Incompatibilidad de tipos en parametro y argumento de sentencia Lambda");
+            if ($4.sval != null) {
+                Info infoPar = TablaSimbolos.TABLA_SIMBOLOS.get($1.sval);
+                Info infoArg = TablaSimbolos.TABLA_SIMBOLOS.get($4.sval);
+                int numTercetoBackpatch = pila.pop();
+                if(infoPar.getTipo().equals(infoArg.getTipo()))
+                    listaTercetos.get(numTercetoBackpatch -1).addThird(getReferencia($4));
+                else {
+                    System.out.println("INFOP:" + infoPar);
+                    System.out.println("INFOA:" + infoArg);
+                    listaTercetos.remove(numTercetoBackpatch -1);
+                    Logger.logError(cursor.getCurrentLine(), "Incompatibilidad de tipos en parametro y argumento de sentencia Lambda");
+                }
             }
         }
     ;
@@ -847,6 +851,14 @@ argumento_lambda
             reducirAmbito();
             $$.sval = $2.sval;
         }
+    |   argumento_lambda_error;
+    ;
+
+argumento_lambda_error
+    :    '(' error')'   {
+            $$.sval = null;
+            Logger.logError(cursor.getCurrentLine(), "Argumento de lambda invalido");
+        }
     ;
 
 expresion_aritmetica
@@ -870,6 +882,7 @@ expresion_aritmetica
     |   expresion_aritmetica '-' termino{
             ParserVal opIzq = $1;
             ParserVal opDer = $3;
+
 
             //TODO:CHEQUEAR SI HAY FUNCION CON RETORNOS MULTIPLES EN LADO IZQ Y LADO DER
 
@@ -1221,9 +1234,10 @@ sentencia_iteracion_retorno
     ;
 
 factor
-    :   CTE_INT     {$$=$1;}
-
-
+    :   CTE_INT     {
+            System.out.println($1.sval);
+            $$=$1;
+        }
     |   CTE_FLOAT   {$$=$1;}
     |   invocacion_funcion {
             //Crear BI a con dest al primer terceto de la funcion
@@ -1373,7 +1387,6 @@ invocacion_funcion
                 for (ParserVal param : listaParametros) {
                     Pair<ParserVal, ParserVal> p = (Pair<ParserVal, ParserVal>) param.obj;
                     ParserVal parametroReal = p.getFirst();
-
 
                     Info paramInfo = TablaSimbolos.TABLA_SIMBOLOS.get(p.getSecond().sval + "."+ ambito +"."+$2.sval);
 
@@ -1572,13 +1585,12 @@ public boolean checkTipo(ParserVal val1, ParserVal val2) {
 
     return tipo1.equals(tipo2);
 }
+
 public String getScope(String ambito,String clave){
     while (!ambito.isEmpty()){
-
         if (TablaSimbolos.TABLA_SIMBOLOS.containsKey(clave+ "." + ambito)) {
             return ambito;
         }
-
         int pos = ambito.lastIndexOf('.');
         if (pos != -1) {
          ambito = ambito.substring(0, pos);
@@ -1586,7 +1598,6 @@ public String getScope(String ambito,String clave){
          ambito = "";
         }
     }
-
     return null;
 }
 
