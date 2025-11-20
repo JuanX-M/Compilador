@@ -1082,11 +1082,34 @@ parametro_formal
     ;
 
 parametro_formal_error
-    :   semantica_pasaje tipo   {Logger.logError(cursor.getCurrentLine(), "Falta el nombre de parametro formal en declaracion de funcion");}
-    |   tipo                    {Logger.logError(cursor.getCurrentLine(), "Falta el nombre de parametro formal en declaracion de funcion");}
-    |   semantica_pasaje ID{
-        {Logger.logError(cursor.getCurrentLine(), "Falta de tipo en parametro formal en declaracion de funcion");}
-    |   ID                      {Logger.logError(cursor.getCurrentLine(), "Falta de tipo en parametro formal en declaracion de funcion");}
+    :   semantica_pasaje tipo   {
+            Logger.logError(cursor.getCurrentLine(), "Falta el nombre de parametro formal en declaracion de funcion");
+
+            String aux = "PARAM_ERROR_" + cursor.getCurrentLine() + "." + ambito;
+            TablaSimbolos.TABLA_SIMBOLOS.put(aux, new Info("PARAM_ERROR", "ID", $2.sval, "PF CV", ambito));
+            $$.sval = aux;
+        }
+    |   tipo                    {
+            Logger.logError(cursor.getCurrentLine(), "Falta el nombre de parametro formal en declaracion de funcion");
+            String dummyName = "PARAM_ERROR_" + cursor.getCurrentLine() + "." + ambito;
+            TablaSimbolos.TABLA_SIMBOLOS.put(dummyName, new Info("PARAM_ERROR", "ID", $1.sval, "PF CV", ambito));
+            $$.sval = dummyName;
+        }
+    |   semantica_pasaje ID     {
+            Logger.logError(cursor.getCurrentLine(), "Falta de tipo en parametro formal en declaracion de funcion");
+
+
+            String aux = $2.sval + "." + ambito;
+            // Lo registramos para que si se usa en el cuerpo, exista.
+            TablaSimbolos.TABLA_SIMBOLOS.put(aux, new Info($2.sval, "ID", "SIN TIPO", "PF " + $1.sval.toUpperCase(), ambito));
+            $$.sval = aux;
+        }
+    |   ID                      {
+            Logger.logError(cursor.getCurrentLine(), "Falta de tipo en parametro formal en declaracion de funcion");
+            String aux = $1.sval + "." + ambito;
+            TablaSimbolos.TABLA_SIMBOLOS.put(aux, new Info($1.sval, "ID", "SIN TIPO", "PF ", ambito));
+            $$.sval = aux;
+        }
     ;
 
 sentencia_ejecucion_retorno
