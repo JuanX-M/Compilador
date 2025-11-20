@@ -40,6 +40,7 @@
 * revisar sentencias if/else e iteraciones con retorno una vez finalizado cheques tipos en funcion
 * '-' en expresion aritmetica cuando esta solo o con espacio
 ### Cosas que andan:
+
 * En asignacion multiple chequear si cant lado izq = cant lado derecho, por posicion, chequear tipos de forma individual
 * Condicion if
 * Misma cantidad de elementos en asignacion multiple
@@ -65,12 +66,12 @@
 ### Haciendo:
 * TOI
     * Que no sea de tipo entero (Dar warning)
-* No permitir asignacion de variable con ambito especificado en el mismo ambito //Juanx
+
 
 ### Aclaraciones de diseño:
 
 ### Testeando
-
+* No permitir asignacion de variable con ambito especificado en el mismo ambito //Juanx
 * Solucionar '.' en el lexico para que tome ID cuando viene una letra mayuscula y no salte error de falta digito
 * Chequeto de ambito
   * Chequeo de variable
