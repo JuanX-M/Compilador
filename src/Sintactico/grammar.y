@@ -343,20 +343,17 @@ sentencia_asignacion
 
 encabezado_funcion
     :   lista_tipos FUN ID  {
-
              String aux = $3.sval + '.' + ambito;
              if (TablaSimbolos.TABLA_SIMBOLOS.containsKey(aux)) {
                  Logger.logError(cursor.getCurrentLine(), "Redeclaracion de funcion");
              } else {
-                 TablaSimbolos.TABLA_SIMBOLOS.put( aux ,new Info($3.sval, $2.sval, "INT", "Funcion", ambito));
+                 TablaSimbolos.TABLA_SIMBOLOS.put(aux ,new Info($3.sval, $2.sval, "INT", "Funcion", ambito));
                  TablaSimbolos.TABLA_SIMBOLOS.get(aux).setListaVariablesRetorno(new ArrayList<>((ArrayList<String>)$1.obj));
 
                  System.out.println("auxInfo:"+TablaSimbolos.TABLA_SIMBOLOS.get(aux));
                  ambito += '.' + $3.sval;
              }
-
     }   '(' lista_param_formales ')' {
-
             // $1.obj trae la lista de variables auxiliares de retorno (ej: [aux0.main, aux1.main])
             int indiceCorte = ((ArrayList<String>)$1.obj).size();
             //creacion de tercetos auxiliares con ambito del padre de la funcion
@@ -727,6 +724,9 @@ sentencia_asignacion_multiple
             if (listaVariables.size() != listaExpresiones.size()) {
                 Logger.logError(cursor.getCurrentLine(),
                     "La cantidad de variables (" + listaVariables.size() + ") no coincide con la cantidad de expresiones (" + listaExpresiones.size() + ").");
+            }
+            if (listaVariables.size () == 1) {
+                Logger.logError(cursor.getCurrentLine(), "Asignacion multiple de una sola variable");
             }
 
             for (int i = 0; i < listaVariables.size() && i < listaExpresiones.size() ; i++) {
