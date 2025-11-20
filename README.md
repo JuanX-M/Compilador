@@ -3,11 +3,8 @@
 ### Cosas que hay que hacer andar:
 
 * Redeclaracion de variables en diferentes ambitos
-* Chequeo de ambito
-  * Chequeo de funcion
-  * Declaracion de funcion
+
 * chequear en asignacion multiple que haya como minimo 2 variables y 2 exp aritmetcas
-* Conversiones Explicitas de Float a Int
 * Cuando se detecte una invocacion, se debera generar codigo para la misma, chequeando que el tipo de los
     parametros reales sean compatibles con el tipo de los parametros formales correspondientes, o incluyan la
     conversion correspondiente.
