@@ -839,6 +839,8 @@ parametro_lambda
             TablaSimbolos.TABLA_SIMBOLOS.put(aux, new Info($3.sval, "ID", $2.sval.toUpperCase(), "Variable", ambito));
             $$.sval = aux;
         }
+    |
+
     ;
 
 cuerpo_lambda
@@ -849,6 +851,7 @@ cuerpo_lambda
 cuerpo_lambda_error
     :   cuerpo_ejecutable '}'   {Logger.logError(cursor.getCurrentLine(), "Falta delimitador izquierdo '{' del cuerpo lambda");}
     //|   '{' cuerpo error      {Logger.logError(cursor.getCurrentLine(), "Falta delimitador derecho '}' del cuerpo lambda");}
+    |   '{' '}'                 {Logger.logError(cursor.getCurrentLine(), "Falta de cuerpo en sentencia lambda");}
     ;
 
 argumento_lambda
@@ -864,7 +867,15 @@ argumento_lambda
             reducirAmbito();
             $$.sval = $2.sval;
         }
+    | argumento_lambda_error
     ;
+
+argumento_lambda_error
+    :   '(' error ')' {
+            $$.sval = null;
+            Logger.logError(cursor.getCurrentLine(), "Argumento de ambda invalido");
+        }
+
 
 expresion_aritmetica
     :   expresion_aritmetica '+' termino  {
