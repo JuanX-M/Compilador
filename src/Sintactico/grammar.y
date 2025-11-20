@@ -653,18 +653,15 @@ sentencia_asignacion_unaria
                 //obtengo ambito en donde fue declarada
                 $1.sval = $1.sval + '.' + ambito;
             }
-
             ParserVal auxParserVal = $3;
             if (auxParserVal.obj!=null && auxParserVal.obj.getClass().equals(java.util.ArrayList.class)){
                 Logger.logError(cursor.getCurrentLine(), "Error: Asignación de retorno múltiple a variable simple.");
                 auxParserVal = ((ArrayList<ParserVal>)auxParserVal.obj).get(0);
             }
-
             if (!checkTipo($1, auxParserVal)) {
                 Logger.logError(cursor.getCurrentLine(), "Error de tipo en asignación entre " + getTipoParserVal($1) + " y " + getTipoParserVal(auxParserVal) );
             }
             $$ = crearTerceto($2, $1, auxParserVal);
-
             listaTercetos.add((Terceto)$$.obj);
             ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
         }
@@ -1185,26 +1182,25 @@ termino_error
     ;
 
 expresion_aritmetica_toi
-    :   TOI '(' expresion_aritmetica ')' { //lautaro
-            //CREAR TERCETO toi
+    :   TOI '(' expresion_aritmetica ')' {
+           int indice = ambito.indexOf('.');
+           String ambitotoi = ambito.substring(0,indice); // Ejemplo con múltiples puntos
+           System.out.println("Ambito TOI: " + ambitotoi);
             if (getTipoParserVal($3).equals("INT"))
             	Logger.logWarning(cursor.getCurrentLine(), "Variable en sentencia TOI ya es de tipo entero");
-	    else{
-	    	String aux = $3.sval + ".toi";
-	    	if (!TablaSimbolos.TABLA_SIMBOLOS.containsKey(aux)){
-		     TablaSimbolos.TABLA_SIMBOLOS.put(aux, new Info($3.sval, "ID", "INT", "Variable", ambito));
-	    }
-	    $$=crearTerceto($1,$3,null);
-	    System.out.println("Terceto");
-      	    System.out.println($1);
-	    listaTercetos.add((Terceto)$$.obj);
-	    ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
-	    $$ = crearTerceto(new ParserVal(":="),new ParserVal(aux),$$);
-	    System.out.println("printea" + $$.obj);
-            listaTercetos.add((Terceto)$$.obj);
-            ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
-    	    }
-    }
+	        else{
+	    	    if (!TablaSimbolos.TABLA_SIMBOLOS.containsKey("auxtoi")){
+		            TablaSimbolos.TABLA_SIMBOLOS.put("auxtoi", new Info("auxtoi", "ID", "INT", "Variable", ambitotoi));
+	            }
+	            $$=crearTerceto($1,$3,null);
+	            listaTercetos.add((Terceto)$$.obj);
+	            ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+	            $$ = crearTerceto(new ParserVal(":="),new ParserVal("auxtoi"),$$);
+                listaTercetos.add((Terceto)$$.obj);
+                ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+                $$.sval="INT";
+            }
+        }
     |   expresion_aritmetica_toi_error
     ;
 
@@ -1576,7 +1572,6 @@ parametro_real_error
 
 %%
 private static int yylval_recognition = 0;
-
 static AnalizadorLexico lex = null;
 static Parser par = null;
 static Cursor cursor = null;
@@ -1710,6 +1705,7 @@ public boolean checkTipo(ParserVal val1, ParserVal val2) {
 
     return tipo1.equals(tipo2);
 }
+
 public String getScope(String ambito,String clave){
     while (!ambito.isEmpty()){
         if (TablaSimbolos.TABLA_SIMBOLOS.containsKey(clave+ "." + ambito)) {
