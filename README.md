@@ -2,7 +2,7 @@
 
 ### Cosas que hay que hacer andar:
 
-* chequear en asignacion multiple que haya como minimo 2 variables y 2 exp aritmeticas
+
 * Cuando se detecte una invocacion, se debera generar codigo para la misma, chequeando que el tipo de los
     parametros reales sean compatibles con el tipo de los parametros formales correspondientes, o incluyan la
     conversion correspondiente.
@@ -70,7 +70,7 @@
     * Asociacion con tipo parametro formal
 * Chequeo de SE y LE de parametro formal
 ### Haciendo:
-
+* chequear en asignacion multiple que haya como minimo 2 variables y 2 exp aritmeticas
 ### Aclaraciones de diseño:
 Seguimos logica de asignaciones multiples por sobre mas retornos que tipos de funcion
 
