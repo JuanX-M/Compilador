@@ -748,7 +748,7 @@ sentencia_asignacion_multiple
                 if (listaVariables.size() < listaExpresiones.size()) {
                     Logger.logWarning(cursor.getCurrentLine(),
                         "La cantidad de variables (" + listaVariables.size() + ") es menor a la cantidad de asignaciones (" + listaExpresiones.size() + ")" + " se descartaran " + (listaExpresiones.size() - listaVariables.size()) );
-                }else {
+                }else if (listaVariables.size() > listaExpresiones.size()){
 
                         Logger.logError(cursor.getCurrentLine(), "La cantidad de variables (" + listaVariables.size() + ") es mayor a la cantidad de asignaciones (" + listaExpresiones.size() + ").");
                 }
@@ -1563,6 +1563,7 @@ invocacion_funcion
                 if (paramInfo != null && paramInfo.getUso() != null && paramInfo.getUso().contains("CV")) {
                     String varAux = paramInfo.getVarAux();
                     $$ = crearTerceto(new ParserVal(":="), new ParserVal(varAux), expresion);
+
                     listaTercetos.add((Terceto)$$.obj);
                     ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
                 }
@@ -1601,9 +1602,17 @@ invocacion_funcion
                 if (paramInfo != null && paramInfo.getUso() != null && paramInfo.getUso().contains("CR")) {
                     String varAux = paramInfo.getVarAux();
                     $$= crearTerceto(new ParserVal(":="), parametroReal, new ParserVal(varAux));
+
                     listaTercetos.add((Terceto)yyval.obj);
                     ((Terceto)yyval.obj).addLine(cursor.getCurrentLine());
                 }
+            }
+
+            if (listaParametros.size() < listaParametrosFormales.size() ){
+                Logger.logError(cursor.getCurrentLine(), "Falta de parametros en invocacion a funcion");
+
+            }else if(listaParametros.size() > listaParametrosFormales.size()) {
+                Logger.logError(cursor.getCurrentLine(), "Sobran parametros en invocacion a funcion");
             }
 
             ArrayList<String> listaNombresAux = funcInfo.getListaVariablesRetorno();

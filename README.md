@@ -3,24 +3,20 @@
 ### Cosas que hay que hacer andar:
 
 
-* Cuando se detecte una invocacion, se debera generar codigo para la misma, chequeando que el tipo de los
-    parametros reales sean compatibles con el tipo de los parametros formales correspondientes, o incluyan la
-    conversion correspondiente.
-* Chequeo retornos
-  * En asignacion unaria al invocar funcion y que esta devuelve varios, tirar error semantico
-  * En lado derecho de una asignacion multiple, que tiene varias funcion que retornan muchas cosas, 
-    * concatenar cada arraylist de cada funcion con todo lo que esta del lado derecho
-    * hacer un for que itere con arraylist de variables de lado izq e ir asignando lo del lado derecho, al salir del for descartar resto de variables del lado derecho e informar con warning
-* Chequeo de parametro formal SE,LE
-* Permitir mas retornos que el numero de lados izquierdos
-* revisar sentencias if/else e iteraciones con retorno una vez finalizado cheques tipos en funcion
+
+
 * '-' en expresion aritmetica cuando esta solo o con espacio
-* chequeo en asignacion multiple y que en lado derecho tengo muchas funciones con multiples retornos, que hago?
-* No se rompe si hay menor cantidad de parametros formales a comparacion de los reales
-* Falta de parametro formal al hacer -> en llamada funcion
+* chequear que el compilador no se rompa al tener errores de sintaxis
 
 ### Cosas que andan:
-
+* revisar sentencias if/else e iteraciones con retorno una vez finalizado cheques tipos en funcion
+* Falta de parametro formal al hacer -> en llamada funcion
+* Cuando se detecte una invocacion, se debera generar codigo para la misma, chequeando que el tipo de los
+  parametros reales sean compatibles con el tipo de los parametros formales correspondientes, o incluyan la
+  conversion correspondiente.
+* Chequeo de parametro formal SE,LE
+* Chequeo retornos
+  * En asignacion unaria al invocar funcion y que esta devuelve varios, tirar error semantico
 * Asignacion multiple con funciones anda raro X, Y, Z, W = fun F1(Z->C), fun F1(Z->C), fun F3(Z->C); //f1 tiene 2 retornos y f3 tiene 1
 * Redeclaracion de variables en diferentes ambitos
 * Chequeo de los tipos en parametro:
