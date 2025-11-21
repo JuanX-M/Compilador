@@ -17,10 +17,11 @@
 * '-' en expresion aritmetica cuando esta solo o con espacio
 * chequeo en asignacion multiple y que en lado derecho tengo muchas funciones con multiples retornos, que hago?
 * No se rompe si hay menor cantidad de parametros formales a comparacion de los reales
-* Asignacion multiple con funciones anda raro X, Y, Z, W = fun F1(Z->C), fun F1(Z->C), fun F3(Z->C); //f1 tiene 2 retornos y f3 tiene 1
-
+* Falta de parametro formal al hacer -> en llamada funcion
 
 ### Cosas que andan:
+
+* Asignacion multiple con funciones anda raro X, Y, Z, W = fun F1(Z->C), fun F1(Z->C), fun F3(Z->C); //f1 tiene 2 retornos y f3 tiene 1
 * Redeclaracion de variables en diferentes ambitos
 * Chequeo de los tipos en parametro:
   * Copia resultado
@@ -73,6 +74,10 @@
 * chequear en asignacion multiple que haya como minimo 2 variables y 2 exp aritmeticas
 ### Aclaraciones de diseño:
 Seguimos logica de asignaciones multiples por sobre mas retornos que tipos de funcion
+
+Si en l lado derecho de una asignacion multiple HAY ALGUNA FUNCION MEZCLADA CON ESPRESIONES ARITMETICAS, DESCARTAMOS TODO LO SOBRANTE
+Si solo hay expresiones aritmeticas y sobran del lado derecho, tiramos error 
+
 
 ### Testeando
 

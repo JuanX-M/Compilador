@@ -550,6 +550,7 @@ lista_exp_aritmeticas
                 // CASO: Función con múltiples retornos.
                 // Concatenamos los retornos a la lista principal.
                 ArrayList<ParserVal> retornosFuncion = (ArrayList<ParserVal>) nuevaExpresion.obj;
+
                 listaPrincipal.addAll(retornosFuncion);
             } else {
                 // CASO: Expresión simple o función con 1 retorno.
@@ -561,7 +562,8 @@ lista_exp_aritmeticas
         }
     |   expresion_aritmetica  {
             // $1 es el ParserVal de 'expresion_aritmetica'
-            if ($1.obj != null && $1.obj instanceof java.util.ArrayList) {
+
+            if ($1.obj != null && $1.obj.getClass().equals(java.util.ArrayList.class)) {
                 // Es de una funcion, $1.obj ya es el ArrayList<ParserVal> que queremos
                 $$ = $1;
             } else {
@@ -725,23 +727,56 @@ sentencia_asignacion_multiple
 
             ArrayList<ParserVal> listaVariables = (ArrayList<ParserVal>)$1.obj;
             ArrayList<ParserVal> listaExpresiones = (ArrayList<ParserVal>)$3.obj;
-            //TODO: CHEQUEAR COMO ES EL TEMA CON LAS FUNCIONES CON MULTIPLES RETORNOS
-            if (listaVariables.size() != listaExpresiones.size()) {
-                Logger.logError(cursor.getCurrentLine(),
-                    "La cantidad de variables (" + listaVariables.size() + ") no coincide con la cantidad de expresiones (" + listaExpresiones.size() + ").");
+            /*
+                Para distinguir cantidad de retornos de una funcion pregunto por el ival de cada parserval en  listaExpresiones
+                Esto ya que concateno los auxiliares con lista de expresiones aritmeticas y en cada parserval de esto poner ahi el ival
+
+
+            */
+
+            boolean hayFuncion=false;
+            int k =0;
+            while (k < listaExpresiones.size() && !hayFuncion){
+                    if (listaExpresiones.get(k).ival != 0){
+                        hayFuncion=true;
+                    }
+                    k++;
             }
 
-            for (int i = 0; i < listaVariables.size() && i < listaExpresiones.size() ; i++) {
-                ParserVal variable = listaVariables.get(i);   // El ParserVal de la variable (contiene sval)
-                ParserVal expresion = listaExpresiones.get(i); // El ParserVal de la expresion (contiene sval o obj)
-                if (!checkTipo(variable, expresion)) {
-                     Logger.logError(cursor.getCurrentLine(), "Tipo en asignación múltiple (pos " + (i+1) + "): " + "No se puede asignar " + getTipoParserVal(expresion) + " a " + getTipoParserVal(variable));
+
+            if (hayFuncion){
+                if (listaVariables.size() < listaExpresiones.size()) {
+                    Logger.logWarning(cursor.getCurrentLine(),
+                        "La cantidad de variables (" + listaVariables.size() + ") es menor a la cantidad de asignaciones (" + listaExpresiones.size() + ")" + " se descartaran " + (listaExpresiones.size() - listaVariables.size()) );
+                }else {
+
+                        Logger.logError(cursor.getCurrentLine(), "La cantidad de variables (" + listaVariables.size() + ") es mayor a la cantidad de asignaciones (" + listaExpresiones.size() + ").");
                 }
-                $$ = crearTerceto(new ParserVal(":="), variable, expresion);
+                for (int i = 0; i < listaVariables.size() && i < listaExpresiones.size() ; i++) {
+                    ParserVal variable = listaVariables.get(i);   // El ParserVal de la variable (contiene sval)
+                    ParserVal expresion = listaExpresiones.get(i); // El ParserVal de la expresion (contiene sval o obj)
 
-                listaTercetos.add((Terceto)$$.obj);
-                ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+                    if (!checkTipo(variable, expresion)) {
+                         Logger.logError(cursor.getCurrentLine(), "Tipo en asignación múltiple (pos " + (i+1) + "): " + "No se puede asignar " + getTipoParserVal(expresion) + " a " + getTipoParserVal(variable));
+                    }
+
+                    $$ = crearTerceto(new ParserVal(":="), variable, expresion);
+
+                    listaTercetos.add((Terceto)$$.obj);
+                    ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+                }
+            } else{
+
+                if (listaVariables.size() != listaExpresiones.size()) {
+                    Logger.logError(cursor.getCurrentLine(),
+                        "La cantidad de variables (" + listaVariables.size() + ") no coincide con la cantidad de asignaciones (" + listaExpresiones.size() + ").");
+                }
             }
+
+
+
+
+
         }
     ;
 
@@ -1576,11 +1611,13 @@ invocacion_funcion
 
             for (String nombreAux : listaNombresAux) {
                 ParserVal valRetorno = new ParserVal(nombreAux);
+                valRetorno.ival=1;
                 listaParserVals.add(valRetorno);
             }
 
             if (listaParserVals.size() == 1) {
                 $$ = listaParserVals.get(0);
+
             } else {
                 ParserVal contenedor = new ParserVal();
                 contenedor.obj = listaParserVals;
