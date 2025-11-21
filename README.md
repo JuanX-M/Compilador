@@ -7,6 +7,14 @@
 
 * '-' en expresion aritmetica cuando esta solo o con espacio
 * chequear que el compilador no se rompa al tener errores de sintaxis
+* Meter toi en clase GeneradorAssembler para que haga la conversion, es cuando el el operador del terceto es 'toi' hace ahi la conversion
+* Hacer chequeos en tiempo en ejecucion 
+* Chequeos en tiempo de ejecucion
+  * Division por cero para Int y Float
+  * Overflow en productos de datos de Float
+  * Perdida de informacion en conversion de Float a Int
+* Revisar si funcionana los errores semanticos if/else e iteraciones  retorno dentro de una funcin, creo que no andan porque 
+estan comentados o no tienen reglas directamente, es copiar y pegar las reglas con errores y poner _retorno
 
 ### Cosas que andan:
 * revisar sentencias if/else e iteraciones con retorno una vez finalizado cheques tipos en funcion
