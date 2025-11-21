@@ -744,6 +744,7 @@ sentencia_asignacion_multiple
             }
 
 
+
             if (hayFuncion){
                 if (listaVariables.size() < listaExpresiones.size()) {
                     Logger.logWarning(cursor.getCurrentLine(),
