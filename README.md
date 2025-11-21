@@ -4,7 +4,6 @@
 
 
 
-
 * '-' en expresion aritmetica cuando esta solo o con espacio
 * chequear que el compilador no se rompa al tener errores de sintaxis
 * Meter toi en clase GeneradorAssembler para que haga la conversion, es cuando el el operador del terceto es 'toi' hace ahi la conversion
