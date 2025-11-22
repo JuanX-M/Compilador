@@ -1281,7 +1281,7 @@ termino
     ;
 
 termino_error
-    :   termino '*' error   {Logger.logError(cursor.getCurrentLine(), "Falta de operando izquierdo en expresion_aritmetica con '*'");}
+    :   termino '*' error   {Logger.logError(cursor.getCurrentLine(), "Falta de operando izquierdo en factmetica con '*'");}
     |   termino '/' error   {Logger.logError(cursor.getCurrentLine(), "Falta de operando izquierdo en expresion_aritmetica con '/'");}
     |   error '*' factor    {Logger.logError(cursor.getCurrentLine(), "Falta de operando derecho en expresion_aritmetica con '*'");}
     |   error '/' factor    {Logger.logError(cursor.getCurrentLine(), "Falta de operando derecho en expresion_aritmetica con '-'");}
@@ -1422,7 +1422,17 @@ sentencia_iteracion_retorno
     ;
 
 factor
-    :   '-'  CTE_INT     {$$.sval=$1.sval +$2.sval;}
+    :   '-'  CTE_INT     {
+            ParserVal constante = $2;
+            ParserVal resultado = new ParserVal($1.sval + $2.sval);
+            String resString = $1.sval + $2.sval;
+            Info info = new Info("CTE_INT", "INT");
+            System.out.println("resString: " + resString);
+            if(TablaSimbolos.containsSymbol(resString))
+                TablaSimbolos.addSimboloTabla(resString,info);
+            $$.sval = getTipoParserVal($2);
+            $$ = resultado;
+        }
     |   CTE_INT          {$$=$1;}
     |   '-' CTE_FLOAT    {$$.sval=$1.sval +$2.sval;}
     |   CTE_FLOAT        {$$=$1;}
@@ -1431,17 +1441,15 @@ factor
             Logger.logRule(cursor.getCurrentLine(), "Sentencia INVOCACION FUNCION");
         }
     |   variable{
-        if ($1.sval != null) {
-            Info info = TablaSimbolos.TABLA_SIMBOLOS.get($1.sval);
-            if (info != null && info.getUso() != null) {
-                // Si el uso contiene "SE"
-
-                if (info.getUso().contains("SE")) {
-                    Logger.logError(cursor.getCurrentLine(), "Error semántico: El parámetro '" + info.getNombre() + "' es de SOLO ESCRITURA (SE) y no puede estar del lado derecho (lectura).");
+            if ($1.sval != null) {
+                Info info = TablaSimbolos.TABLA_SIMBOLOS.get($1.sval);
+                if (info != null && info.getUso() != null) {
+                    // Si el uso contiene "SE"
+                    if (info.getUso().contains("SE")) {
+                        Logger.logError(cursor.getCurrentLine(), "Error semántico: El parámetro '" + info.getNombre() + "' es de SOLO ESCRITURA (SE) y no puede estar del lado derecho (lectura).");
+                    }
                 }
             }
-        }
-
         }
     ;
 
@@ -1795,33 +1803,27 @@ private ParserVal crearTerceto(ParserVal operador, ParserVal operando1, ParserVa
     resultado.sval = null;
     return resultado;
 }
-public String getTipoParserVal(ParserVal val) {
 
+public String getTipoParserVal(ParserVal val) {
     //si hay obj,es decir un TERCETO!!!, sval contiene el TIPO.
     if (val.obj != null) {
         return val.sval;
     }
-
-
     //si no hay obj, sval contiene el LEXEMA Y ACCEDIENDO A SU INFO EN TABLA DE SIMBOLO LO OBTENEMOS
     if (val.sval != null) {
         if (TablaSimbolos.TABLA_SIMBOLOS.containsKey(val.sval)) {
             return TablaSimbolos.TABLA_SIMBOLOS.get(val.sval).getTipo();
         }
     }
-
     return "SIN TIPO";
 }
 
 public boolean checkTipo(ParserVal val1, ParserVal val2) {
-
     String tipo1 = getTipoParserVal(val1);
     String tipo2 = getTipoParserVal(val2);
-
     if (tipo1 == null || tipo2 == null || tipo1.equals("SIN TIPO") || tipo2.equals("SIN TIPO")) {
         return false;
     }
-
     return tipo1.equals(tipo2);
 }
 
