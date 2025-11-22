@@ -17,7 +17,7 @@
 
 %}
 
-%token TWO_POINTS_ASSIGNATION STRING GREATER_OR_EQUAL LESS_OR_EQUAL EQUAL NOT_EQUAL CTE_INT CTE_FLOAT ID IF ELSE ENDIF PRINT RETURN VAR FOR FROM TO CR SE LE TOI INT FLOAT ARROW FUN CTE_INT_NEGATIVE
+%token TWO_POINTS_ASSIGNATION STRING GREATER_OR_EQUAL LESS_OR_EQUAL EQUAL NOT_EQUAL CTE_INT CTE_FLOAT ID IF ELSE ENDIF PRINT RETURN VAR FOR FROM TO CR SE LE TOI INT FLOAT ARROW FUN
 
 %nonassoc SENTENCIA_ASIGNACION_PREC
 %right TWO_POINTS_ASSIGNATION
@@ -1423,18 +1423,24 @@ sentencia_iteracion_retorno
 
 factor
     :   '-'  CTE_INT     {
+            String resString = $1.sval + $2.sval;
+            if(!TablaSimbolos.TABLA_SIMBOLOS.containsKey(resString))
+                TablaSimbolos.TABLA_SIMBOLOS.put(resString,new Info("CTE_INT","INT"));
             ParserVal constante = $2;
             ParserVal resultado = new ParserVal($1.sval + $2.sval);
-            String resString = $1.sval + $2.sval;
-            Info info = new Info("CTE_INT", "INT");
-            System.out.println("resString: " + resString);
-            if(TablaSimbolos.containsSymbol(resString))
-                TablaSimbolos.addSimboloTabla(resString,info);
             $$.sval = getTipoParserVal($2);
             $$ = resultado;
         }
     |   CTE_INT          {$$=$1;}
-    |   '-' CTE_FLOAT    {$$.sval=$1.sval +$2.sval;}
+    |   '-' CTE_FLOAT    {
+            String resString = $1.sval + $2.sval;
+            if(!TablaSimbolos.TABLA_SIMBOLOS.containsKey(resString))
+                TablaSimbolos.TABLA_SIMBOLOS.put(resString,new Info("CTE_FLOAT","FLOAT"));
+            ParserVal constante = $2;
+            ParserVal resultado = new ParserVal($1.sval + $2.sval);
+            $$.sval = getTipoParserVal($2);
+            $$ = resultado;
+        }
     |   CTE_FLOAT        {$$=$1;}
     |   invocacion_funcion {
             //Crear BI a con dest al primer terceto de la funcion
