@@ -22,7 +22,9 @@
 %nonassoc SENTENCIA_ASIGNACION_PREC
 %right TWO_POINTS_ASSIGNATION
 %left ID
-
+%nonassoc LOW_PREC
+%left '+' '-'
+%left '*' '/'
 %start  prog
 
 %%
@@ -506,7 +508,7 @@ declaracion_unaria_error
     ;
 
 lista_exp_aritmeticas
-    :   lista_exp_aritmeticas ',' expresion_aritmetica  {
+    :   lista_exp_aritmeticas ',' expresion_aritmetica %prec LOW_PREC {
             ArrayList<ParserVal> listaPrincipal = (ArrayList<ParserVal>)$1.obj;
             ParserVal nuevaExpresion = $3;
 
@@ -525,7 +527,7 @@ lista_exp_aritmeticas
 
             $$ = $1; // Pasa la lista acumulada hacia arriba
         }
-    |   expresion_aritmetica  {
+    |   expresion_aritmetica %prec LOW_PREC {
             // $1 es el ParserVal de 'expresion_aritmetica'
 
             if ($1.obj != null && $1.obj.getClass().equals(java.util.ArrayList.class)) {
@@ -543,7 +545,7 @@ lista_exp_aritmeticas
     ;
 
 lista_exp_aritmeticas_error
-    :   lista_exp_aritmeticas  expresion_aritmetica    {Logger.logError(cursor.getCurrentLine(), "Falta de ',' en declaracion de expresiones aritmeticas (lado derecho)");}
+    :   lista_exp_aritmeticas expresion_aritmetica %prec LOW_PREC    {Logger.logError(cursor.getCurrentLine(), "Falta de ',' en declaracion de expresiones aritmeticas (lado derecho)");}
     ;
 
 parametros_seleccion
@@ -995,7 +997,7 @@ condicion
     ;
 
 condicion_error
-    :   expresion_aritmetica expresion_aritmetica   {Logger.logError(cursor.getCurrentLine(), "Falta de simbolo comparador en condicion");}
+    :   expresion_aritmetica error   {Logger.logError(cursor.getCurrentLine(), "Falta de simbolo comparador en condicion");}
     |   expresion_aritmetica simbolo_comparador     {Logger.logError(cursor.getCurrentLine(), "Falta de argumento derecho en condicion");}
     |   simbolo_comparador expresion_aritmetica     {Logger.logError(cursor.getCurrentLine(), "Falta de argumento izquierdo en condicion");}
     ;
@@ -1420,8 +1422,10 @@ sentencia_iteracion_retorno
     ;
 
 factor
-    :   CTE_INT     {$$=$1;}
-    |   CTE_FLOAT   {$$=$1;}
+    :   '-'  CTE_INT     {$$.sval=$1.sval +$2.sval;}
+    |   CTE_INT          {$$=$1;}
+    |   '-' CTE_FLOAT    {$$.sval=$1.sval +$2.sval;}
+    |   CTE_FLOAT        {$$=$1;}
     |   invocacion_funcion {
             //Crear BI a con dest al primer terceto de la funcion
             Logger.logRule(cursor.getCurrentLine(), "Sentencia INVOCACION FUNCION");
