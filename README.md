@@ -12,11 +12,11 @@
   * Division por cero para Int y Float
   * Overflow en productos de datos de Float
   * Perdida de informacion en conversion de Float a Int
-* Revisar si funcionana los errores semanticos if/else e iteraciones  retorno dentro de una funcin, creo que no andan porque 
-estan comentados o no tienen reglas directamente, es copiar y pegar las reglas con errores y poner _retorno
+
 
 ### Cosas que andan:
 * revisar sentencias if/else e iteraciones con retorno una vez finalizado cheques tipos en funcion
+* * chequear en asignacion multiple que haya como minimo 2 variables y 2 exp aritmeticas
 * Falta de parametro formal al hacer -> en llamada funcion
 * Cuando se detecte una invocacion, se debera generar codigo para la misma, chequeando que el tipo de los
   parametros reales sean compatibles con el tipo de los parametros formales correspondientes, o incluyan la
@@ -32,7 +32,7 @@ estan comentados o no tienen reglas directamente, es copiar y pegar las reglas c
   * Etc
 * Cantidad de retornos para una asignacion multiple
 * Solucionar '.' en el lexico para que tome ID cuando viene una letra mayuscula y no salte error de falta digito
-* No permitir asignacion de variable con ambito especificado en el mismo ambito //Juanx
+* No permitir asignacion de variable con ambito especificado en el mismo ambito 
 * Chequear sentencias if/else iteracion con return dentro de funcion
 
 * Chequeo de tipos ( no se puede hcaer hasta definir como detectar una funcion con retorno multiples)
@@ -74,13 +74,14 @@ estan comentados o no tienen reglas directamente, es copiar y pegar las reglas c
     * Asociacion con tipo parametro formal
 * Chequeo de SE y LE de parametro formal
 ### Haciendo:
-* chequear en asignacion multiple que haya como minimo 2 variables y 2 exp aritmeticas
+
+* * Revisar si funcionana los errores semanticos if/else e iteraciones  retorno dentro de una funcin, creo que no andan porque
+    estan comentados o no tienen reglas directamente, es copiar y pegar las reglas con errores y poner _retorno//Juanx,lo hago a la mañama,puede que me lleve todo el dia
 ### Aclaraciones de diseño:
 Seguimos logica de asignaciones multiples por sobre mas retornos que tipos de funcion
 
 Si en l lado derecho de una asignacion multiple HAY ALGUNA FUNCION MEZCLADA CON ESPRESIONES ARITMETICAS, DESCARTAMOS TODO LO SOBRANTE
 Si solo hay expresiones aritmeticas y sobran del lado derecho, tiramos error 
-
 
 ### Testeando
 
