@@ -429,8 +429,12 @@ cuerpo_funcion
 lista_sentencias_funcion_error
     :   lista_sentencias_funcion sentencia_retorno lista_sentencias_funcion{
             $$ = $2;
-            Logger.logError(cursor.getCurrentLine(), "Sentencias ejecutables luego de un error obligatorio");
+            Logger.logError(cursor.getCurrentLine(), "Sentencias ejecutables luego de un return obligatorio");
         }
+    | lista_sentencias_funcion{
+                  $$ = $1;
+                  Logger.logError(cursor.getCurrentLine(), "Falta sentencia return al final de la funcion");
+              }
     ;
 
 lista_sentencias_funcion
