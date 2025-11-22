@@ -15,7 +15,8 @@
 
 
 ### Cosas que andan:
-* revisar sentencias if/else e iteraciones con retorno una vez finalizado cheques tipos en funcion
+
+* revisar sentencias if/else e iteraciones con retorno una vez finalizado cheques tipos en funcion ANDAAAAA NASHEEEEEEEEEEEEEEEEEEEEEE
 * * chequear en asignacion multiple que haya como minimo 2 variables y 2 exp aritmeticas
 * Falta de parametro formal al hacer -> en llamada funcion
 * Cuando se detecte una invocacion, se debera generar codigo para la misma, chequeando que el tipo de los

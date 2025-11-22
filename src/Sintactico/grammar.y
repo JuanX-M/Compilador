@@ -111,46 +111,7 @@ sentencia_ejecucion_sin_coma
 
 funcion
     :   encabezado_funcion '{' cuerpo_funcion '}'   {
-            ArrayList<String> listaCombinada = (ArrayList<String>)$1.obj;      // Tiene lista de auxiliares + parametros formales
-            ArrayList<String> listaVariablesRetorno = new ArrayList<>(listaCombinada.subList(0, $1.ival));
-            ArrayList<String> listaParametrosFormales = new ArrayList<>(listaCombinada.subList($1.ival, listaCombinada.size()));
-            ArrayList<ParserVal> listaExpAritmeticas = (ArrayList<ParserVal>)$3.obj; // Valores en el return
-
-            if (listaVariablesRetorno.size() > listaExpAritmeticas.size()) {
-                Logger.logError(cursor.getCurrentLine(),
-                    "La función declara " + listaVariablesRetorno.size() +
-                    " tipos de retorno, pero retorna solo " + listaExpAritmeticas.size() + " valores.");
-            }
-            else if (listaExpAritmeticas.size() > listaVariablesRetorno.size()) {
-                Logger.logError(cursor.getCurrentLine(),
-                    "La función retorna " + listaExpAritmeticas.size() +
-                    " valores, pero solo se declararon " + listaVariablesRetorno.size() + " tipos de retorno.");
-            }
-            //Asigno Expresión Return -> Variable Auxiliar de Retorno
-            for (int i = 0; i < listaVariablesRetorno.size() && i < listaExpAritmeticas.size(); i++){
-                ParserVal variableEsperada = new ParserVal(listaVariablesRetorno.get(i)); // La variable auxiliar que guarda el tipo declarado
-                ParserVal expresionRetornada = listaExpAritmeticas.get(i); // La expresión que viene en el return
-
-                if (!checkTipo(variableEsperada, expresionRetornada)) {
-                    Logger.logError(cursor.getCurrentLine(), "Error de tipo en retorno (posición " + (i+1) + "): " + "Se esperaba " + getTipoParserVal(variableEsperada) + " pero se encontró " + getTipoParserVal(expresionRetornada));
-                }
-                $$ = crearTerceto(new ParserVal(":="), new ParserVal(listaVariablesRetorno.get(i)), listaExpAritmeticas.get(i));
-                listaTercetos.add((Terceto)$$.obj);
-                ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
-            }
-            //asignacion a auxiliares los valores de los parametros formales CR
-            for (int i = 0; i < listaParametrosFormales.size(); i++){
-                String auxString=TablaSimbolos.TABLA_SIMBOLOS.get(listaParametrosFormales.get(i)).getVarAux();
-                $$=crearTerceto(new ParserVal(":="),new ParserVal(auxString),new ParserVal(listaParametrosFormales.get(i)));
-                listaTercetos.add((Terceto)$$.obj);
-                ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
-            }
-
-            //creacion terceto RET
-            $$=crearTerceto(new ParserVal("RET"),null,null);
-            listaTercetos.add((Terceto)$$.obj);
-            ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
-
+            //cuerpo_funcion me devuelve el terceto RET
             int pos = ambito.lastIndexOf('.');
             if (pos != -1) {
                 ambito = ambito.substring(0, pos);
@@ -160,7 +121,7 @@ funcion
             int numTercetoBI = pila.pop();
 
             // 2. Calculamos a dónde debe saltar (al siguiente terceto disponible después de la función)
-            // Obtenemos el último terceto generado (que es el RET o asignaciones previas) y sumamos 1
+            // Obtenemos el último terceto generado (que es el RET) y sumamos 1
             int numTercetoDestino = listaTercetos.get(listaTercetos.size()-1).getSoloNumTerceto() + 1;
             String destino = "(" + String.valueOf(numTercetoDestino) + ")";
 
@@ -1183,7 +1144,59 @@ sentencia_ejecucion_retorno
 
 sentencia_retorno
     : RETURN '(' lista_exp_aritmeticas ')' ';' {
-             $$ = $3;
+            int ultimoPunto = ambito.lastIndexOf('.');
+            String nombreFuncion = ambito.substring(ultimoPunto + 1);
+
+            String ambitoPadre = ambito.substring(0, ultimoPunto);
+            Info infoFuncion=null;
+
+            String claveBusqueda = nombreFuncion + "." + ambitoPadre;
+            infoFuncion = TablaSimbolos.TABLA_SIMBOLOS.get(claveBusqueda);
+
+            ArrayList<String> listaVariablesRetorno = infoFuncion.getListaVariablesRetorno();
+            ArrayList<String> listaParametrosFormales = infoFuncion.getListaParametrosFormales();
+            ArrayList<ParserVal> listaExpAritmeticas = (ArrayList<ParserVal>)$3.obj;
+
+            if (listaVariablesRetorno.size() > listaExpAritmeticas.size()) {
+                Logger.logError(cursor.getCurrentLine(),
+                    "La función declara " + listaVariablesRetorno.size() +
+                    " tipos de retorno, pero retorna solo " + listaExpAritmeticas.size() + " valores.");
+            } else if (listaExpAritmeticas.size() > listaVariablesRetorno.size()) {
+                Logger.logError(cursor.getCurrentLine(),
+                    "La función retorna " + listaExpAritmeticas.size() +
+                    " valores, pero solo se declararon " + listaVariablesRetorno.size() + " tipos de retorno.");
+            }
+            //Realizo la creacion de tercetos de := de la lista de expresiones aritmetics a varaibles auxiliares de retorno
+            for (int i = 0; i < listaVariablesRetorno.size() && i < listaExpAritmeticas.size(); i++){
+                ParserVal variableEsperada = new ParserVal(listaVariablesRetorno.get(i));
+                ParserVal expresionRetornada = listaExpAritmeticas.get(i);
+
+                if (!checkTipo(variableEsperada, expresionRetornada)) {
+                    Logger.logError(cursor.getCurrentLine(),
+                        "Error de tipo en retorno (posición " + (i+1) + "): Se esperaba " +
+                        getTipoParserVal(variableEsperada) + " pero se encontró " + getTipoParserVal(expresionRetornada));
+                }
+                // Terceto de asignación
+                ParserVal t = crearTerceto(new ParserVal(":="), variableEsperada, expresionRetornada);
+                listaTercetos.add((Terceto)t.obj);
+                ((Terceto)t.obj).addLine(cursor.getCurrentLine());
+            }
+            //Realizo la creacion de tercetos de := de los parametros formlaes a varaibles auxiliares de parametros formales
+            for (int i = 0; i < listaParametrosFormales.size(); i++){
+                Info paramInfo = TablaSimbolos.TABLA_SIMBOLOS.get(listaParametrosFormales.get(i));
+                if (paramInfo.getUso().contains("CR")){
+                    String auxString=paramInfo.getVarAux();
+                    $$=crearTerceto(new ParserVal(":="),new ParserVal(auxString),new ParserVal(listaParametrosFormales.get(i)));
+                    listaTercetos.add((Terceto)$$.obj);
+                    ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+                }
+
+            }
+
+            ParserVal tRet = crearTerceto(new ParserVal("RET"), null, null);
+            listaTercetos.add((Terceto)tRet.obj);
+            ((Terceto)tRet.obj).addLine(cursor.getCurrentLine());
+            $$ = tRet;
        }
     | sentencia_retorno_sin_coma
     ;
