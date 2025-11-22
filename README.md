@@ -74,15 +74,18 @@
   * Parametros reales
     * Asociacion con tipo parametro formal
 * Chequeo de SE y LE de parametro formal
-### Haciendo:
 
+### Haciendo:
+* Uso correcto del '-'
 * * Revisar si funcionana los errores semanticos if/else e iteraciones  retorno dentro de una funcin, creo que no andan porque
     estan comentados o no tienen reglas directamente, es copiar y pegar las reglas con errores y poner _retorno//Juanx,lo hago a la mañama,puede que me lleve todo el dia
-### Aclaraciones de diseño:
-Seguimos logica de asignaciones multiples por sobre mas retornos que tipos de funcion
 
-Si en l lado derecho de una asignacion multiple HAY ALGUNA FUNCION MEZCLADA CON ESPRESIONES ARITMETICAS, DESCARTAMOS TODO LO SOBRANTE
-Si solo hay expresiones aritmeticas y sobran del lado derecho, tiramos error 
+### Aclaraciones de diseño:
+* Seguimos logica de asignaciones multiples por sobre mas retornos que tipos de funcion
+  * Si en l lado derecho de una asignacion multiple HAY ALGUNA FUNCION MEZCLADA CON ESPRESIONES ARITMETICAS, DESCARTAMOS TODO LO SOBRANTE
+  * Si solo hay expresiones aritmeticas y sobran del lado derecho, tiramos error
+* Por como tenemos hecho las acciones semanticas el limite de int y float no es 100% preciso
+* Al realizar las sentencias for, el iterador del mismo es inicializado solo en la misma sentencia (igual que java)
 
 ### Testeando
 
