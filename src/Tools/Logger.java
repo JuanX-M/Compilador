@@ -70,6 +70,10 @@ public final class Logger {
         int inicio = linea.indexOf('{');
         return linea.substring(inicio);
     }
+
+    public static void borrarUltimoLogError(){
+        errors.removeLast();
+    }
     public static String generateLog() {
         String out = null;
         out = "\n>>>    LOG \n\n";
