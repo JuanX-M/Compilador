@@ -15,7 +15,7 @@ public class ASError extends AccionSemantica{
                 Logger.logError(cursor.getCurrentLine(), "Debe ingresar un digito, un punto o una I");
                 break;
             case 2, 5:
-                Logger.logError(cursor.getCurrentLine(), "Debe ingresar algun digito");
+                Logger.logError(cursor.getCurrentLine(), "Debe ingresar algun digito o Letra mayuscula");
                 break;
             case 4:
                 Logger.logError(cursor.getCurrentLine(), "Debe ingresar simbolo + o -");
