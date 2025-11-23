@@ -619,7 +619,7 @@ sentencia_asignacion_unaria
     :   ID TWO_POINTS_ASSIGNATION expresion_aritmetica {
           //Chequeo ambito
             if (!TablaSimbolos.TABLA_SIMBOLOS.containsKey($1.sval + '.' + ambito)) {
-                Logger.logError(cursor.getCurrentLine(), "Variable '"+ $1.sval +"'sin declarar");
+                Logger.logError(cursor.getCurrentLine(), "Variable '"+ $1.sval +"' sin declarar");
             }else {
                 //obtengo ambito en donde fue declarada
                 $1.sval = $1.sval + '.' + ambito;
@@ -1329,7 +1329,7 @@ variable
     :   ID  {
             //Chequeo ambito
             if (!TablaSimbolos.TABLA_SIMBOLOS.containsKey($1.sval + '.' + ambito)) {
-                Logger.logError(cursor.getCurrentLine(), "Variable '"+ $1.sval +"'sin declarar");
+                Logger.logError(cursor.getCurrentLine(), "Variable '"+ $1.sval +"' sin declarar");
             }else {
                 //obtengo ambito en donde fue declarada
                 $1.sval = $1.sval + '.' + ambito;

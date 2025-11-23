@@ -28,12 +28,15 @@ float,int fun F2(float A){
         ##Declaracion y asignacion, da error ya que las variables C y B se encuentran declaradas luego
         de declaracion de funcion F3##
         var J := F2.C + F2.B;
+
+        ##Invocacion a funcion F1, da error ya que parametro formal A de F1
+        No esta como parametro formal##
+        J := fun F1(J->A);
         return(J);
     };
 
 
-    ##Declaracion y asignacion con invocacion con asignando valor del toi(A) a parametro formal de B de funcion F1 ##
-    var C:= fun F1(toi(A)->B);
+
 
 
     var B:= fun F1(ERROR%VAR%DECLARADA.A->B);
@@ -44,12 +47,18 @@ float,int fun F2(float A){
     C:= fun F1(F3.D->B);
 
 
-    ##Return de funcion F2 de float 3.0 y parametro formal B de funcion F1
-    ya que F2 no esta anidada dentro de F1,da error de F1 no esta al alcance##
+    ##Return de funcion F2 de float 3.0 y parametro formal B de funcion F1.
+    Ya que F2 no esta anidada dentro de F1,da error de F1 no esta al alcance##
 
     return(3.0,F1.B);
 };
 
+##
+Asignacion multiple en que variables del lado izquierdo B y D no estan declaradas en ambito de programa.
+Variables declaradas dentro de funciones no se encuentran declaradas en el ambito del programa ya que
+no son visibles al haber sido declaradas dentro de funciones F3,F1,F2
+##
+A,B,D = F3.D , F1.B, F2.C;
 
 
 }
