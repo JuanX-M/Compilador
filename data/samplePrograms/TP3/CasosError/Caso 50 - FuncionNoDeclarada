@@ -1,0 +1,45 @@
+##
+Caso de prueba en el que las Funciones no estan declaradas (segun reglas de alcance del lenguaje)
+##
+ERROR%FUN%{
+
+    ##Error de declaracion de funcion, esto ya que F1 no ha sido declarada,
+    es conocida luego de su declaracion ##
+    var A :=fun F1(3I->B);
+
+    int fun F3 (int D){
+        ##La funcion F2 anidada dentro de funcion F1 es conocida solo por F1 y los
+         ambitos contenidos dentro de F2##
+
+         D:= fun F2(D->C);
+
+        return (D);
+    };
+
+    int fun F1 (int B){
+
+        int fun F2 (int C){
+                if (F1.B < C){
+                    ##
+                    Error de declaracion de funcion al querer usar variable C, esto ya que F4 no existe
+                    ##
+                    return(F4.C);
+                }else{
+                    ##
+                    Error de declaracion de funcion al querer invocar funcion que F4 no existe
+                    ##
+                    return(fun F4(C->D));
+                }endif;
+            return(1I);
+        };
+
+
+        return(B);
+    };
+
+    ##Error de declaracion de funcion, esto ya que no hay funcion F2 declarada en ambito
+     del programa. La funcion F2 anidada dentro de funcion F1 es conocida solo por F1 y los
+     ambitos contenidos dentro de F2##
+
+    A := fun F2(A->C);
+}

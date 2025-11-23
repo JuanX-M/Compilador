@@ -1562,7 +1562,11 @@ invocacion_funcion
                 Logger.logError(cursor.getCurrentLine(), "Funcion "+$2.sval+ " no esta al alcance");
                 funcInfo = new Info($2.sval, "ID", null, "Funcion", ambito);
                 funcInfo.setListaParametrosFormales(new ArrayList<String>());
-                funcInfo.setListaVariablesRetorno(new ArrayList<String>());
+
+
+                ArrayList<String> lista = new ArrayList<String>();
+                lista.add("TIPO_ERROR");
+                funcInfo.setListaVariablesRetorno(lista);
             }else {
                 claveAcceso = claveAcceso + "." + getScope(ambito, $2.sval);
                 funcInfo = TablaSimbolos.TABLA_SIMBOLOS.get(claveAcceso);
