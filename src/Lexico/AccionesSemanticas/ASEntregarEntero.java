@@ -16,8 +16,7 @@ public class ASEntregarEntero extends AccionSemantica {
     @Override
     public Pair<String, Integer> run(Character simbolo, Tools.Cursor cursor) {
         String aux = BUFFER.toString();
-        //System.out.println(aux);
-        try {
+        /*try {
             short numero = Short.parseShort(aux);
         } catch (NumberFormatException e) {
             if(aux.contains("-"))
@@ -27,13 +26,13 @@ public class ASEntregarEntero extends AccionSemantica {
             BUFFER.setLength(0);
             // si no esta BUFFER.setLength(0)  hay error para todos los enteros porque se van concatenando en el mismo buffer
             return null;
-        }
+        }*/
         BUFFER.append(simbolo);
-        if(TABLA_SIMBOLOS.containsKey(aux)) {
-            BUFFER.setLength(0);
-            return new Pair<>(aux,TABLA_PALABRAS_RESERVADAS.get("CTE_INT"));
-        }
-        TABLA_SIMBOLOS.put(aux,new Info("CTE_INT", "INT"));
+        //if(TABLA_SIMBOLOS.containsKey(aux)) {
+        //    BUFFER.setLength(0);
+        //    return new Pair<>(aux,TABLA_PALABRAS_RESERVADAS.get("CTE_INT"));
+        //}
+        //TABLA_SIMBOLOS.put(aux,new Info("CTE_INT", "INT"));
         BUFFER.setLength(0);
         return new Pair<>(aux,TABLA_PALABRAS_RESERVADAS.get("CTE_INT"));
     }

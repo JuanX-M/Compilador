@@ -1422,21 +1422,22 @@ sentencia_iteracion_retorno
     ;
 
 factor
-    :   '-'  CTE_INT     {
+    :   '-'  CTE_INT {
             String resString = $1.sval + $2.sval;
-            if(!TablaSimbolos.TABLA_SIMBOLOS.containsKey(resString))
-                TablaSimbolos.TABLA_SIMBOLOS.put(resString,new Info("CTE_INT","INT"));
-            ParserVal constante = $2;
+            controlarEntero(resString);
             ParserVal resultado = new ParserVal($1.sval + $2.sval);
             $$.sval = getTipoParserVal($2);
             $$ = resultado;
         }
-    |   CTE_INT          {$$=$1;}
+    |   CTE_INT {
+            String resString = $1.sval;
+            controlarEntero(resString);
+            $$=$1;
+        }
     |   '-' CTE_FLOAT    {
             String resString = $1.sval + $2.sval;
             if(!TablaSimbolos.TABLA_SIMBOLOS.containsKey(resString))
                 TablaSimbolos.TABLA_SIMBOLOS.put(resString,new Info("CTE_FLOAT","FLOAT"));
-            ParserVal constante = $2;
             ParserVal resultado = new ParserVal($1.sval + $2.sval);
             $$.sval = getTipoParserVal($2);
             $$ = resultado;
@@ -1461,24 +1462,24 @@ factor
 
 cuerpo_seleccion_retorno
     :  '{' parte_if_retorno '}' {
-        //Saco el nro de terceto del BF incompleto de la pila
-        int numTercetoBackpatch = pila.pop(); // hago pop() del nro de terceto del BF incompleto
+            //Saco el nro de terceto del BF incompleto de la pila
+            int numTercetoBackpatch = pila.pop(); // hago pop() del nro de terceto del BF incompleto
 
-        //Obtengo referencia BF, obtengo su nro de terceto al que salta, parseo a integer  y hago + 1
-        //porque tengo terceto BI y vuelvo agregarlo al BF terceto
-        String auxString= listaTercetos.get(numTercetoBackpatch -1).getThird();
-        Integer aux= Integer.parseInt(auxString.replaceAll("\\D","")) + 1 ;
+            //Obtengo referencia BF, obtengo su nro de terceto al que salta, parseo a integer  y hago + 1
+            //porque tengo terceto BI y vuelvo agregarlo al BF terceto
+            String auxString= listaTercetos.get(numTercetoBackpatch -1).getThird();
+            Integer aux= Integer.parseInt(auxString.replaceAll("\\D","")) + 1 ;
 
-        auxString = "(" + String.valueOf(aux) + ")";
-        listaTercetos.get(numTercetoBackpatch -1).addThird(auxString); // completo el tercer operando del BF
+            auxString = "(" + String.valueOf(aux) + ")";
+            listaTercetos.get(numTercetoBackpatch -1).addThird(auxString); // completo el tercer operando del BF
 
-        //Creo el BI incompleto,agrego al arraylist y su nro de terceto en la pila
-        $$=crearTerceto(new ParserVal("BI"), null, null);
+            //Creo el BI incompleto,agrego al arraylist y su nro de terceto en la pila
+            $$=crearTerceto(new ParserVal("BI"), null, null);
 
-        listaTercetos.add((Terceto)$$.obj);
-        ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+            listaTercetos.add((Terceto)$$.obj);
+            ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
 
-        pila.push( ((Terceto)$$.obj).getSoloNumTerceto() ); // pusheo el nro de terceto del BI incompleto
+            pila.push( ((Terceto)$$.obj).getSoloNumTerceto() ); // pusheo el nro de terceto del BI incompleto
 
         } ELSE '{' parte_else_retorno '}' {
             //Saco el nro de terceto del BI incompleto de la pila para completarlo
@@ -1495,7 +1496,6 @@ cuerpo_seleccion_retorno
 
             $$ = $7; // Propagamos el ArrayList de la parte else
         }
-
     |  '{' parte_if_retorno '}' {
             //Saco el nro de terceto del BF incompleto de la pila ya que no hay ELSE
             //Aca no creo BI y no hago +1
@@ -1855,4 +1855,17 @@ private void reducirAmbito(){
         auxAmbito = auxAmbito.substring(0, pos);
     }
     ambito = auxAmbito;
+}
+
+private void controlarEntero(String aux){
+    try {
+        short numero = Short.parseShort(aux);
+    } catch (NumberFormatException e) {
+        if(aux.contains("-"))
+            Logger.logError(cursor.getCurrentLine(), "El número entero es demasiado pequeño");
+        else
+            Logger.logError(cursor.getCurrentLine(), "El número entero es demasiado grande");
+    }
+    if(!TablaSimbolos.TABLA_SIMBOLOS.containsKey(aux))
+        TablaSimbolos.TABLA_SIMBOLOS.put(aux,new Info("CTE_INT", "INT"));
 }
