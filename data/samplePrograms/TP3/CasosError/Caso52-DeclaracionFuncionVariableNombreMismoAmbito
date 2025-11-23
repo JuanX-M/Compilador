@@ -1,0 +1,22 @@
+##
+Caso de prueba de Funciones y Varaibles con mismo nombre en mismo ambito(segun reglas de alcance del lenguaje)
+##
+ERROR%N%F%V{
+
+    ##Error de declaracion de funcion, esto ya que existe variable F1 que fue declarada previamente
+     en el mismo ambito##
+
+    var F1:=3I;
+    int fun F1 (int D){
+        return (D);
+    };
+
+    ##Error de declaracion de variable, esto ya que existe funcion F2 que fue declarada previamente
+     en el mismo ambito##
+    int fun F2 (int B){
+        return(B);
+    };
+
+    var F2:=4I;
+
+}

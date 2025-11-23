@@ -1,0 +1,30 @@
+##
+Caso de prueba de Funciones Redeclaradas (segun reglas de alcance del lenguaje)
+##
+ERROR%REDEC%FUN%{
+
+    ##Error de Redeclaracion de funcion, esto ya que hay 2 declaraciones de funciones con nombre F1
+    en el mismo ambito del programa
+    es conocida luego de su declaracion ##
+
+
+    int fun F1 (int D){
+
+        return (D);
+    };
+
+    int fun F1 (int B){
+
+        ##
+        En este caso no tira error ya que la funcion F1 (ambito -> %REDEC%FUN%.F1)
+        se encuentra en ambito distinta a su
+        funcion padre F1 (ambito-> ERROR%REDEC%FUN%)
+        ##
+        int fun F1 (int B){
+            return(1I);
+        };
+
+        return(B);
+    };
+
+}
