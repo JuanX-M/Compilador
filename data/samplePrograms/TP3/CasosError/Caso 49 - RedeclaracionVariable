@@ -1,0 +1,31 @@
+##
+Caso de prueba en el que variables redeclaradas (segun reglas de alcance del lenguaje)
+- Inferencia de tipo obligatorio
+##
+ERROR%REDECLARACION{
+
+##Redeclaracion de variable A en ambito de programa##
+var A :=3I;
+
+var A := 5I;
+
+    int fun F1 (int B){
+
+        ##
+        Error de redeclaracion de variable B, esto ya que B es un variable declarada como parametro formal de
+        funcion F1
+        ##
+
+        var B := 7I;
+
+        ##
+        Error de declaracion con prefijado obligatorio, solamente se permite var sin prefijado
+        ##
+
+        var ERROR%REDECLARACION.A:=8I;
+
+        return(ERROR%REDECLARACION.A);
+    }
+
+
+}

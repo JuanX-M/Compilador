@@ -474,7 +474,7 @@ declaracion_unaria
             String aux = $2.sval + '.' + ambito;
             ParserVal auxParserVal= $4;
             if ( auxParserVal.obj!=null && auxParserVal.obj.getClass().equals(java.util.ArrayList.class)){
-                 Logger.logError(cursor.getCurrentLine(), "Error: Funcion con retorno multiple en declaracion simple.");
+                 Logger.logError(cursor.getCurrentLine(), "Funcion con retorno multiple en declaracion simple.");
                  // Recuperación de error: tomamos el primero para seguir compilando
                  auxParserVal = ((ArrayList<ParserVal>)auxParserVal.obj).get(0);
             }
@@ -486,9 +486,9 @@ declaracion_unaria
                 String uso = infoExistente.getUso();
 
                 if (uso.equals("Funcion")) {
-                    Logger.logError(cursor.getCurrentLine(), "Error: El identificador '" + $2.sval + "' ya fue declarado como Función.");
+                    Logger.logError(cursor.getCurrentLine(), "El identificador '" + $2.sval + "' ya fue declarado como Función.");
                 } else {
-                    Logger.logError(cursor.getCurrentLine(), "Error: Redeclaración de variable '" + $2.sval + "'.");
+                    Logger.logError(cursor.getCurrentLine(), "Redeclaración de variable '" + $2.sval + "'.");
                 }
             } else {
                 // Si no existe, lo agregamos normalmente
@@ -505,6 +505,7 @@ declaracion_unaria
 
 declaracion_unaria_error
     :   VAR ID expresion_aritmetica    {Logger.logError(cursor.getCurrentLine(), "Falta de asignacion en declaracion de variable");}
+    |   VAR ID'.'ID  TWO_POINTS_ASSIGNATION expresion_aritmetica    {Logger.logError(cursor.getCurrentLine(), "Declaracion de una variable con ambito");}
     ;
 
 lista_exp_aritmeticas
@@ -626,7 +627,7 @@ sentencia_asignacion_unaria
             }
             ParserVal auxParserVal = $3;
             if (auxParserVal.obj!=null && auxParserVal.obj.getClass().equals(java.util.ArrayList.class)){
-                Logger.logError(cursor.getCurrentLine(), "Error: Asignación de retorno múltiple a variable simple.");
+                Logger.logError(cursor.getCurrentLine(), "Asignación de retorno múltiple a variable simple.");
                 auxParserVal = ((ArrayList<ParserVal>)auxParserVal.obj).get(0);
             }
             if (!checkTipo($1, auxParserVal)) {
@@ -669,7 +670,7 @@ sentencia_asignacion_unaria
 
             ParserVal auxParserVal =$5;
             if (auxParserVal.obj!=null && auxParserVal.obj.getClass().equals(java.util.ArrayList.class)){
-                Logger.logError(cursor.getCurrentLine(), "Error: Asignación de retorno múltiple a variable simple.");
+                Logger.logError(cursor.getCurrentLine(), "Asignación de retorno múltiple a variable simple.");
                 auxParserVal= ((ArrayList<ParserVal>)auxParserVal.obj).get(0);
             }
 
