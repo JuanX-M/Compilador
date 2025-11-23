@@ -1,0 +1,55 @@
+##
+Caso de prueba en el que no hay variables declaradas (segun reglas de alcance del lenguaje)
+- Contamos con prefijado obligatorio en variables
+##
+ERROR%VAR%DECLARADA{
+
+var A :=3I;
+
+int fun F1(int B) {
+
+
+    ##Asignacion de variable A sin prefijado obligatorio, da error
+    en ambos lados de la asignacion no estar declarada localmente##
+
+    A:=A+B;
+
+    ##Asignacion de variable C declarada en cuerpo del programa, da error
+    al no estar declarada##
+
+    ERROR%VAR%DECLARADA.C := ERROR%VAR%DECLARADA.A;
+
+    return(B);
+};
+
+float,int fun F2(float A){
+
+    float fun F3(int D){
+        ##Declaracion y asignacion, da error ya que las variables C y B se encuentran declaradas luego
+        de declaracion de funcion F3##
+        var J := F2.C + F2.B;
+        return(J);
+    };
+
+
+    ##Declaracion y asignacion con invocacion con asignando valor del toi(A) a parametro formal de B de funcion F1 ##
+    var C:= fun F1(toi(A)->B);
+
+
+    var B:= fun F1(ERROR%VAR%DECLARADA.A->B);
+
+    ##Error de funcion no esta al alcance al utilizar en invocacion
+    a F1 como paremetro real el parametro formal D
+    de la funcion F3##
+    C:= fun F1(F3.D->B);
+
+
+    ##Return de funcion F2 de float 3.0 y parametro formal B de funcion F1
+    ya que F2 no esta anidada dentro de F1,da error de F1 no esta al alcance##
+
+    return(3.0,F1.B);
+};
+
+
+
+}
