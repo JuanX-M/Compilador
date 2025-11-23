@@ -619,7 +619,7 @@ sentencia_asignacion_unaria
     :   ID TWO_POINTS_ASSIGNATION expresion_aritmetica {
           //Chequeo ambito
             if (!TablaSimbolos.TABLA_SIMBOLOS.containsKey($1.sval + '.' + ambito)) {
-                Logger.logError(cursor.getCurrentLine(), "Variable sin declarar");
+                Logger.logError(cursor.getCurrentLine(), "Variable '"+ $1.sval +"'sin declarar");
             }else {
                 //obtengo ambito en donde fue declarada
                 $1.sval = $1.sval + '.' + ambito;
@@ -657,11 +657,11 @@ sentencia_asignacion_unaria
                 int indiceFinal = indiceInicio + $1.sval.length();
                 ambitoaux = ambito.substring(0, indiceFinal);
             }else {
-                Logger.logError(cursor.getCurrentLine(), "Funcion" + $1.sval +" no esta al alcance");
+                Logger.logError(cursor.getCurrentLine(), "Funcion " + $1.sval +" no esta al alcance");
             }
 
             if (getScope(ambitoaux,$3.sval) == null) {
-                Logger.logError(cursor.getCurrentLine(), "Variable sin declarar");
+                Logger.logError(cursor.getCurrentLine(), "Variable con ambito '"+ $1.sval + "."+$3.sval +"' sin declarar");
             }else {
                 //obtengo ambito en donde fue declarada
                 $3.sval = $3.sval + '.' + getScope(ambitoaux,$3.sval);
@@ -1329,7 +1329,7 @@ variable
     :   ID  {
             //Chequeo ambito
             if (!TablaSimbolos.TABLA_SIMBOLOS.containsKey($1.sval + '.' + ambito)) {
-                Logger.logError(cursor.getCurrentLine(), "Variable sin declarar");
+                Logger.logError(cursor.getCurrentLine(), "Variable '"+ $1.sval +"'sin declarar");
             }else {
                 //obtengo ambito en donde fue declarada
                 $1.sval = $1.sval + '.' + ambito;
@@ -1357,11 +1357,11 @@ variable
                 int indiceFinal = indiceInicio + $1.sval.length();
                 ambitoaux = ambito.substring(0, indiceFinal);
             }else {
-                Logger.logError(cursor.getCurrentLine(), "Funcion" + $1.sval +" no esta al alcance");
+                Logger.logError(cursor.getCurrentLine(), "Funcion " + $1.sval +" no esta al alcance");
             }
 
             if (getScope(ambitoaux,$3.sval) == null) {
-                Logger.logError(cursor.getCurrentLine(), "Variable sin declarar");
+                Logger.logError(cursor.getCurrentLine(), "Variable con ambito '"+ $1.sval + "."+$3.sval +"' sin declarar");
             }else {
                 //obtengo ambito en donde fue declarada
                 $3.sval = $3.sval + '.' + getScope(ambitoaux,$3.sval);
