@@ -310,15 +310,16 @@ encabezado_funcion
              if (TablaSimbolos.TABLA_SIMBOLOS.containsKey(aux)) {
              	if (TablaSimbolos.TABLA_SIMBOLOS.get(aux).getUso().contains("Variable"))
              		Logger.logError(cursor.getCurrentLine(), "Funcion no puede ser declarada ya que existe una variable con el mismo nombre");
-		else
-                	Logger.logError(cursor.getCurrentLine(), "Redeclaracion de funcion");
+		        else
+                	Logger.logError(cursor.getCurrentLine(), "Redeclaracion de funcion " +"'" +$3.sval+ "'");
              } else {
                  TablaSimbolos.TABLA_SIMBOLOS.put(aux ,new Info($3.sval, $2.sval, "INT", "Funcion", ambito));
                  TablaSimbolos.TABLA_SIMBOLOS.get(aux).setListaVariablesRetorno(new ArrayList<>((ArrayList<String>)$1.obj));
 
                  System.out.println("auxInfo:"+TablaSimbolos.TABLA_SIMBOLOS.get(aux));
-                 ambito += '.' + $3.sval;
+
              }
+             ambito += '.' + $3.sval;
 
     }   '(' lista_param_formales ')' {
 
