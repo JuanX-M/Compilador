@@ -19,13 +19,15 @@ var A := 5I;
         var B := 7I;
 
         ##
-        Error de declaracion con prefijado obligatorio, solamente se permite var sin prefijado
+        Error de declaracion con prefijado obligatorio, solamente se permite sin prefijado
         ##
 
-        var ERROR%REDECLARACION.A:=8I;
+        var ERROR%REDECLARACION.A :=8I;
+
+
 
         return(ERROR%REDECLARACION.A);
-    }
+    };
 
 
 }
