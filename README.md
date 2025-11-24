@@ -4,7 +4,9 @@
 
 
 
-* '-' en expresion aritmetica cuando esta solo o con espacio
+
+* Descartar tercetos cuando hay syntax error
+* Realizar chequeo de constantes negativas
 * chequear que el compilador no se rompa al tener errores de sintaxis
 * Meter toi en clase GeneradorAssembler para que haga la conversion, es cuando el el operador del terceto es 'toi' hace ahi la conversion
 * Hacer chequeos en tiempo en ejecucion 
@@ -15,7 +17,7 @@
 
 
 ### Cosas que andan:
-
+* '-' en expresion aritmetica cuando esta solo o con espacio
 * revisar sentencias if/else e iteraciones con retorno una vez finalizado cheques tipos en funcion ANDAAAAA NASHEEEEEEEEEEEEEEEEEEEEEE
 * * chequear en asignacion multiple que haya como minimo 2 variables y 2 exp aritmeticas
 * Falta de parametro formal al hacer -> en llamada funcion
@@ -79,7 +81,7 @@
 * Uso correcto del '-'
 * * Revisar si funcionana los errores semanticos if/else e iteraciones  retorno dentro de una funcin, creo que no andan porque
     estan comentados o no tienen reglas directamente, es copiar y pegar las reglas con errores y poner _retorno//Juanx,lo hago a la mañama,puede que me lleve todo el dia
-
+* Casos de prubea que deben tirar error //JuanX
 ### Aclaraciones de diseño:
 * Seguimos logica de asignaciones multiples por sobre mas retornos que tipos de funcion
   * Si en l lado derecho de una asignacion multiple HAY ALGUNA FUNCION MEZCLADA CON ESPRESIONES ARITMETICAS, DESCARTAMOS TODO LO SOBRANTE
