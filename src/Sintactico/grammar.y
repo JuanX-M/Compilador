@@ -638,6 +638,7 @@ sentencia_asignacion_unaria
             listaTercetos.add((Terceto)$$.obj);
             ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
         }
+
     |   ID'.'ID TWO_POINTS_ASSIGNATION expresion_aritmetica {
             //Chequeo ambito
             String nombreAmbitoActual = "";
