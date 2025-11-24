@@ -4,7 +4,7 @@
 
 
 
-
+* chequeo de tipo/alcance en argumento lambda con ID, hay que agregar a la gramatica ID'.'ID en argumento lambda y que su Uso no sea CR SE o Funcion 
 * Descartar tercetos cuando hay syntax error
 * Realizar chequeo de constantes negativas
 * chequear que el compilador no se rompa al tener errores de sintaxis
