@@ -790,9 +790,9 @@ cuerpo_lambda_error
     ;
 
 argumento_lambda
-    :   '(' ID ')'  {
+    :   '(' variable ')'  {
             reducirAmbito();
-            $$.sval = $2.sval + "." + ambito;
+            $$.sval = $2.sval;
         }
     |   '(' CTE_INT ')' {
             reducirAmbito();
