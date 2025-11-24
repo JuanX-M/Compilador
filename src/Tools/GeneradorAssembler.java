@@ -15,7 +15,12 @@ public class GeneradorAssembler {
 
         public Terceto(int id, String operador, String op1, String op2) {
             this.id = id;
-            this.operador = operador != null ? operador.trim() : "";
+            if (operador != null) {
+                this.operador = operador.trim();
+            } else {
+                this.operador = "";
+            }
+
             this.op1 = (op1 == null || op1.trim().equals("null")) ? null : op1.trim();
             this.op2 = (op2 == null || op2.trim().equals("null")) ? null : op2.trim();
         }
@@ -29,6 +34,8 @@ public class GeneradorAssembler {
     private Map<String, String> constantesString = new HashMap<>();
     private int contadorStrings = 0;
 
+    private Map<String, String> constantesFloat = new HashMap<>();
+    private int contadorFloats = 0;
     public void generarArchivoASM(String rutaEntrada, String rutaSalida) {
         leerTercetos(rutaEntrada);
 
@@ -77,18 +84,26 @@ public class GeneradorAssembler {
     private void recolectarVariable(String token) {
         if (token == null) return;
         if (esReferencia(token)) return;
-        if (esNumero(token)) return;
         if (token.startsWith("ETIQUETA")) return;
 
-        // NUEVO: Si empieza con comillas, es un string. Lo guardamos en el mapa.
+        // Strings
         if (token.startsWith("\"")) {
             if (!constantesString.containsKey(token)) {
                 constantesString.put(token, "str_const_" + (contadorStrings++));
             }
-            return; // No lo agregamos a variablesDeclaradas (DD)
+            return;
         }
 
-        // Si no es nada de lo anterior, es una variable numérica
+        // NUEVO: Lógica para Floats
+        if (esNumero(token)) {
+            if (token.contains(".")) { // Si tiene punto, es float
+                if (!constantesFloat.containsKey(token)) {
+                    constantesFloat.put(token, "const_float_" + (contadorFloats++));
+                }
+            }
+            return; // Si es entero o float ya procesado, volvemos
+        }
+
         variablesDeclaradas.add(limpiarNombre(token));
     }
 
@@ -124,7 +139,8 @@ public class GeneradorAssembler {
 
         // Variables temporales aritméticas
         for (Terceto t : listaTercetos) {
-            if (esOperacionAritmetica(t.operador)) {
+            // AGREGAR "TOI" A LA CONDICIÓN
+            if (esOperacionAritmetica(t.operador) || t.operador.equals("toi")) {
                 w.println("    @temp_terceto_" + t.id + " DD 0");
             }
         }
@@ -135,6 +151,12 @@ public class GeneradorAssembler {
             // entry.getValue() es la etiqueta (str_const_0)
             // entry.getKey() es el valor ("Hola")
             w.println("    " + entry.getValue() + " DB " + entry.getKey() + ", 0");
+        }
+
+        w.println("    ; Constantes Float");
+        for (Map.Entry<String, String> entry : constantesFloat.entrySet()) {
+            // entry.getKey() es el valor "4.0", entry.getValue() es la etiqueta
+            w.println("    " + entry.getValue() + " DD " + entry.getKey());
         }
         w.println();
     }
@@ -195,6 +217,15 @@ public class GeneradorAssembler {
 
                 case "print":
                     generarPrint(w, t);
+                    break;
+                case "toi":
+
+                    String origenFloat = resolverOperando(t.op1);
+
+
+                    w.println("    FLD " + origenFloat);
+
+                    w.println("    FISTP @temp_terceto_" + t.id);
                     break;
             }
             w.println();
@@ -300,6 +331,9 @@ public class GeneradorAssembler {
         if (esReferencia(raw)) {
             return "@temp_terceto_" + obtenerIdDesdeReferencia(raw);
         }
+        if (constantesFloat.containsKey(raw)) {
+            return constantesFloat.get(raw);
+        }
         if (esNumero(raw)) {
             if (raw.contains(".")) return raw.substring(0, raw.indexOf("."));
             return raw;
@@ -312,7 +346,9 @@ public class GeneradorAssembler {
     }
 
     private String limpiarNombre(String s) {
-        return s.replace(".", "_");
+        if (s == null) return "";
+        String resultado = s.replace(".", "_");
+        return resultado.replaceAll("[^a-zA-Z0-9_]", "_");
     }
 
     private boolean esReferencia(String s) {
