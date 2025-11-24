@@ -1,0 +1,44 @@
+##
+Caso de prueba para validacion de nro de elementos de ambos lados
+en asignacion multiple.
+##
+ERR%ASIG%MULT{
+
+
+    int,float,int fun F1(int A){
+        A:=0I;
+        return(A,3.0,A+1I);
+    };
+
+
+    int,float fun F2(int B){
+        B:=1I;
+        return(B,1.0);
+    };
+
+
+    var A:=1I;
+    var B:=3.0;
+    var C:=2I;
+    var D:=2I;
+    var E:= 2.0;
+
+
+    ##
+    Error en asignacion multiple, mayor nro de elementos del lado derecho
+    ##
+    A,B,C = D-3I,E * 2.0,A/8I, A+1I;
+
+
+    ##
+    Error en asignacion multiple, menor nro de elementos del lado derecho
+    ##
+    A,B,C = D-3I,E * 2.0;
+
+
+    ##
+    Con invocaciones a funciones, se descartan sobrantes del lado derecho, tanto
+    retornos excedentes de funcion como expresiones aritmeticas/variables/constantes
+    ##
+    A,B,C,E,D = fun F1(C->A), 3.0-4.0/8.0 , fun F2 (D->B);
+}
