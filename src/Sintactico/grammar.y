@@ -741,6 +741,18 @@ sentencia_asignacion_multiple
                     Logger.logError(cursor.getCurrentLine(),
                         "La cantidad de variables (" + listaVariables.size() + ") no coincide con la cantidad de asignaciones (" + listaExpresiones.size() + ").");
                 }
+                for (int i = 0; i < listaVariables.size() && i < listaExpresiones.size() ; i++) {
+                ParserVal variable = listaVariables.get(i);
+                ParserVal expresion = listaExpresiones.get(i);
+
+                if (!checkTipo(variable, expresion)) {
+                     Logger.logError(cursor.getCurrentLine(), "Tipo en asignación múltiple (pos " + (i+1) + "): " + "No se puede asignar " + getTipoParserVal(expresion) + " a " + getTipoParserVal(variable));
+                }
+
+                yyval = crearTerceto(new ParserVal(":="), variable, expresion);
+                listaTercetos.add((Terceto)yyval.obj);
+                ((Terceto)yyval.obj).addLine(cursor.getCurrentLine());
+            }
             }
 
 
@@ -958,7 +970,7 @@ expresion_aritmetica
             }
 
             if (!checkTipo(opIzq, opDer)) {
-                 Logger.logError(cursor.getCurrentLine(), "Tipos incompatibles en resta entre " + getTipoParserVal(opIzq) + " y " + getTipoParserVal(opDer));Logger.logError(cursor.getCurrentLine(), "Tipos incompatibles");
+                 Logger.logError(cursor.getCurrentLine(), "Tipos incompatibles en resta entre " + getTipoParserVal(opIzq) + " y " + getTipoParserVal(opDer));
             }
 
             $$ = crearTerceto($2, opIzq, opDer);
@@ -1296,11 +1308,13 @@ termino_error
 
 expresion_aritmetica_toi
     :   TOI '(' expresion_aritmetica ')' {
-           int indice = ambito.indexOf('.');
-           String ambitotoi = ambito.substring(0,indice); // Ejemplo con múltiples puntos
+            int indice = ambito.indexOf('.');
+            String ambitotoi = (indice != -1) ? ambito.substring(0, indice) : ambito;
            System.out.println("Ambito TOI: " + ambitotoi);
-            if (getTipoParserVal($3).equals("INT"))
+            if (getTipoParserVal($3).equals("INT")){
             	Logger.logWarning(cursor.getCurrentLine(), "Variable en sentencia TOI ya es de tipo entero");
+
+            	}
 	        else{
 	    	    if (!TablaSimbolos.TABLA_SIMBOLOS.containsKey("auxtoi")){
 		            TablaSimbolos.TABLA_SIMBOLOS.put("auxtoi", new Info("auxtoi", "ID", "INT", "Variable", ambitotoi));

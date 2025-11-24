@@ -1,0 +1,77 @@
+##
+Caso de prueba para validacion de Chequeo de Tipos.
+Debe generar errores semanticos por incompatibilidad.
+##
+ERROR%TIPOS {
+
+    ## Declaracion correcta de variables para usar en las pruebas ##
+    var VENTERA := 10I;
+    var VFLOTANTE := 5.5;
+
+
+
+    ## Error en Asignacion (Variable Int recibe Float) ##
+
+    VENTERA := 3.14;
+
+    ## Error en Asignacion (Variable Floar recibe INT) ##
+    VFLOTANTE:= 3I;
+
+
+    ## Error en Retorno de Funcion##
+    ## retorna INT, pero devuelve FLOAT##
+    int fun FRETORNOMAL (int P1) {
+
+
+        ##Error de tipo con prefijado obligatorio, entre Float y Int##
+        ERROR%TIPOS.VFLOTANTE := P1;
+
+        return (2.5);
+    };
+
+
+
+    ## Error en Invocacion (Pasaje de Parametros)        ##
+
+    int fun FPARAMETRO (int P2,cr le float P3) {
+        return (P2);
+    };
+
+    VENTERA := fun FPARAMETRO(8.9->P2,3I->P3);
+
+
+
+    ## Error en Operacion Aritmetica  ##
+    ## Intentar sumar una variable Int con una Float  ##
+    VENTERA := VENTERA + VFLOTANTE;
+
+    VENTERA := VENTERA - VFLOTANTE;
+
+    VENTERA := VENTERA * VFLOTANTE;
+
+    VENTERA := VENTERA / VFLOTANTE;
+
+    VENTERA := VENTERA + VENTERA/ VFLOTANTE * VENTERA + VFLOTANTE/VENTERA - VFLOTANTE;
+
+    ## Warning en TOI, conversion Int a Int  ##
+    VENTERA := toi(VENTERA);
+
+
+    ## Error en Condicion de IF                        ##
+    ## Compara tipos incompatibles ( Int > Float)          ##
+    if (VENTERA > VFLOTANTE) {
+        VENTERA := 0I;
+    } endif;
+
+    ##Error de tipos en asignacion multiple##
+    var A:=1I;
+    var B:=3.0;
+    var C:=2I;
+
+    A,B,C = B,C,B;
+
+    ##Error de tipos en asignacion multiple
+    junto a expresiones con incompatibilidad##
+    A,B,C = 3.0 - 5I , 3I*8.0/9I, 2.0;
+
+}
