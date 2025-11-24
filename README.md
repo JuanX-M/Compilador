@@ -4,8 +4,7 @@
 
 
 
-* chequeo de tipo/alcance en argumento lambda con ID, hay que agregar a la gramatica ID'.'ID en argumento lambda y que su Uso no sea CR SE o Funcion 
-* Descartar tercetos cuando hay syntax error
+* chequeo de tipo/alcance en argumento lambda con ID, hay que agregar a la gramatica ID'.'ID en argumento lambda y que su Uso no sea CR SE o Funcion
 * Realizar chequeo de constantes negativas
 * chequear que el compilador no se rompa al tener errores de sintaxis
 
@@ -17,6 +16,8 @@
 
 
 ### Cosas que andan:
+* Descartar generacion de codigo assembler cuando hay syntax error
+* chequear que el compilador no se rompa al tener errores de sintaxis
 * '-' en expresion aritmetica cuando esta solo o con espacio
 * revisar sentencias if/else e iteraciones con retorno una vez finalizado cheques tipos en funcion ANDAAAAA NASHEEEEEEEEEEEEEEEEEEEEEE
 * * chequear en asignacion multiple que haya como minimo 2 variables y 2 exp aritmeticas

@@ -1744,7 +1744,7 @@ static int contadorVariablesAuxTercetos = 0;
 static int contadorParaBF = 0;
 public static void main (String [] args) {
 
-	System.out.println("Iniciando compilación ... ");
+	System.out.println("Iniciando compilación..."); System.out.println(""); System.out.println(""); System.out.println("");
 
 	/*Scanner lector = new Scanner(System.in);
 	System.out.println("Usted se encuentra en: " + System.getProperty("user.dir"));
@@ -1788,7 +1788,6 @@ public static void main (String [] args) {
 
 	System.out.println("\nFin compilación");
 }
-
 
 
 int yylex() {
