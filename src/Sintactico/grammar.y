@@ -1749,14 +1749,16 @@ private void controlarFlotante(String aux){
         }
         aux = aux.replace('F', 'E'); //Formateamos para meter en variable
     }
-    try {
-        float numero = Float.parseFloat(aux);
-        if (Float.isInfinite(numero))
-            throw new NumberFormatException();
-            if(!TablaSimbolos.TABLA_SIMBOLOS.containsKey(aux)){
-                TablaSimbolos.TABLA_SIMBOLOS.put(aux,new Info("CTE_FLOAT", "FLOAT"));
-            }
-    } catch (NumberFormatException e) {
-        Logger.logError(cursor.getCurrentLine(), "Excede cantidad de bits");
+    else {
+	    try {
+		float numero = Float.parseFloat(aux);
+		if (Float.isInfinite(numero))
+		    throw new NumberFormatException();
+		    if(!TablaSimbolos.TABLA_SIMBOLOS.containsKey(aux)){
+			TablaSimbolos.TABLA_SIMBOLOS.put(aux,new Info("CTE_FLOAT", "FLOAT"));
+		    }
+	    } catch (NumberFormatException e) {
+		Logger.logError(cursor.getCurrentLine(), "Excede cantidad de bits");
+	    }
     }
 }
