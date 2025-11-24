@@ -405,10 +405,14 @@ sentencia_lambda
                     Info infoPar = TablaSimbolos.TABLA_SIMBOLOS.get($1.sval);
                     Info infoArg = TablaSimbolos.TABLA_SIMBOLOS.get($4.sval);
                     int numTercetoBackpatch = pila.pop();
-                    if(infoPar.getTipo().equals(infoArg.getTipo()))
-                        listaTercetos.get(numTercetoBackpatch -1).addThird(getReferencia($4));
-                    else {
-                        listaTercetos.remove(numTercetoBackpatch -1);
+                    if (infoPar != null && infoArg != null){
+                        if(infoPar.getTipo().equals(infoArg.getTipo())) {
+                            listaTercetos.get(numTercetoBackpatch -1).addThird(getReferencia($4));
+                        } else {
+                            listaTercetos.remove(numTercetoBackpatch -1);
+                            Logger.logError(cursor.getCurrentLine(), "Incompatibilidad de tipos en parametro y argumento de sentencia Lambda");
+                        }
+                    } else {
                         Logger.logError(cursor.getCurrentLine(), "Incompatibilidad de tipos en parametro y argumento de sentencia Lambda");
                     }
                 }
