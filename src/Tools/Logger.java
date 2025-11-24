@@ -74,6 +74,15 @@ public final class Logger {
     public static void borrarUltimoLogError(){
         errors.removeLast();
     }
+
+    public static void cancelacionCodigoAssembler(){
+        errors.add("Se descarta generacion de codigo assembler debido a errores");
+    }
+
+    public static boolean hayErrores() {
+        return (!errors.isEmpty());
+    }
+
     public static String generateLog() {
         String out = null;
         out = "\n>>>    LOG \n\n";

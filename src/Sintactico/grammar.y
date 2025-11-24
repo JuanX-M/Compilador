@@ -1741,44 +1741,49 @@ static int contadorVariablesAuxTercetos = 0;
 static int contadorParaBF = 0;
 public static void main (String [] args) {
 
-    System.out.println("Iniciando compilación ... ");
+	System.out.println("Iniciando compilación ... ");
 
-    /*Scanner lector = new Scanner(System.in);
-    System.out.println("Usted se encuentra en: " + System.getProperty("user.dir"));
-    System.out.println("Ingrese el archivo deseado, este debe estar dentro de data");
-    String programa = lector.nextLine();
-    lector.close();
-    */
+	/*Scanner lector = new Scanner(System.in);
+	System.out.println("Usted se encuentra en: " + System.getProperty("user.dir"));
+	System.out.println("Ingrese el archivo deseado, este debe estar dentro de data");
+	String programa = lector.nextLine();
+	lector.close();
+	*/
 
-    String programa = "testing.txt"; //TODO:Despues lo cambiamos
+	String programa = "testing.txt"; //TODO:Despues lo cambiamos
 
-    TablaPalabrasReservadas tablaPalabrasReservadas = new TablaPalabrasReservadas();
-    tablaPalabrasReservadas.cargarTabla();
+	TablaPalabrasReservadas tablaPalabrasReservadas = new TablaPalabrasReservadas();
+	tablaPalabrasReservadas.cargarTabla();
 
-    lex = new AnalizadorLexico (programa) ;
-    cursor = lex.getCursor();
-    par = new Parser (false);
+	lex = new AnalizadorLexico (programa) ;
+	cursor = lex.getCursor();
+	par = new Parser (false);
 
-    par.run () ;
+	par.run () ;
 
-    listaTercetos.sort(Comparator.comparingInt(Terceto::getSoloNumTerceto));
-    System.out.println("\nLista de Tercetos: "+ listaTercetos);
-    for(Terceto t : listaTercetos){
-        Logger.logTerceto(t.getLinea(), t);
-    }
-    String rutaTercetos = "data/tercetos.txt";
-    String rutaASM = "data/programa.asm";
+	listaTercetos.sort(Comparator.comparingInt(Terceto::getSoloNumTerceto));
+	System.out.println("\nLista de Tercetos: "+ listaTercetos);
+	for(Terceto t : listaTercetos){
+		Logger.logTerceto(t.getLinea(), t);
+	}
+	String rutaTercetos = "data/tercetos.txt";
+	String rutaASM = "data/programa.asm";
 
-    Logger.exportarTercetos(rutaTercetos);
+	Logger.exportarTercetos(rutaTercetos);
 
-    System.out.println("Generando código Assembler...");
-    GeneradorAssembler generador = new GeneradorAssembler();
-    generador.generarArchivoASM(rutaTercetos, rutaASM);
+	if (Logger.hayErrores()){
+		System.out.println("Se descarta generacion de codigo assembler debido a errores");
+	}
+	else{
+		System.out.println("Generando código Assembler...");
+		GeneradorAssembler generador = new GeneradorAssembler();
+		generador.generarArchivoASM(rutaTercetos, rutaASM);
+	}
 
-    System.out.println("TablaSimbolos: " + TablaSimbolos.TABLA_SIMBOLOS);
-    System.out.println(Logger.generateLog());
+	System.out.println("TablaSimbolos: " + TablaSimbolos.TABLA_SIMBOLOS);
+	System.out.println(Logger.generateLog());
 
-    System.out.println("\nFin compilación");
+	System.out.println("\nFin compilación");
 }
 
 
@@ -1795,7 +1800,12 @@ int yylex() {
 }
 
 void yyerror (String s) {
-    System.out.println(s);
+    if (s != null && s.equals("syntax error")) {
+            Logger.logError(cursor.getCurrentLine(), "Error sintáctico: Token inesperado o estructura mal formada");
+	} else {
+	    // Si el error viene con un s personalizado (ej. lanzado manualmente)
+	    Logger.logError(cursor.getCurrentLine(), s);
+	}
 }
 
 private String getReferencia(ParserVal val) {
