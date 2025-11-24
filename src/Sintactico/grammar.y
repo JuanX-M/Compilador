@@ -4,6 +4,7 @@
     import java.util.Stack;
     import java.util.ArrayList;
     import java.util.Comparator;
+    import java.math.BigDecimal;
     import Tools.GeneradorAssembler;
     import Lexico.AnalizadorLexico;
     import Tools.GeneradorAssembler;
@@ -694,16 +695,12 @@ sentencia_asignacion_unaria_error
 
 sentencia_asignacion_multiple
     :   lista_variables  '=' lista_exp_aritmeticas %prec SENTENCIA_ASIGNACION_PREC {
-
             ArrayList<ParserVal> listaVariables = (ArrayList<ParserVal>)$1.obj;
             ArrayList<ParserVal> listaExpresiones = (ArrayList<ParserVal>)$3.obj;
             /*
                 Para distinguir cantidad de retornos de una funcion pregunto por el ival de cada parserval en  listaExpresiones
                 Esto ya que concateno los auxiliares con lista de expresiones aritmeticas y en cada parserval de esto poner ahi el ival
-
-
             */
-
             boolean hayFuncion=false;
             int k =0;
             while (k < listaExpresiones.size() && !hayFuncion){
@@ -712,9 +709,6 @@ sentencia_asignacion_multiple
                     }
                     k++;
             }
-
-
-
             if (hayFuncion){
                 if (listaVariables.size() < listaExpresiones.size()) {
                     Logger.logWarning(cursor.getCurrentLine(),
@@ -755,11 +749,6 @@ sentencia_asignacion_multiple
                 ((Terceto)yyval.obj).addLine(cursor.getCurrentLine());
             }
             }
-
-
-
-
-
         }
     ;
 
@@ -862,20 +851,20 @@ parametro_lambda
         | parametro_lambda_error
     ;
 
-    parametro_lambda_error
-        :   '(' ID ')' {
-                $$.sval = null;
-                Logger.logError(cursor.getCurrentLine(), "Falta del tipo en parametro_lambda");
-            }
-        |   '(' tipo ')' {
-                $$.sval = null;
-                Logger.logError(cursor.getCurrentLine(), "Falta del ID en parametro_lambda");
-            }
-        |   '(' error ')' {
-                $$.sval = null;
-                Logger.logError(cursor.getCurrentLine(), "Falta del tipo e ID en parametro_lambda");
-            }
-        ;
+parametro_lambda_error
+    :   '(' ID ')' {
+            $$.sval = null;
+            Logger.logError(cursor.getCurrentLine(), "Falta del tipo en parametro_lambda");
+        }
+    |   '(' tipo ')' {
+            $$.sval = null;
+            Logger.logError(cursor.getCurrentLine(), "Falta del ID en parametro_lambda");
+        }
+    |   '(' error ')' {
+            $$.sval = null;
+            Logger.logError(cursor.getCurrentLine(), "Falta del tipo e ID en parametro_lambda");
+        }
+    ;
 
 
 cuerpo_lambda
@@ -1311,12 +1300,10 @@ expresion_aritmetica_toi
     :   TOI '(' expresion_aritmetica ')' {
             int indice = ambito.indexOf('.');
             String ambitotoi = (indice != -1) ? ambito.substring(0, indice) : ambito;
-           System.out.println("Ambito TOI: " + ambitotoi);
+            System.out.println("Ambito TOI: " + ambitotoi);
             if (getTipoParserVal($3).equals("INT")){
             	Logger.logWarning(cursor.getCurrentLine(), "Variable en sentencia TOI ya es de tipo entero");
-
-            	}
-	        else{
+            } else {
 	    	    if (!TablaSimbolos.TABLA_SIMBOLOS.containsKey("auxtoi")){
 		            TablaSimbolos.TABLA_SIMBOLOS.put("auxtoi", new Info("auxtoi", "ID", "INT", "Variable", ambitotoi));
 	            }
@@ -1461,13 +1448,16 @@ factor
         }
     |   '-' CTE_FLOAT    {
             String resString = $1.sval + $2.sval;
-            if(!TablaSimbolos.TABLA_SIMBOLOS.containsKey(resString))
-                TablaSimbolos.TABLA_SIMBOLOS.put(resString,new Info("CTE_FLOAT","FLOAT"));
+            controlarFlotante(resString);
             ParserVal resultado = new ParserVal($1.sval + $2.sval);
             $$.sval = getTipoParserVal($2);
             $$ = resultado;
         }
-    |   CTE_FLOAT        {$$=$1;}
+    |   CTE_FLOAT {
+            String resString = $1.sval;
+            controlarFlotante(resString);
+            $$=$1;
+        }
     |   invocacion_funcion {
             //Crear BI a con dest al primer terceto de la funcion
             Logger.logRule(cursor.getCurrentLine(), "Sentencia INVOCACION FUNCION");
@@ -1743,6 +1733,11 @@ static Stack<Integer> pila = new Stack<>();
 static ArrayList<Terceto> listaTercetos = new ArrayList<>();
 static int contadorVariablesAuxTercetos = 0;
 static int contadorParaBF = 0;
+static final Double MAX_VALUE_POS = 3.40282347E38;
+static final Double MIN_VALUE_POS = 1.17549435E-38;
+static final Double MAX_VALUE_NEG = -1.17549435E-38;
+static final Double MIN_VALUE_NEG = -3.404282347E38;
+
 public static void main (String [] args) {
 
 	System.out.println("Iniciando compilación..."); System.out.println(""); System.out.println(""); System.out.println("");
@@ -1906,4 +1901,32 @@ private void controlarEntero(String aux){
     }
     if(!TablaSimbolos.TABLA_SIMBOLOS.containsKey(aux))
         TablaSimbolos.TABLA_SIMBOLOS.put(aux,new Info("CTE_INT", "INT"));
+}
+
+private void controlarFlotante(String aux){
+    if (aux.contains("F")){
+        String[] parts = aux.split("F");
+        float base = Float.parseFloat(parts[0]);
+        int exponente = Integer.parseInt(parts[1]);
+        BigDecimal result = BigDecimal.valueOf(base).multiply(BigDecimal.valueOf(Math.pow(10, exponente)));
+        if ((result.signum() > 0 && result.compareTo(BigDecimal.valueOf(MIN_VALUE_POS)) < 0) ||
+                (result.signum() < 0 && result.compareTo(BigDecimal.valueOf(MAX_VALUE_NEG)) > 0)) {
+            Logger.logError(cursor.getCurrentLine(), "El número flotante es demasiado pequeño");
+        }
+        if ((result.signum() > 0 && result.compareTo(BigDecimal.valueOf(MAX_VALUE_POS)) > 0) ||
+                (result.signum() < 0 && result.compareTo(BigDecimal.valueOf(MIN_VALUE_NEG)) < 0)) {
+            Logger.logError(cursor.getCurrentLine(), "El número flotante es demasiado grande");
+        }
+        aux = aux.replace('F', 'E'); //Formateamos para meter en variable
+    }
+    try {
+        float numero = Float.parseFloat(aux);
+        if (Float.isInfinite(numero))
+            throw new NumberFormatException();
+            if(!TablaSimbolos.TABLA_SIMBOLOS.containsKey(aux)){
+                TablaSimbolos.TABLA_SIMBOLOS.put(aux,new Info("CTE_FLOAT", "FLOAT"));
+            }
+    } catch (NumberFormatException e) {
+        Logger.logError(cursor.getCurrentLine(), "Excede cantidad de bits");
+    }
 }

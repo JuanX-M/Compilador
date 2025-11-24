@@ -26,40 +26,40 @@ public class ASEntregarFlotante extends AccionSemantica{
     @Override
     public Pair<String, Integer> run(Character simbolo, Tools.Cursor cursor) {
         String aux = BUFFER.toString();
-        String aDevolver = BUFFER.toString();
-        if (aux.contains("F")){
-            String[] parts = aux.split("F");
-            base = Float.parseFloat(parts[0]);
-            exponente = Integer.parseInt(parts[1]);
-            BigDecimal result = BigDecimal.valueOf(base).multiply(BigDecimal.valueOf(Math.pow(10, exponente)));
-            if ((result.signum() > 0 && result.compareTo(BigDecimal.valueOf(MIN_VALUE_POS)) < 0) ||
-                    (result.signum() < 0 && result.compareTo(BigDecimal.valueOf(MAX_VALUE_NEG)) > 0)) {
-                BUFFER.setLength(0);
-                Logger.logError(cursor.getCurrentLine(), "El número flotante es demasiado pequeño");
-                return null;
-            }
-            if ((result.signum() > 0 && result.compareTo(BigDecimal.valueOf(MAX_VALUE_POS)) > 0) ||
-                    (result.signum() < 0 && result.compareTo(BigDecimal.valueOf(MIN_VALUE_NEG)) < 0)) {
-                BUFFER.setLength(0);
-                Logger.logError(cursor.getCurrentLine(), "El número flotante es demasiado grande");
-                return null;
-            }
-            aux = aux.replace('F', 'E'); //Formateamos para meter en variable
-        }
-        try {
-            float numero = Float.parseFloat(aux);
-            if (Float.isInfinite(numero))
-                throw new NumberFormatException();
-            if(!TABLA_SIMBOLOS.containsKey(aux)){
-                TABLA_SIMBOLOS.put(aux,new Info("CTE_FLOAT", "FLOAT"));
-            }
-        } catch (NumberFormatException e) {
-            BUFFER.setLength(0);
-            Logger.logError(cursor.getCurrentLine(), "Excede cantidad de bits");
-            return null;
-        }
+    //    String aDevolver = BUFFER.toString();
+    //    if (aux.contains("F")){
+    //        String[] parts = aux.split("F");
+    //        base = Float.parseFloat(parts[0]);
+    //        exponente = Integer.parseInt(parts[1]);
+    //        BigDecimal result = BigDecimal.valueOf(base).multiply(BigDecimal.valueOf(Math.pow(10, exponente)));
+    //        if ((result.signum() > 0 && result.compareTo(BigDecimal.valueOf(MIN_VALUE_POS)) < 0) ||
+    //                (result.signum() < 0 && result.compareTo(BigDecimal.valueOf(MAX_VALUE_NEG)) > 0)) {
+    //            BUFFER.setLength(0);
+    //            Logger.logError(cursor.getCurrentLine(), "El número flotante es demasiado pequeño");
+    //            return null;
+    //        }
+    //        if ((result.signum() > 0 && result.compareTo(BigDecimal.valueOf(MAX_VALUE_POS)) > 0) ||
+    //                (result.signum() < 0 && result.compareTo(BigDecimal.valueOf(MIN_VALUE_NEG)) < 0)) {
+    //            BUFFER.setLength(0);
+    //            Logger.logError(cursor.getCurrentLine(), "El número flotante es demasiado grande");
+    //            return null;
+    //        }
+    //        aux = aux.replace('F', 'E'); //Formateamos para meter en variable
+    //    }
+    //    try {
+    //        float numero = Float.parseFloat(aux);
+    //        if (Float.isInfinite(numero))
+    //           throw new NumberFormatException();
+    //        if(!TABLA_SIMBOLOS.containsKey(aux)){
+    //            TABLA_SIMBOLOS.put(aux,new Info("CTE_FLOAT", "FLOAT"));
+    //        }
+    //    } catch (NumberFormatException e) {
+    //        BUFFER.setLength(0);
+    //        Logger.logError(cursor.getCurrentLine(), "Excede cantidad de bits");
+    //        return null;
+    //    }
     BUFFER.setLength(0);
     cursor.gobackCharacter();
-    return new Pair<>(aDevolver, TABLA_PALABRAS_RESERVADAS.get("CTE_FLOAT"));
+    return new Pair<>(aux, TABLA_PALABRAS_RESERVADAS.get("CTE_FLOAT"));
     }
 }
