@@ -111,7 +111,12 @@
   * Perdida de informacion en conversion de Float a Int
 * Prohibir operaciones entre operandos de tipos diferentes(Informar cual es la combinacion de tipos que causa la incompatibilidad)
 
-### Casos de prueba:
+### Casos de prueba que faltan:
+
+* Semantica de pasaje de paremtros CR SE LE,CV
+* Parametro formal no existe
+* Otros que ahora no se me ocurren
+* Sentencias lambda? Nico genio del lambda, hacete estos casos <3.
 
 #### Hechos
 * 
