@@ -12,15 +12,14 @@ public class GeneradorAssembler {
         String operador;
         String op1;
         String op2;
-        String tipo; // Nuevo atributo
+        String tipo;
 
-        // Constructor actualizado
         public Terceto(int id, String operador, String op1, String op2, String tipo) {
             this.id = id;
             this.operador = (operador != null) ? operador.trim() : "";
             this.op1 = (op1 == null || op1.trim().equals("null")) ? null : op1.trim();
             this.op2 = (op2 == null || op2.trim().equals("null")) ? null : op2.trim();
-            this.tipo = (tipo != null) ? tipo.trim() : null; // Guardamos el tipo
+            this.tipo = (tipo != null) ? tipo.trim() : null;
         }
     }
 
@@ -28,12 +27,13 @@ public class GeneradorAssembler {
     private Set<String> variablesDeclaradas = new HashSet<>();
     private Map<Integer, String> mapaComparaciones = new HashMap<>();
 
-    // NUEVO: Mapa para guardar las constantes de string (ej: "Hola" -> str_const_1)
+    // Mapas de constantes
     private Map<String, String> constantesString = new HashMap<>();
     private int contadorStrings = 0;
 
     private Map<String, String> constantesFloat = new HashMap<>();
     private int contadorFloats = 0;
+
     public void generarArchivoASM(String rutaEntrada, String rutaSalida) {
         leerTercetos(rutaEntrada);
 
@@ -53,7 +53,6 @@ public class GeneradorAssembler {
     // 1. LECTURA Y PARSEO
     // ---------------------------------------------------------
     private void leerTercetos(String ruta) {
-        // Regex modificada: busca lo usual, y opcionalmente un espacio y palabra al final (Grupo 5)
         Pattern pattern = Pattern.compile("\\{(\\d+)}\\[(.*?),(.*?),(.*?)\\](?:\\s+(\\w+))?");
 
         try (BufferedReader br = new BufferedReader(new FileReader(ruta))) {
@@ -67,13 +66,11 @@ public class GeneradorAssembler {
                     String op = matcher.group(2);
                     String arg1 = matcher.group(3);
                     String arg2 = matcher.group(4);
-                    String tipo = matcher.group(5); // Aquí capturamos "INT", "FLOAT" o null
+                    String tipo = matcher.group(5);
 
-                    // Creamos el terceto con el tipo detectado
                     Terceto t = new Terceto(id, op, arg1, arg2, tipo);
                     listaTercetos.add(t);
 
-                    // Recolectar variables para la sección .DATA
                     recolectarVariable(t.op1);
                     recolectarVariable(t.op2);
                 }
@@ -83,6 +80,7 @@ public class GeneradorAssembler {
         }
     }
 
+    // --- [FIX] Método actualizado para detectar floats correctamente ---
     private void recolectarVariable(String token) {
         if (token == null) return;
         if (esReferencia(token)) return;
@@ -96,16 +94,22 @@ public class GeneradorAssembler {
             return;
         }
 
-        // NUEVO: Lógica para Floats
+        // Números (Int y Float)
         if (esNumero(token)) {
-            if (token.contains(".")) { // Si tiene punto, es float
+            // Detectamos si es Float: Tiene punto O tiene notación científica (E/F)
+            boolean esFloat = token.contains(".") || token.toLowerCase().contains("e") || token.toLowerCase().contains("f");
+
+            if (esFloat) {
                 if (!constantesFloat.containsKey(token)) {
                     constantesFloat.put(token, "const_float_" + (contadorFloats++));
                 }
             }
-            return; // Si es entero o float ya procesado, volvemos
+            // Importante: Si es número (int o float), hacemos return para NO agregarlo a variablesDeclaradas.
+            // Esto evita que "2." se convierta en una variable inválida.
+            return;
         }
 
+        // Si llegó acá, es una variable de usuario
         variablesDeclaradas.add(limpiarNombre(token));
     }
 
@@ -126,31 +130,35 @@ public class GeneradorAssembler {
         w.println();
     }
 
+    // --- [FIX] Método actualizado para escribir .DATA sin errores ---
     private void escribirSeccionData(PrintWriter w) {
         w.println(".DATA");
+
         w.println("    ; Variables de usuario");
         for (String var : variablesDeclaradas) {
-            w.println("    " + var + " DD 0");
+            // Protección: Si por error llega una variable que empieza con dígito, le ponemos prefijo
+            if (!var.isEmpty() && Character.isDigit(var.charAt(0))) {
+                w.println("    var_" + var + " DD 0");
+            } else {
+                w.println("    " + var + " DD 0");
+            }
         }
 
         w.println("    ; Variables auxiliares del sistema");
-        w.println("    buffer_print BYTE 128 dup(0)");
+        // [FIX] Cambiado BYTE por DB para mayor compatibilidad
+        w.println("    buffer_print DB 128 dup(0)");
         w.println("    newline DB 13, 10, 0");
         w.println("    pause_msg DB 13, 10, \"Presione Enter para salir...\", 0");
         w.println("    input_char DB ?");
 
-        // --- VARIABLES PARA CHEQUEOS DE ERROR (Plan 2011 - Grupo 1) ---
-        // a: División por cero
+        // --- MENSAJES DE ERROR ---
         w.println("    msg_err_div_zero  DB \"Error Runtime: Division por cero\", 0");
-        // e: Overflow en producto flotante
         w.println("    msg_err_overflow  DB \"Error Runtime: Overflow en producto flotante\", 0");
-        // g: Pérdida de información en conversión Float->Int
         w.println("    msg_err_conv_loss DB \"Error Runtime: Perdida de informacion en conversion Float->Int\", 0");
         w.println("    ; --------------------------------------------------------");
 
-        // Variables temporales aritméticas y de conversión
+        // Variables temporales
         for (Terceto t : listaTercetos) {
-            // Incluimos 'toi' porque genera una variable temporal para el chequeo 'g'
             if (esOperacionAritmetica(t.operador) || t.operador.equals("toi")) {
                 w.println("    @temp_terceto_" + t.id + " DD 0");
             }
@@ -163,7 +171,19 @@ public class GeneradorAssembler {
 
         w.println("    ; Constantes Float");
         for (Map.Entry<String, String> entry : constantesFloat.entrySet()) {
-            w.println("    " + entry.getValue() + " DD " + entry.getKey());
+            String rawVal = entry.getKey();
+            String label = entry.getValue();
+
+            // [FIX] Normalización para MASM
+            // 1. Reemplazar 'f' o 'F' por 'E' (Notación científica MASM)
+            String valMasm = rawVal.replace('f', 'E').replace('F', 'E');
+
+            // 2. Si termina en punto (ej: "2."), agregar "0" -> "2.0"
+            if (valMasm.endsWith(".")) {
+                valMasm += "0";
+            }
+
+            w.println("    " + label + " DD " + valMasm);
         }
         w.println();
     }
@@ -246,15 +266,10 @@ public class GeneradorAssembler {
                     break;
             }
         }
-        // --- FIN DEL BUCLE DE TERCETOS (IMPORTANTE: La llave cierra aquí) ---
 
-
-        // --- ZONA DE SALIDA Y ERRORES (FUERA DEL FOR) ---
-
-        // 1. Salto para evitar ejecutar los errores si el programa termina bien
+        // --- ZONA DE SALIDA Y ERRORES ---
         w.println("    JMP Label_Fin_Programa");
 
-        // 2. Rutinas de Error
         w.println("Label_Error_DivZero:");
         w.println("    invoke StdOut, addr msg_err_div_zero");
         w.println("    invoke StdOut, addr newline");
@@ -270,7 +285,6 @@ public class GeneradorAssembler {
         w.println("    invoke StdOut, addr newline");
         w.println("    JMP Label_Fin_Programa");
 
-        // 3. Etiqueta final
         w.println("Label_Fin_Programa:");
     }
 
@@ -284,24 +298,19 @@ public class GeneradorAssembler {
     }
 
     // ---------------------------------------------------------
-    // 3. MÉTODOS AUXILIARES DE GENERACIÓN
+    // 3. MÉTODOS AUXILIARES
     // ---------------------------------------------------------
 
     private void generarPrint(PrintWriter w, Terceto t) {
         String token = t.op1;
-
-        // NUEVO: Lógica inteligente para saber si imprimir Texto o Número
         if (token.startsWith("\"")) {
-            // Es un string constante (ej: "Nicolas Ortiz")
             String nombreEtiqueta = constantesString.get(token);
             w.println("    invoke StdOut, addr " + nombreEtiqueta);
         } else {
-            // Es una variable numérica o constante numérica
             String valorPrint = resolverOperando(token);
             w.println("    invoke dwtoa, " + valorPrint + ", addr buffer_print");
             w.println("    invoke StdOut, addr buffer_print");
         }
-
         w.println("    invoke StdOut, addr newline");
     }
 
@@ -311,20 +320,17 @@ public class GeneradorAssembler {
         boolean esFloat = t.tipo != null && t.tipo.equalsIgnoreCase("FLOAT");
 
         if (esFloat) {
-            // --- FLOATS (Coprocesador 8087) ---
-
-            // Chequeo a) División por Cero (Float)
             if (t.operador.equals("/")) {
                 w.println("    ; Chequeo Div Cero (Float)");
-                w.println("    FLD " + val2);    // Cargar divisor
-                w.println("    FTST");           // Comparar con 0.0
-                w.println("    FSTSW AX");       // Guardar estado en AX
-                w.println("    SAHF");           // Pasar a flags CPU
+                w.println("    FLD " + val2);
+                w.println("    FTST");
+                w.println("    FSTSW AX");
+                w.println("    SAHF");
                 w.println("    JE Label_Error_DivZero");
-                w.println("    FSTP ST(0)");     // Limpiar divisor de la pila
+                w.println("    FSTP ST(0)");
             }
 
-            w.println("    FLD " + val1); // Cargar op1
+            w.println("    FLD " + val1);
 
             switch (t.operador) {
                 case "+": w.println("    FADD " + val2); break;
@@ -332,32 +338,25 @@ public class GeneradorAssembler {
                 case "/": w.println("    FDIV " + val2); break;
                 case "*":
                     w.println("    FMUL " + val2);
-
-                    // Chequeo e) Overflow en Producto Flotante
-                    // Verificamos el bit de Overflow (OE) en la palabra de estado del 8087
                     w.println("    ; Chequeo Overflow (Float Product)");
-                    w.println("    FSTSW AX");      // Estado a AX
-                    w.println("    TEST AL, 8");    // Bit 3 (0x08) es Overflow Flag (OE)
+                    w.println("    FSTSW AX");
+                    w.println("    TEST AL, 8");
                     w.println("    JNZ Label_Error_Overflow");
                     break;
             }
             w.println("    FSTP @temp_terceto_" + t.id);
 
         } else {
-            // --- ENTEROS (CPU) ---
             w.println("    MOV EAX, " + val1);
-
             switch (t.operador) {
                 case "+": w.println("    ADD EAX, " + val2); break;
-                case "-": w.println("    SUB EAX, " + val2); break; // Sin chequeo de resta negativa
+                case "-": w.println("    SUB EAX, " + val2); break;
                 case "*": w.println("    IMUL EAX, " + val2); break;
                 case "/":
-                    // Chequeo a) División por Cero (Enteros)
                     w.println("    ; Chequeo Div Cero (Int)");
                     w.println("    MOV ECX, " + val2);
                     w.println("    CMP ECX, 0");
                     w.println("    JE Label_Error_DivZero");
-
                     w.println("    CDQ");
                     w.println("    IDIV ECX");
                     break;
@@ -371,11 +370,10 @@ public class GeneradorAssembler {
         String val2 = resolverOperando(t.op2);
 
         if (t.tipo != null && t.tipo.equalsIgnoreCase("FLOAT")) {
-            w.println("    FLD " + val1);        // Carga val1
-            w.println("    FCOM " + val2);       // Compara con val2
-            w.println("    FSTSW AX");           // Mueve flags del coprocesador a AX
-            w.println("    SAHF");               // Mueve AH a los flags del CPU
-            // Ahora los saltos normales (JE, JB, JA) funcionarán en generarSaltoBF
+            w.println("    FLD " + val1);
+            w.println("    FCOM " + val2);
+            w.println("    FSTSW AX");
+            w.println("    SAHF");
         } else {
             w.println("    MOV EAX, " + val1);
             w.println("    CMP EAX, " + val2);
@@ -418,18 +416,27 @@ public class GeneradorAssembler {
         return raw;
     }
 
+    // --- [FIX] Método actualizado para evitar truncar floats ---
     private String resolverOperando(String raw) {
         if (raw == null) return "0";
         if (esReferencia(raw)) {
             return "@temp_terceto_" + obtenerIdDesdeReferencia(raw);
         }
+        // Buscar en constantes registradas
         if (constantesFloat.containsKey(raw)) {
             return constantesFloat.get(raw);
         }
+
+        // Si es un número literal que no se registró (raro, pero posible)
         if (esNumero(raw)) {
-            if (raw.contains(".")) return raw.substring(0, raw.indexOf("."));
+            // Si es entero puro, devolver raw
+            if (!raw.contains(".") && !raw.toLowerCase().contains("e")) {
+                return raw;
+            }
+            // Si es float literal, devolver raw para evitar errores de truncado
             return raw;
         }
+
         return limpiarNombre(raw);
     }
 
@@ -447,8 +454,14 @@ public class GeneradorAssembler {
         return s != null && s.startsWith("(") && s.endsWith(")");
     }
 
+    // --- [FIX] Regex actualizado para floats (2. y 1.4F+30) ---
     private boolean esNumero(String s) {
-        return s.matches("-?\\d+(\\.\\d+)?");
+        if (s == null || s.isEmpty()) return false;
+        // -?           Signo opcional
+        // \d+          Dígitos enteros
+        // (\.\d*)?     Punto y opcionalmente decimales (acepta "2.")
+        // ([eEfF]...)? Exponente opcional
+        return s.matches("-?\\d+(\\.\\d*)?([eEfF][-+]?\\d+)?");
     }
 
     private boolean esOperacionAritmetica(String op) {
