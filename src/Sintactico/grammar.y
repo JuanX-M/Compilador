@@ -1755,6 +1755,7 @@ private void controlarEntero(String aux){
 }
 
 private void controlarFlotante(String aux){
+    boolean hayUnError = false; //no queremos que tire dos veces el mismo error. Si es demasiado pequeño o grande, no mostramos el de exceso de bits.
     if (aux.contains("F")){
         String[] parts = aux.split("F");
         float base = Float.parseFloat(parts[0]);
@@ -1763,23 +1764,29 @@ private void controlarFlotante(String aux){
         if ((result.signum() > 0 && result.compareTo(BigDecimal.valueOf(MIN_VALUE_POS)) < 0) ||
                 (result.signum() < 0 && result.compareTo(BigDecimal.valueOf(MAX_VALUE_NEG)) > 0)) {
             Logger.logError(cursor.getCurrentLine(), "El número flotante es demasiado pequeño");
+            hayUnError = true;
         }
         if ((result.signum() > 0 && result.compareTo(BigDecimal.valueOf(MAX_VALUE_POS)) > 0) ||
                 (result.signum() < 0 && result.compareTo(BigDecimal.valueOf(MIN_VALUE_NEG)) < 0)) {
             Logger.logError(cursor.getCurrentLine(), "El número flotante es demasiado grande");
+            hayUnError = true;
         }
         aux = aux.replace('F', 'E'); //Formateamos para meter en variable
     }
-    //else {
-	    try {
-		float numero = Float.parseFloat(aux);
-		if (Float.isInfinite(numero))
-		    throw new NumberFormatException();
-		    if(!TablaSimbolos.TABLA_SIMBOLOS.containsKey(aux)){
-			TablaSimbolos.TABLA_SIMBOLOS.put(aux,new Info("CTE_FLOAT", "FLOAT"));
-		    }
-	    } catch (NumberFormatException e) {
+
+    try {
+	float numero = Float.parseFloat(aux);
+
+	if (Float.isInfinite(numero))
+	    throw new NumberFormatException();
+
+	aux = aux.replace('E', 'F'); //Formateamos para meter en variable
+
+	if(!TablaSimbolos.TABLA_SIMBOLOS.containsKey(aux)){
+	    TablaSimbolos.TABLA_SIMBOLOS.put(aux,new Info("CTE_FLOAT", "FLOAT"));
+	}
+    } catch (NumberFormatException e) {
+        if (!hayUnError)
 		Logger.logError(cursor.getCurrentLine(), "Excede cantidad de bits");
-	//    }
     }
 }
