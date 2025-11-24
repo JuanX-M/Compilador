@@ -1,0 +1,64 @@
+##
+Caso de prueba para chequeos de semantica de pasaje de parametros.
+Contamos con :
+- CR SE
+- CR LE
+- CV por defecto
+##
+ER%PASAJE{
+
+
+    int fun F2(int D){
+        return(D);
+    };
+
+    int,int,float fun F1(int A,cr se int B, cr le float C){
+        ##Variable A puede ser leida/escrita por ser copia valor##
+        A:=A;
+
+        ##Error Variable B  no puede ser leida , esto ya que solamente puede ser escrita##
+        B:=B;
+
+        ##Variable C puede ser leida/escrita al tener semantica le ##
+        C:=C;
+
+        ##Error Variable B  no puede ser leida en expresion aritmetica##
+        A:= toi(C) - B;
+
+        ##Variable B  no puede ser leida en condicion de if##
+        if (B  > A){
+           ##Error Variable B  no puede ser leida en expresion aritmetica##
+           B:=B+1I;
+        }endif;
+
+        ##Variable B,como parametro real  no puede ser leida en invocacion de funcion F2##
+        B:= fun F2(B->D);
+
+
+
+
+        ##Variable B,no puede ser leida en sentencia print##
+        print(B);
+
+        ##Variable B,no puede ser leida en asignacion multiple##
+        A,B,C = B,3I,C;
+
+        ##Variable B  no puede ser leida en retorno de funcion##
+        return(A,B,C);
+    };
+
+    var X:=1I;
+    var Y:=3I;
+    var Z:=2.0;
+
+    var J:=1I;
+    var K:=3I;
+    var M:=2.0;
+
+    ##
+    Se realiza invocacion a funcion F1, al final de ejecucion de funcion F1,
+     los resultados de parametros con cr (B  y C) se asignan a Y y Z
+    ##
+    J,K,M = fun F1(X->A,Z->C,Y->B);
+
+}
