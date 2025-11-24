@@ -252,6 +252,7 @@ sentencia_iteracion
                 //agrego terceto de incremento/decremento al arraylist
                 listaTercetos.add((Terceto)$$.obj);
                 ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+                ((Terceto)$$.obj).addTipo("INT");
                 int aux = ((Terceto)$2.obj).getSoloNumTerceto()-1; //Necesito la posicion de la etiqueta
                 String aux2 = "(" + String.valueOf(aux) + ")";
                 //Creo terceto BI para volver al inicio de la iteracion y lo agrego
@@ -326,6 +327,7 @@ encabezado_funcion
                 $$= crearTerceto(new ParserVal(":="), new ParserVal(auxString + "."+ auxambito), new ParserVal(valorDefecto));
                 listaTercetos.add((Terceto)$$.obj);
                 ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+                ((Terceto)$$.obj).addTipo(pfInfo.getTipo());
                 contadorVariablesAuxTercetos++;
 		    }
 		    // Creacion etiqueta
@@ -355,6 +357,7 @@ encabezado_funcion
 			    }
 		        listaTercetos.add((Terceto)$$.obj);
 		        ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+		        ((Terceto)$$.obj).addTipo(TablaSimbolos.TABLA_SIMBOLOS.get(parametro).getTipo());
 		    }
             $$.obj = $1.obj; //devuelvo arraylist de variables auxiliares de tipos + parametros formales
             $$.ival = indiceCorte;
@@ -396,9 +399,10 @@ sentencia_lambda
                 // asignamos el argumento al paramtero
                 $$ = crearTerceto(new ParserVal(":="),$1,null);
                 int numTercetoActual = ((Terceto)$$.obj).getSoloNumTerceto();
-                pila.push(numTercetoActual);;
+                pila.push(numTercetoActual);
                 listaTercetos.add((Terceto)$$.obj);
                 ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+                ((Terceto)$$.obj).addTipo(TablaSimbolos.TABLA_SIMBOLOS.get($1.sval).getTipo());
             }
         }   cuerpo_lambda argumento_lambda {
                 if ($4.sval != null && $1.sval != null) {
@@ -446,6 +450,7 @@ declaracion_unaria
             $$ = crearTerceto($3, $2, auxParserVal);
             listaTercetos.add((Terceto)$$.obj);
             ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+            ((Terceto)$$.obj).addTipo(tipoInferido);
         }
     |   declaracion_unaria_error
     ;
@@ -572,6 +577,7 @@ sentencia_asignacion_unaria
             $$ = crearTerceto($2, $1, auxParserVal);
             listaTercetos.add((Terceto)$$.obj);
             ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+            ((Terceto)$$.obj).addTipo(getTipoParserVal(auxParserVal));
         }
     |   ID'.'ID TWO_POINTS_ASSIGNATION expresion_aritmetica {
             //Chequeo ambito
@@ -611,6 +617,7 @@ sentencia_asignacion_unaria
             $$ = crearTerceto($4, $3, auxParserVal);
             listaTercetos.add((Terceto)$$.obj);
             ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+            ((Terceto)$$.obj).addTipo(getTipoParserVal(auxParserVal));
         }
     |   sentencia_asignacion_unaria_error
     ;
@@ -653,6 +660,7 @@ sentencia_asignacion_multiple
                     $$ = crearTerceto(new ParserVal(":="), variable, expresion);
                     listaTercetos.add((Terceto)$$.obj);
                     ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+                    ((Terceto)$$.obj).addTipo(getTipoParserVal(expresion));
                 }
             } else{
                 if (listaVariables.size() != listaExpresiones.size()) {
@@ -665,9 +673,10 @@ sentencia_asignacion_multiple
                 if (!checkTipo(variable, expresion)) {
                      Logger.logError(cursor.getCurrentLine(), "Tipo en asignación múltiple (pos " + (i+1) + "): " + "No se puede asignar " + getTipoParserVal(expresion) + " a " + getTipoParserVal(variable));
                 }
-                yyval = crearTerceto(new ParserVal(":="), variable, expresion);
-                listaTercetos.add((Terceto)yyval.obj);
-                ((Terceto)yyval.obj).addLine(cursor.getCurrentLine());
+                $$ = crearTerceto(new ParserVal(":="), variable, expresion);
+                listaTercetos.add((Terceto)$$.obj);
+                ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+                ((Terceto)$$.obj).addTipo(getTipoParserVal(expresion));
             }
             }
         }
@@ -691,7 +700,8 @@ lista_tipos
             contadorVariablesAuxTercetos++;
             listaTercetos.add((Terceto)$$.obj);
             ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
-            ((ArrayList<String>)$1.obj).add(auxString+"."+ambito); // Agrega aux al arraylist
+            ((ArrayList<String>)$1.obj).add(auxString+"."+ambito); // Agrega aux al arraylist}
+            ((Terceto)$$.obj).addTipo($1.sval);
             $$ = $1; // Pasa la lista modificada hacia arriba, no terceto auxiliar creado ni auxString
         }
     |   tipo    {
@@ -719,7 +729,7 @@ lista_tipos
             contadorVariablesAuxTercetos++;
             listaTercetos.add((Terceto)$$.obj);
             ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
-
+            ((Terceto)$$.obj).addTipo($1.sval);
             listaVariablesAux.add(auxString+"."+ambito);
             $$ = new ParserVal(listaVariablesAux);//paso lista de tipos, no la variable
         }
@@ -841,6 +851,7 @@ expresion_aritmetica
             $$.sval = getTipoParserVal(opIzq);
             listaTercetos.add((Terceto)$$.obj);
             ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+            ((Terceto)$$.obj).addTipo($$.sval);
             Logger.logRule(cursor.getCurrentLine(), "Sentencia EXPRESION ARITMETICA");
         }
     |   expresion_aritmetica '-' termino{
@@ -871,6 +882,7 @@ expresion_aritmetica
             $$.sval = getTipoParserVal(opIzq);
             listaTercetos.add((Terceto)$$.obj);
             ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+            ((Terceto)$$.obj).addTipo($$.sval);
             Logger.logRule(cursor.getCurrentLine(), "Sentencia EXPRESION ARITMETICA");
         }
     |   expresion_aritmetica_toi {
@@ -900,6 +912,7 @@ condicion
             $$ = crearTerceto($2, $1, $3);
             listaTercetos.add((Terceto)$$.obj);
             ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+            ((Terceto)$$.obj).addTipo(getTipoParserVal($3));
         }
     |   condicion_error
     ;
@@ -942,6 +955,7 @@ encabezado_iteracion
                 $$ = crearTerceto(new ParserVal(":="),new ParserVal(aux),$3);
                 listaTercetos.add((Terceto)$$.obj);
                 ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+                ((Terceto)$$.obj).addTipo("INT");
                 // Creacion etiqueta
                 int numTercetoActual = listaTercetos.get(listaTercetos.size()-1).getSoloNumTerceto() + 1;
                 String etiqueta = "ETIQUETA" + numTercetoActual;
@@ -961,6 +975,7 @@ encabezado_iteracion
                     }
                 listaTercetos.add((Terceto)$$.obj);
                 ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+                ((Terceto)$$.obj).addTipo("INT");
                 Logger.logRule(cursor.getCurrentLine(), "Sentencia FOR");
             }
         }
@@ -1136,6 +1151,7 @@ termino
             $$.sval = getTipoParserVal(opIzq);
             listaTercetos.add((Terceto)$$.obj);
             ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+            ((Terceto)$$.obj).addTipo($$.sval);
             Logger.logRule(cursor.getCurrentLine(), "Sentencia EXPRESION ARITMETICA");
         }
     |   termino '/' factor{
@@ -1167,6 +1183,7 @@ termino
             $$.sval = getTipoParserVal(opIzq);
             listaTercetos.add((Terceto)$$.obj);
             ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+            ((Terceto)$$.obj).addTipo($$.sval);
             Logger.logRule(cursor.getCurrentLine(), "Sentencia EXPRESION ARITMETICA");
         }
     |   factor {$$ = $1;}
@@ -1194,9 +1211,11 @@ expresion_aritmetica_toi
 	            $$=crearTerceto($1,$3,null);
 	            listaTercetos.add((Terceto)$$.obj);
 	            ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+	            ((Terceto)$$.obj).addTipo("FLOAT");
 	            $$ = crearTerceto(new ParserVal(":="),new ParserVal("auxtoi"),$$);
                 listaTercetos.add((Terceto)$$.obj);
                 ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+                ((Terceto)$$.obj).addTipo("INT");
                 $$ = new ParserVal("auxtoi");
             }
         }
@@ -1301,6 +1320,7 @@ sentencia_iteracion_retorno
             //agrego terceto de incremento/decremento al arraylist
             listaTercetos.add((Terceto)$$.obj);
             ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+            ((Terceto)$$.obj).addTipo("INT");
             //Creo terceto BI para volver al inicio de la iteracion y lo agrego
             $$= crearTerceto(new ParserVal("BI"), $2, null);
             listaTercetos.add((Terceto)$$.obj);
@@ -1473,6 +1493,7 @@ invocacion_funcion
 
                     listaTercetos.add((Terceto)$$.obj);
                     ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+                    ((Terceto)$$.obj).addTipo(getTipoParserVal(expresion));
                 }
             }
             // --- TERCETO CALL ---
@@ -1749,7 +1770,7 @@ private void controlarFlotante(String aux){
         }
         aux = aux.replace('F', 'E'); //Formateamos para meter en variable
     }
-    else {
+    //else {
 	    try {
 		float numero = Float.parseFloat(aux);
 		if (Float.isInfinite(numero))
@@ -1759,6 +1780,6 @@ private void controlarFlotante(String aux){
 		    }
 	    } catch (NumberFormatException e) {
 		Logger.logError(cursor.getCurrentLine(), "Excede cantidad de bits");
-	    }
+	//    }
     }
 }

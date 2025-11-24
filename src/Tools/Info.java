@@ -8,8 +8,8 @@ import java.util.ArrayList;
  */
 public class Info {
 
-    //TODO: Verificar atributos privados de Info
-    private final String nombre; // ej: "ID", "CTE_INT"
+
+    private final String nombre;
     private final String token;
     private final String tipo;
     private final String uso;

@@ -6,6 +6,8 @@ public class Terceto {
     private String first;
     private String second;
     private String third;
+
+    private String tipo=null;
     private Integer linea;
 
     public Terceto( Integer numTerceto,String first, String second, String third) {
@@ -56,10 +58,20 @@ public class Terceto {
         this.linea = linea;
     }
 
+
+
+    public void addTipo(String tipo) {
+        this.tipo = tipo;
+    }
+
     @Override
     public String toString() {
+        if (tipo == null) {
 
-        return "{" + numTerceto + "}[" + first + "," + second + "," + third + "]";
+            return "{" + numTerceto + "}[" + first + "," + second + "," + third + "]";
+        }
+
+        return "{" + numTerceto + "}[" + first + "," + second + "," + third + "] " + tipo;
     }
 
 }

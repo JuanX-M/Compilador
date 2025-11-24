@@ -2,8 +2,8 @@
 
 ### Cosas que hay que hacer andar:
 
-
-
+* chequear los addtipos que se hagan bien//JuanX
+* agregar sentencias lambdas a casos de pruebas con error
 * chequeo de tipo/alcance en argumento lambda con ID, hay que agregar a la gramatica ID'.'ID en argumento lambda y que su Uso no sea CR SE o Funcion
 * Realizar chequeo de constantes negativas
 * chequear que el compilador no se rompa al tener errores de sintaxis
