@@ -1322,10 +1322,13 @@ expresion_aritmetica_toi
 	            $$=crearTerceto($1,$3,null);
 	            listaTercetos.add((Terceto)$$.obj);
 	            ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+
 	            $$ = crearTerceto(new ParserVal(":="),new ParserVal("auxtoi"),$$);
                 listaTercetos.add((Terceto)$$.obj);
                 ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
-                $$.sval="INT";
+
+                $$ = new ParserVal("auxtoi");
+
             }
         }
     |   expresion_aritmetica_toi_error

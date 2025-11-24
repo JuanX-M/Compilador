@@ -8,7 +8,7 @@
 * Descartar tercetos cuando hay syntax error
 * Realizar chequeo de constantes negativas
 * chequear que el compilador no se rompa al tener errores de sintaxis
-* Meter toi en clase GeneradorAssembler para que haga la conversion, es cuando el el operador del terceto es 'toi' hace ahi la conversion
+
 * Hacer chequeos en tiempo en ejecucion 
 * Chequeos en tiempo de ejecucion
   * Division por cero para Int y Float
@@ -91,7 +91,7 @@
 
 ### Testeando
 
-
+* Meter toi en clase GeneradorAssembler para que haga la conversion, es cuando el el operador del terceto es 'toi' hace ahi la conversion
 * TOI
   * Que no sea de tipo entero (Dar warning)
 
