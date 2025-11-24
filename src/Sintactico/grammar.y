@@ -804,7 +804,7 @@ argumento_lambda
 argumento_lambda_error
     :   '(' error ')' {
             $$.sval = null;
-            Logger.logError(cursor.getCurrentLine(), "Argumento de ambda invalido");
+            Logger.logError(cursor.getCurrentLine(), "Argumento de lambda invalido");
         }
 
 
