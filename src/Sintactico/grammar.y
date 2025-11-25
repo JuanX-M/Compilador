@@ -893,11 +893,6 @@ expresion_aritmetica
             ((Terceto)$$.obj).addTipo($$.sval);
             Logger.logRule(cursor.getCurrentLine(), "Sentencia EXPRESION ARITMETICA");
         }
-    |   expresion_aritmetica_toi {
-            $$ = $1;
-            //devolvemos el terceto
-            Logger.logRule(cursor.getCurrentLine(), "Sentencia TOI");
-        }
     |   termino { $$=$1;}
     |   expresion_aritmetica_error
     ;
@@ -1209,24 +1204,25 @@ termino_error
 
 expresion_aritmetica_toi
     :   TOI '(' expresion_aritmetica ')' {
+            String auxtoi = "auxtoi" + contadorToi;
+            contadorToi++;
             int indice = ambito.indexOf('.');
             String ambitotoi = (indice != -1) ? ambito.substring(0, indice) : ambito;
-            System.out.println("Ambito TOI: " + ambitotoi);
             if (getTipoParserVal($3).equals("INT")){
             	Logger.logWarning(cursor.getCurrentLine(), "Variable en sentencia TOI ya es de tipo entero");
             } else {
-	    	    if (!TablaSimbolos.TABLA_SIMBOLOS.containsKey("auxtoi")){
-		            TablaSimbolos.TABLA_SIMBOLOS.put("auxtoi", new Info("auxtoi", "ID", "INT", "Variable", ambitotoi));
+	    	    if (!TablaSimbolos.TABLA_SIMBOLOS.containsKey(auxtoi)){
+		            TablaSimbolos.TABLA_SIMBOLOS.put(auxtoi, new Info(auxtoi, "ID", "INT", "Variable", ambitotoi));
 	            }
 	            $$=crearTerceto($1,$3,null);
 	            listaTercetos.add((Terceto)$$.obj);
 	            ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
 	            ((Terceto)$$.obj).addTipo("FLOAT");
-	            $$ = crearTerceto(new ParserVal(":="),new ParserVal("auxtoi"),$$);
+	            $$ = crearTerceto(new ParserVal(":="),new ParserVal(auxtoi),$$);
                 listaTercetos.add((Terceto)$$.obj);
                 ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
                 ((Terceto)$$.obj).addTipo("INT");
-                $$ = new ParserVal("auxtoi");
+                $$ = new ParserVal(auxtoi);
             }
         }
     |   expresion_aritmetica_toi_error
@@ -1378,6 +1374,11 @@ factor
                     }
                 }
             }
+        }
+    |   expresion_aritmetica_toi {
+            $$ = $1;
+            //devolvemos el terceto
+            Logger.logRule(cursor.getCurrentLine(), "Sentencia TOI");
         }
     ;
 
@@ -1607,6 +1608,7 @@ static Stack<Integer> pila = new Stack<>();
 static ArrayList<Terceto> listaTercetos = new ArrayList<>();
 static int contadorVariablesAuxTercetos = 0;
 static int contadorParaBF = 0;
+static int contadorToi = 1;
 static final Double MAX_VALUE_POS = 3.40282347E38;
 static final Double MIN_VALUE_POS = 1.17549435E-38;
 static final Double MAX_VALUE_NEG = -1.17549435E-38;
