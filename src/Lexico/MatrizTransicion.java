@@ -98,11 +98,10 @@ public final class MatrizTransicion {
 
     public AccionSemantica getAccionSemantica(int estado, char simbolo) {
         int aux = convertir(simbolo);
-        if (aux == -1) {
+        if (aux == -1)
             return new ASError();
-        }else if (aux == 28) {
+        else if (aux == 28)
             return null;
-        }
         Pair<Integer, AccionSemantica> cell = MATRIZ[estado][aux];
         return cell.getSecond();
     }
@@ -124,11 +123,10 @@ public final class MatrizTransicion {
                     AccionSemantica action = cell.getSecond();
                     String cellStr;
                     String stateStr = String.valueOf(nextState);
-                    if (action == null) {
+                    if (action == null)
                         cellStr = stateStr;
-                    } else {
+                    else
                         cellStr = stateStr + "/" + action.getClass().getSimpleName();
-                    }
                     // Creamos la línea con el formato [Estado, Simbolo] -> Contenido
                     sb.append(String.format("[%d, %d] -> %s\n", i, j, cellStr));
                 }

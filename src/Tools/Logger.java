@@ -3,9 +3,6 @@ package Tools;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 
 
 public final class Logger {
@@ -13,7 +10,6 @@ public final class Logger {
     private static final String LOG_FILE = "log.txt";
     private static final ArrayList<String> warnings = new ArrayList<>();
     private static final ArrayList<String> errors = new ArrayList<>();
-    private static final ArrayList<String> tokens = new ArrayList<>();
     private static final ArrayList<String> rules = new ArrayList<>();
     private static ArrayList<String> tercetos = new ArrayList<>();
 
@@ -22,10 +18,8 @@ public final class Logger {
     private enum LogType {
         ERROR,
         WARNING,
-        TOKEN,
         RULE,
         TERCETO;
-
     }
 
     public static void logError(int line, Object message) {
@@ -34,10 +28,6 @@ public final class Logger {
 
     public static void logWarning(int line, Object message) {
         warnings.add("Se encontro un " + LogType.WARNING + " en la linea [" + line + "] : " + message + "\n");
-    }
-
-    public static void logToken(int line, Object message) {
-        tokens.add("Se encontro un " + LogType.TOKEN + " en la linea [" + line + "] : " + message + "\n");
     }
 
     public static void logRule(int line, Object message) {
@@ -54,6 +44,7 @@ public final class Logger {
         String numeroComoString = linea.substring(inicio + 1, fin);
         return Integer.parseInt(numeroComoString);
     }
+
     public static void exportarTercetos(String rutaArchivo) {
         try (FileWriter writer = new FileWriter(rutaArchivo)) {
             for (String terceto : tercetos) {
@@ -71,14 +62,6 @@ public final class Logger {
         return linea.substring(inicio);
     }
 
-    public static void borrarUltimoLogError(){
-        errors.removeLast();
-    }
-
-    public static void cancelacionCodigoAssembler(){
-        errors.add("Se descarta generacion de codigo assembler debido a errores");
-    }
-
     public static boolean hayErrores() {
         return (!errors.isEmpty());
     }
@@ -89,16 +72,13 @@ public final class Logger {
         for(String s: tercetos) {
             out += s;
         }
-        //for (String s : rules) {
-          //  out += s; TODO: Sacar esto
-        //}
+        for (String s : rules) {
+            out += s;
+        }
         for (String s : warnings) {
             out += s;
         }
         for (String s : errors) {
-            out += s;
-        }
-        for (String s : tokens) {
             out += s;
         }
         out += "\nCantidad de errores totales: " + errors.size();

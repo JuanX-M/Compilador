@@ -7,9 +7,11 @@ import Tools.Pair;
 import static Tools.TablaPalabrasReservadas.TABLA_PALABRAS_RESERVADAS;
 
 public class ASEntregarCad1Linea extends AccionSemantica{
+
     public ASEntregarCad1Linea(){
         super(7);
     }
+
     @Override
     public Pair<String, Integer> run(Character simbolo, Cursor cursor) {
         BUFFER.append(simbolo);

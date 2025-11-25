@@ -32,5 +32,4 @@ public class ASError extends AccionSemantica{
         BUFFER.setLength(0);
         return null;
     }
-
 }

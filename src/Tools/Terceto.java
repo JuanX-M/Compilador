@@ -58,19 +58,14 @@ public class Terceto {
         this.linea = linea;
     }
 
-
-
     public void addTipo(String tipo) {
         this.tipo = tipo;
     }
 
     @Override
     public String toString() {
-        if (tipo == null) {
-
+        if (tipo == null)
             return "{" + numTerceto + "}[" + first + "," + second + "," + third + "]";
-        }
-
         return "{" + numTerceto + "}[" + first + "," + second + "," + third + "] " + tipo;
     }
 
