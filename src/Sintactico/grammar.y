@@ -547,18 +547,15 @@ parametros_iteracion_error
 
 cuerpo_iteracion
     :   '{' cuerpo_ejecutable '}'{
-    		System.out.println("Pasa a cuerpo_ejecutable");
             //obtengo referencia terceto de cuerpo_ejecutable, parseo a integer  y hago + 3
             // porque tengo terceto BI y terceto de incremeto de variable de control del for
-            System.out.println($2.sval);
             if ($2.sval != null){
                 //Saco el nro de terceto del BF incompleto de la pila
                 int numTercetoBackpatch = pila.pop();
                 Integer aux= Integer.parseInt(getReferencia($2).replaceAll("\\D","")) + 3 ;
-			    String auxString = "(" + String.valueOf(aux) + ")";
-			    listaTercetos.get(numTercetoBackpatch -1).addThird(auxString); /* completo el tercer operando del BF*/
-		    }
-            System.out.println("Llega al fin");
+	    	String auxString = "(" + String.valueOf(aux) + ")";
+	    	listaTercetos.get(numTercetoBackpatch -1).addThird(auxString); /* completo el tercer operando del BF*/
+	    }
     	}
     |   cuerpo_iteracion_error
     ;
@@ -621,9 +618,8 @@ sentencia_asignacion_unaria
                 Logger.logError(cursor.getCurrentLine(), "Asignación de retorno múltiple a variable simple.");
                 auxParserVal= ((ArrayList<ParserVal>)auxParserVal.obj).get(0);
             }
-            if (!checkTipo($3, auxParserVal)) {
+            if (!checkTipo($3, auxParserVal))
                 Logger.logError(cursor.getCurrentLine(), "Error de tipo en asignación entre " + getTipoParserVal($3) + " y " + getTipoParserVal(auxParserVal) );
-            }
             $$ = crearTerceto($4, $3, auxParserVal);
             listaTercetos.add((Terceto)$$.obj);
             ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
@@ -805,23 +801,13 @@ cuerpo_lambda
 
 cuerpo_lambda_error
     :   cuerpo_ejecutable '}'   {Logger.logError(cursor.getCurrentLine(), "Falta delimitador izquierdo '{' del cuerpo lambda");}
-    //|   '{' cuerpo error      {Logger.logError(cursor.getCurrentLine(), "Falta delimitador derecho '}' del cuerpo lambda");}
     |   '{' '}'                 {Logger.logError(cursor.getCurrentLine(), "Falta de cuerpo en sentencia lambda");}
     ;
 
 argumento_lambda
-    :   '(' variable ')'  {
-
-            $$.sval = $2.sval;
-        }
-    |   '(' CTE_INT ')' {
-
-            $$.sval = $2.sval;
-        }
-    |   '(' CTE_FLOAT ')' {
-
-            $$.sval = $2.sval;
-        }
+    :   '(' variable ')'  {$$.sval = $2.sval;}
+    |   '(' CTE_INT ')' {$$.sval = $2.sval;}
+    |   '(' CTE_FLOAT ')' {$$.sval = $2.sval;}
     | argumento_lambda_error
     ;
 
