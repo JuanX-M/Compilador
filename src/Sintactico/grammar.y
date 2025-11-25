@@ -417,9 +417,6 @@ sentencia_lambda
                     Info infoArg = TablaSimbolos.TABLA_SIMBOLOS.get($4.sval);
                     int numTercetoBackpatch = pila.pop();
                     if (infoPar != null && infoArg != null){
-                        if(infoArg.getUso().contains("SE")){
-                            Logger.logError(cursor.getCurrentLine(), "El Argumento '" +infoArg.getNombre()+ "' es SE, no puede ser leido");
-                        }
                         if(infoPar.getTipo().equals(infoArg.getTipo())) {
                             listaTercetos.get(numTercetoBackpatch -1).addThird(getReferencia($4));
                         } else {
