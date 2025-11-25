@@ -198,7 +198,7 @@ cuerpo_seleccion
             $$= crearTerceto(new ParserVal(etiqueta),null,null);
             listaTercetos.add((Terceto)$$.obj);
             ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
-            $$=$7;
+
         }
     |  '{' parte_if '}' {
             //Saco el nro de terceto del BF incompleto de la pila ya que no hay ELSE
@@ -210,7 +210,7 @@ cuerpo_seleccion
             $$= crearTerceto(new ParserVal(etiqueta),null,null);
             listaTercetos.add((Terceto)$$.obj);
             ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
-            $$=$2;
+
         }
     |   cuerpo_seleccion_error
     ;
@@ -267,7 +267,7 @@ sentencia_iteracion
                 $$= crearTerceto(new ParserVal(etiqueta),null,null);
                 listaTercetos.add((Terceto)$$.obj);
                 ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
-                $$=$3;
+
 	        }
 	    }
     ;
@@ -693,21 +693,25 @@ lista_tipos
             //creacion variable auxiliar para poner en la tabla
             String auxString = "aux" + String.valueOf(contadorVariablesAuxTercetos);
             //defino con que tipo de valor debo inicializar terceto auxiliar
+            String tipoReal = "INT";
+            String valorInicio = "-1";
             if ($3.sval.contains("float")){
+                tipoReal = "FLOAT";
+                valorInicio = "-1.0";
                 TablaSimbolos.TABLA_SIMBOLOS.put(auxString + "."+ ambito, new Info(auxString, "ID", "FLOAT", "Variable", ambito));
-                $3.sval = "-1.0";
             } else {
+                tipoReal = "INT";
+                valorInicio = "-1";
                 TablaSimbolos.TABLA_SIMBOLOS.put(auxString + "."+ ambito, new Info(auxString, "ID", "INT", "Variable", ambito));
-                $3.sval = "-1";
             };
             //creacion de terceto con variable auxiliar
             //la varaible auxiliar tiene mismo ambito que la funcion, no dentro de esta
-            $$=crearTerceto(new ParserVal (":="), new ParserVal (auxString+"."+ambito), new ParserVal ($3.sval));
+            $$=crearTerceto(new ParserVal (":="), new ParserVal (auxString+"."+ambito), new ParserVal (valorInicio));
             contadorVariablesAuxTercetos++;
             listaTercetos.add((Terceto)$$.obj);
             ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
             ((ArrayList<String>)$1.obj).add(auxString+"."+ambito); // Agrega aux al arraylist}
-            ((Terceto)$$.obj).addTipo($1.sval);
+            ((Terceto)$$.obj).addTipo(tipoReal);
             $$ = $1; // Pasa la lista modificada hacia arriba, no terceto auxiliar creado ni auxString
         }
     |   tipo    {
@@ -722,20 +726,25 @@ lista_tipos
             //creacion variable auxiliar para poner en la tabla
             String auxString = "aux" + String.valueOf(contadorVariablesAuxTercetos);
             //defino con que tipo de valor debo inicializar terceto auxiliar
+            String tipoReal = "INT"; // Valor por defecto o detectado
+            String valorInicio = "-1";
             if ($1.sval.contains("float")){
+                tipoReal = "FLOAT";
+                valorInicio = "-1.0";
                 TablaSimbolos.TABLA_SIMBOLOS.put(auxString + "."+ ambito, new Info(auxString, "ID", "FLOAT", "Variable", ambito));
-                $1.sval = "-1.0";
             } else {
+                tipoReal = "INT";
+                valorInicio = "-1";
                 TablaSimbolos.TABLA_SIMBOLOS.put(auxString + "."+ ambito, new Info(auxString, "ID", "INT", "Variable", ambito));
-                $1.sval = "-1";
+
             };
             //creacion de terceto con variable auxiliar
             //la varaible auxiliar tiene mismo ambito que la funcion, no dentro de esta
-            $$=crearTerceto(new ParserVal (":="), new ParserVal (auxString+"."+ambito), new ParserVal ($1.sval));
+            $$=crearTerceto(new ParserVal (":="), new ParserVal (auxString+"."+ambito), new ParserVal (valorInicio));
             contadorVariablesAuxTercetos++;
             listaTercetos.add((Terceto)$$.obj);
             ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
-            ((Terceto)$$.obj).addTipo($1.sval);
+            ((Terceto)$$.obj).addTipo(tipoReal);
             listaVariablesAux.add(auxString+"."+ambito);
             $$ = new ParserVal(listaVariablesAux);//paso lista de tipos, no la variable
         }
@@ -1101,6 +1110,10 @@ sentencia_retorno
                     ParserVal t = crearTerceto(new ParserVal(":="), variableEsperada, expresionRetornada);
                     listaTercetos.add((Terceto)t.obj);
                     ((Terceto)t.obj).addLine(cursor.getCurrentLine());
+                    Info infoVar = TablaSimbolos.TABLA_SIMBOLOS.get(variableEsperada.sval);
+                    if (infoVar != null) {
+                        ((Terceto)t.obj).addTipo(infoVar.getTipo());
+                    }
                 }
                 // Asignación de parámetros formales CR (Copia Resultado) a auxiliares
                 if (listaParametrosFormales != null) {
@@ -1111,6 +1124,11 @@ sentencia_retorno
                             ParserVal asig = crearTerceto(new ParserVal(":="), new ParserVal(auxString), new ParserVal(listaParametrosFormales.get(i)));
                             listaTercetos.add((Terceto)asig.obj);
                             ((Terceto)asig.obj).addLine(cursor.getCurrentLine());
+
+                            Info infoAux = TablaSimbolos.TABLA_SIMBOLOS.get(auxString);
+                            if (infoAux != null) {
+                                ((Terceto)asig.obj).addTipo(infoAux.getTipo());
+                            }
                         }
                     }
             }
@@ -1331,7 +1349,13 @@ sentencia_iteracion_retorno
             $$= crearTerceto(new ParserVal("BI"), $2, null);
             listaTercetos.add((Terceto)$$.obj);
             ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
-            $$=$3;
+
+            // Creacion etiqueta
+            int numTercetoActual = listaTercetos.get(listaTercetos.size()-1).getSoloNumTerceto() + 1;
+            String etiqueta = "ETIQUETA" + numTercetoActual;
+            $$= crearTerceto(new ParserVal(etiqueta),null,null);
+            listaTercetos.add((Terceto)$$.obj);
+            ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
         }
     ;
 
@@ -1397,6 +1421,13 @@ cuerpo_seleccion_retorno
             listaTercetos.add((Terceto)$$.obj);
             ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
             pila.push( ((Terceto)$$.obj).getSoloNumTerceto() ); // pusheo el nro de terceto del BI incompleto
+
+            // Creacion etiqueta
+            int numTercetoActual = ((Terceto)$$.obj).getSoloNumTerceto() + 1;
+            String etiqueta = "ETIQUETA"+ numTercetoActual;
+            $$= crearTerceto(new ParserVal(etiqueta),null,null);
+            listaTercetos.add((Terceto)$$.obj);
+            ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
         } ELSE '{' parte_else_retorno '}' {
             //Saco el nro de terceto del BI incompleto de la pila para completarlo
             int numTercetoBackpatch = pila.pop(); // pop() del BI
@@ -1406,13 +1437,24 @@ cuerpo_seleccion_retorno
             Integer aux = ultimoTercetoDelBloque.getSoloNumTerceto() + 1;
             String auxString = "(" + String.valueOf(aux) + ")";
             listaTercetos.get(numTercetoBackpatch - 1).addSecond(auxString);/* completo el segundo operando del BI*/
-            $$ = $7; // Propagamos el ArrayList de la parte else
+            // Creacion etiqueta
+
+            int numTercetoActual = listaTercetos.get(listaTercetos.size()-1).getSoloNumTerceto() + 1;
+            String etiqueta = "ETIQUETA"+ numTercetoActual;
+            $$= crearTerceto(new ParserVal(etiqueta),null,null);
+            listaTercetos.add((Terceto)$$.obj);
+            ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
         }
     |  '{' parte_if_retorno '}' {
             //Saco el nro de terceto del BF incompleto de la pila ya que no hay ELSE
             //Aca no creo BI y no hago +1
             pila.pop();
-            $$=$2;
+
+            int numTercetoActual = listaTercetos.get(listaTercetos.size()-1).getSoloNumTerceto() + 1;
+            String etiqueta = "ETIQUETA" + numTercetoActual;
+            $$= crearTerceto(new ParserVal(etiqueta),null,null);
+            listaTercetos.add((Terceto)$$.obj);
+            ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
         }
     ;
 
