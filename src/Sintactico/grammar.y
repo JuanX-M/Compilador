@@ -417,6 +417,9 @@ sentencia_lambda
                     Info infoArg = TablaSimbolos.TABLA_SIMBOLOS.get($4.sval);
                     int numTercetoBackpatch = pila.pop();
                     if (infoPar != null && infoArg != null){
+                        if(infoArg.getUso().contains("SE")){
+                            Logger.logError(cursor.getCurrentLine(), "El Argumento '" +infoArg.getNombre()+ "' es SE, no puede ser leido");
+                        }
                         if(infoPar.getTipo().equals(infoArg.getTipo())) {
                             listaTercetos.get(numTercetoBackpatch -1).addThird(getReferencia($4));
                         } else {
@@ -544,18 +547,15 @@ parametros_iteracion_error
 
 cuerpo_iteracion
     :   '{' cuerpo_ejecutable '}'{
-    		System.out.println("Pasa a cuerpo_ejecutable");
             //obtengo referencia terceto de cuerpo_ejecutable, parseo a integer  y hago + 3
             // porque tengo terceto BI y terceto de incremeto de variable de control del for
-            System.out.println($2.sval);
             if ($2.sval != null){
                 //Saco el nro de terceto del BF incompleto de la pila
                 int numTercetoBackpatch = pila.pop();
                 Integer aux= Integer.parseInt(getReferencia($2).replaceAll("\\D","")) + 3 ;
-			    String auxString = "(" + String.valueOf(aux) + ")";
-			    listaTercetos.get(numTercetoBackpatch -1).addThird(auxString); /* completo el tercer operando del BF*/
-		    }
-            System.out.println("Llega al fin");
+	    	String auxString = "(" + String.valueOf(aux) + ")";
+	    	listaTercetos.get(numTercetoBackpatch -1).addThird(auxString); /* completo el tercer operando del BF*/
+	    }
     	}
     |   cuerpo_iteracion_error
     ;
@@ -618,9 +618,8 @@ sentencia_asignacion_unaria
                 Logger.logError(cursor.getCurrentLine(), "Asignación de retorno múltiple a variable simple.");
                 auxParserVal= ((ArrayList<ParserVal>)auxParserVal.obj).get(0);
             }
-            if (!checkTipo($3, auxParserVal)) {
+            if (!checkTipo($3, auxParserVal))
                 Logger.logError(cursor.getCurrentLine(), "Error de tipo en asignación entre " + getTipoParserVal($3) + " y " + getTipoParserVal(auxParserVal) );
-            }
             $$ = crearTerceto($4, $3, auxParserVal);
             listaTercetos.add((Terceto)$$.obj);
             ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
@@ -951,8 +950,6 @@ sentencia_ejecutable
 
 encabezado_iteracion
     :   ID FROM CTE_INT TO CTE_INT {
-            controlarEntero($3.sval);
-            controlarEntero($5.sval);
             int aux1;
     	    aux1 = Integer.parseInt($3.sval);
     	    int aux2;
