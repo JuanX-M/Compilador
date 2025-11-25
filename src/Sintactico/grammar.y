@@ -136,6 +136,7 @@ sentencia_print
             $$ = crearTerceto($1,$3,null);
             listaTercetos.add((Terceto)$$.obj);
             ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+            ((Terceto)$$.obj).addTipo("STRING");
         }
     |   PRINT '(' lista_exp_aritmeticas ')' {
             /* $3.obj es el ArrayList<ParserVal> de las expresiones */
@@ -146,6 +147,7 @@ sentencia_print
                 $$ = crearTerceto($1, expr, null);
                 listaTercetos.add((Terceto)$$.obj);
                 ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+                ((Terceto)$$.obj).addTipo(getTipoParserVal(expr));
             }
         }
     |   sentencia_print_error

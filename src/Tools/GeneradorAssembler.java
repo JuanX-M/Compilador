@@ -43,7 +43,7 @@ public class GeneradorAssembler {
             escribirSeccionCode(writer);
             escribirFin(writer);
 
-            System.out.println("¡Éxito! Archivo generado en: " + rutaSalida);
+            System.out.println("¡Exito! Archivo generado en: " + rutaSalida);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -80,7 +80,6 @@ public class GeneradorAssembler {
         }
     }
 
-    // --- [FIX] Método actualizado para detectar floats correctamente ---
     private void recolectarVariable(String token) {
         if (token == null) return;
         if (esReferencia(token)) return;
@@ -105,7 +104,6 @@ public class GeneradorAssembler {
                 }
             }
             // Importante: Si es número (int o float), hacemos return para NO agregarlo a variablesDeclaradas.
-            // Esto evita que "2." se convierta en una variable inválida.
             return;
         }
 
@@ -130,7 +128,6 @@ public class GeneradorAssembler {
         w.println();
     }
 
-    // --- [FIX] Método actualizado para escribir .DATA sin errores ---
     private void escribirSeccionData(PrintWriter w) {
         w.println(".DATA");
 
@@ -145,11 +142,14 @@ public class GeneradorAssembler {
         }
 
         w.println("    ; Variables auxiliares del sistema");
-        // [FIX] Cambiado BYTE por DB para mayor compatibilidad
         w.println("    buffer_print DB 128 dup(0)");
         w.println("    newline DB 13, 10, 0");
         w.println("    pause_msg DB 13, 10, \"Presione Enter para salir...\", 0");
         w.println("    input_char DB ?");
+
+        // --- [CAMBIO 1] Variable auxiliar para conversión de floats (64 bits) ---
+        w.println("    _aux_float_print DQ 0");
+        // -----------------------------------------------------------------------
 
         // --- MENSAJES DE ERROR ---
         w.println("    msg_err_div_zero  DB \"Error Runtime: Division por cero\", 0");
@@ -174,11 +174,9 @@ public class GeneradorAssembler {
             String rawVal = entry.getKey();
             String label = entry.getValue();
 
-            // [FIX] Normalización para MASM
-            // 1. Reemplazar 'f' o 'F' por 'E' (Notación científica MASM)
+            // Normalización para MASM
             String valMasm = rawVal.replace('f', 'E').replace('F', 'E');
 
-            // 2. Si termina en punto (ej: "2."), agregar "0" -> "2.0"
             if (valMasm.endsWith(".")) {
                 valMasm += "0";
             }
@@ -301,18 +299,37 @@ public class GeneradorAssembler {
     // 3. MÉTODOS AUXILIARES
     // ---------------------------------------------------------
 
+    // --- [CAMBIO 2] Método actualizado para usar FloatToStr cuando sea necesario ---
     private void generarPrint(PrintWriter w, Terceto t) {
         String token = t.op1;
+
+        // Caso 1: Imprimir Cadena
         if (token.startsWith("\"")) {
             String nombreEtiqueta = constantesString.get(token);
             w.println("    invoke StdOut, addr " + nombreEtiqueta);
-        } else {
-            String valorPrint = resolverOperando(token);
+            w.println("    invoke StdOut, addr newline");
+            return;
+        }
+
+        String valorPrint = resolverOperando(token);
+
+        // Caso 2: Imprimir Float
+        if (t.tipo != null && t.tipo.equalsIgnoreCase("FLOAT")) {
+            w.println("    ; Imprimir Float (usando FPU para convertir a QWORD)");
+            w.println("    FLD " + valorPrint);           // Carga float 32-bits
+            w.println("    FSTP _aux_float_print");       // Guarda como double 64-bits
+            w.println("    invoke FloatToStr, _aux_float_print, addr buffer_print");
+            w.println("    invoke StdOut, addr buffer_print");
+        }
+        // Caso 3: Imprimir Entero
+        else {
             w.println("    invoke dwtoa, " + valorPrint + ", addr buffer_print");
             w.println("    invoke StdOut, addr buffer_print");
         }
+
         w.println("    invoke StdOut, addr newline");
     }
+    // ------------------------------------------------------------------------------
 
     private void generarAritmetica(PrintWriter w, Terceto t) {
         String val1 = resolverOperando(t.op1);
@@ -416,7 +433,6 @@ public class GeneradorAssembler {
         return raw;
     }
 
-    // --- [FIX] Método actualizado para evitar truncar floats ---
     private String resolverOperando(String raw) {
         if (raw == null) return "0";
         if (esReferencia(raw)) {
@@ -427,7 +443,7 @@ public class GeneradorAssembler {
             return constantesFloat.get(raw);
         }
 
-        // Si es un número literal que no se registró (raro, pero posible)
+        // Si es un número literal que no se registró
         if (esNumero(raw)) {
             // Si es entero puro, devolver raw
             if (!raw.contains(".") && !raw.toLowerCase().contains("e")) {
@@ -454,13 +470,8 @@ public class GeneradorAssembler {
         return s != null && s.startsWith("(") && s.endsWith(")");
     }
 
-    // --- [FIX] Regex actualizado para floats (2. y 1.4F+30) ---
     private boolean esNumero(String s) {
         if (s == null || s.isEmpty()) return false;
-        // -?           Signo opcional
-        // \d+          Dígitos enteros
-        // (\.\d*)?     Punto y opcionalmente decimales (acepta "2.")
-        // ([eEfF]...)? Exponente opcional
         return s.matches("-?\\d+(\\.\\d*)?([eEfF][-+]?\\d+)?");
     }
 
