@@ -147,9 +147,8 @@ public class GeneradorAssembler {
         w.println("    pause_msg DB 13, 10, \"Presione Enter para salir...\", 0");
         w.println("    input_char DB ?");
 
-        // --- [CAMBIO 1] Variable auxiliar para conversión de floats (64 bits) ---
+        // Variable auxiliar para conversión de floats (64 bits)
         w.println("    _aux_float_print DQ 0");
-        // -----------------------------------------------------------------------
 
         // --- MENSAJES DE ERROR ---
         w.println("    msg_err_div_zero  DB \"Error Runtime: Division por cero\", 0");
@@ -299,7 +298,6 @@ public class GeneradorAssembler {
     // 3. MÉTODOS AUXILIARES
     // ---------------------------------------------------------
 
-    // --- [CAMBIO 2] Método actualizado para usar FloatToStr cuando sea necesario ---
     private void generarPrint(PrintWriter w, Terceto t) {
         String token = t.op1;
 
@@ -329,7 +327,6 @@ public class GeneradorAssembler {
 
         w.println("    invoke StdOut, addr newline");
     }
-    // ------------------------------------------------------------------------------
 
     private void generarAritmetica(PrintWriter w, Terceto t) {
         String val1 = resolverOperando(t.op1);
@@ -337,6 +334,9 @@ public class GeneradorAssembler {
         boolean esFloat = t.tipo != null && t.tipo.equalsIgnoreCase("FLOAT");
 
         if (esFloat) {
+            // Variable para saber si debemos chequear overflow al final
+            boolean checkOverflow = false;
+
             if (t.operador.equals("/")) {
                 w.println("    ; Chequeo Div Cero (Float)");
                 w.println("    FLD " + val2);
@@ -354,16 +354,28 @@ public class GeneradorAssembler {
                 case "-": w.println("    FSUB " + val2); break;
                 case "/": w.println("    FDIV " + val2); break;
                 case "*":
+                    // Limpiamos flags ANTES de operar
+                    w.println("    FCLEX");
                     w.println("    FMUL " + val2);
-                    w.println("    ; Chequeo Overflow (Float Product)");
-                    w.println("    FSTSW AX");
-                    w.println("    TEST AL, 8");
-                    w.println("    JNZ Label_Error_Overflow");
+                    // Marcamos que queremos chequear overflow DESPUES de guardar
+                    checkOverflow = true;
                     break;
             }
+
+            // 1. Guardamos el resultado en memoria (Aquí ocurre el truncamiento a 32 bits)
+            // Si el número es muy grande, FSTP activará la bandera de Overflow
             w.println("    FSTP @temp_terceto_" + t.id);
 
+            // 2. AHORA chequeamos si hubo overflow al guardar
+            if (checkOverflow) {
+                w.println("    ; Chequeo Overflow (Float Product) post-store");
+                w.println("    FSTSW AX");
+                w.println("    TEST AL, 8");                 // Testeamos Bit 3 (Overflow)
+                w.println("    JNZ Label_Error_Overflow");
+            }
+
         } else {
+            // Lógica Entera (INT)
             w.println("    MOV EAX, " + val1);
             switch (t.operador) {
                 case "+": w.println("    ADD EAX, " + val2); break;
