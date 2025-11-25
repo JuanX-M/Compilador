@@ -34,6 +34,7 @@ ERROR%TIPOS {
     ## Error en Invocacion (Pasaje de Parametros)        ##
 
     int fun FPARAMETRO (int P2,cr le float P3) {
+
         return (P2);
     };
 
@@ -60,6 +61,7 @@ ERROR%TIPOS {
     ## Error en Condicion de IF                        ##
     ## Compara tipos incompatibles ( Int > Float)          ##
     if (VENTERA > VFLOTANTE) {
+
         VENTERA := 0I;
     } endif;
 
@@ -73,5 +75,20 @@ ERROR%TIPOS {
     ##Error de tipos en asignacion multiple
     junto a expresiones con incompatibilidad##
     A,B,C = 3.0 - 5I , 3I*8.0/9I, 2.0;
+
+    ##
+    Error de tipo en sentencias Lambda, cuando el parametro es de un tipo y recibe un argumento
+    distinto
+    ##
+
+    (int P) { P := P + 1I;} (3.5);
+
+    (int P) { P := P + 1I; } (B);
+
+    (float P) { P := P + 1I; } (3I);
+
+    (float P) { P := P + 1I; } (A);
+
+
 
 }

@@ -60,5 +60,13 @@ no son visibles al haber sido declaradas dentro de funciones F3,F1,F2
 ##
 A,B,D = F3.D , F1.B, F2.C;
 
+##
+Error de variable no declarada con sentencias lambda
+- Z no fue declarada
+- F3.D no esta al alcance
+##
+
+(int A) {A := A + Z; } (F3.D);
+
 
 }

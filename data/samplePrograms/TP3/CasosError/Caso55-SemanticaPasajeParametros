@@ -35,7 +35,8 @@ ER%PASAJE{
         B:= fun F2(B->D);
 
 
-
+        ##Error en sentencia lambda Variable B  no puede ser leida , esto ya que solamente puede ser escrita##
+        (int Q) {Q := 2I; } (B);
 
         ##Variable B,no puede ser leida en sentencia print##
         print(B);

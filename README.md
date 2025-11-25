@@ -3,8 +3,8 @@
 ### Cosas que hay que hacer andar:
 
 * chequear los addtipos que se hagan bien//JuanX
-* agregar sentencias lambdas a casos de pruebas con error
-* chequeo de tipo/alcance en argumento lambda con ID, hay que agregar a la gramatica ID'.'ID en argumento lambda y que su Uso no sea CR SE o Funcion
+* casos de uso TP4
+* Arreglar problema con los flotantes 
 * Realizar chequeo de constantes negativas
 * chequear que el compilador no se rompa al tener errores de sintaxis
 
@@ -16,6 +16,8 @@
 
 
 ### Cosas que andan:
+* chequeo de tipo/alcance en argumento lambda con ID, hay que agregar a la gramatica ID'.'ID en argumento lambda y que su Uso no sea CR SE
+* agregar sentencias lambdas a casos de pruebas con error
 * Descartar generacion de codigo assembler cuando hay syntax error
 * chequear que el compilador no se rompa al tener errores de sintaxis
 * '-' en expresion aritmetica cuando esta solo o con espacio
@@ -77,12 +79,15 @@
   * Parametros reales
     * Asociacion con tipo parametro formal
 * Chequeo de SE y LE de parametro formal
+* Semantica de pasaje de paremtros CR SE LE,CV
+* * Casos de prubea que deben tirar error //JuanX
+* * Meter toi en clase GeneradorAssembler para que haga la conversion, es cuando el el operador del terceto es 'toi' hace ahi la conversion
 
+* TOI
+  * Que no sea de tipo entero (Dar warning)
 ### Haciendo:
-* Uso correcto del '-'
-* * Revisar si funcionana los errores semanticos if/else e iteraciones  retorno dentro de una funcin, creo que no andan porque
-    estan comentados o no tienen reglas directamente, es copiar y pegar las reglas con errores y poner _retorno//Juanx,lo hago a la mañama,puede que me lleve todo el dia
-* Casos de prubea que deben tirar error //JuanX
+
+
 ### Aclaraciones de diseño:
 * Seguimos logica de asignaciones multiples por sobre mas retornos que tipos de funcion
   * Si en l lado derecho de una asignacion multiple HAY ALGUNA FUNCION MEZCLADA CON ESPRESIONES ARITMETICAS, DESCARTAMOS TODO LO SOBRANTE
@@ -92,9 +97,6 @@
 
 ### Testeando
 
-* Meter toi en clase GeneradorAssembler para que haga la conversion, es cuando el el operador del terceto es 'toi' hace ahi la conversion
-* TOI
-  * Que no sea de tipo entero (Dar warning)
 
 
 ### Cosas
@@ -114,7 +116,7 @@
 
 ### Casos de prueba que faltan:
 
-* Semantica de pasaje de paremtros CR SE LE,CV
+
 * Parametro formal no existe
 * Otros que ahora no se me ocurren
 * Sentencias lambda? Nico genio del lambda, hacete estos casos <3.
