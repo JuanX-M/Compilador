@@ -43,7 +43,7 @@ public class GeneradorAssembler {
             escribirSeccionCode(writer);
             escribirFin(writer);
 
-            System.out.println("¡Éxito! Archivo generado en: " + rutaSalida);
+            System.out.println("¡Exito! Archivo generado en: " + rutaSalida);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -80,7 +80,6 @@ public class GeneradorAssembler {
         }
     }
 
-    // --- [FIX] Método actualizado para detectar floats correctamente ---
     private void recolectarVariable(String token) {
         if (token == null) return;
         if (esReferencia(token)) return;
@@ -105,7 +104,6 @@ public class GeneradorAssembler {
                 }
             }
             // Importante: Si es número (int o float), hacemos return para NO agregarlo a variablesDeclaradas.
-            // Esto evita que "2." se convierta en una variable inválida.
             return;
         }
 
@@ -130,7 +128,6 @@ public class GeneradorAssembler {
         w.println();
     }
 
-    // --- [FIX] Método actualizado para escribir .DATA sin errores ---
     private void escribirSeccionData(PrintWriter w) {
         w.println(".DATA");
 
@@ -145,11 +142,13 @@ public class GeneradorAssembler {
         }
 
         w.println("    ; Variables auxiliares del sistema");
-        // [FIX] Cambiado BYTE por DB para mayor compatibilidad
         w.println("    buffer_print DB 128 dup(0)");
         w.println("    newline DB 13, 10, 0");
         w.println("    pause_msg DB 13, 10, \"Presione Enter para salir...\", 0");
         w.println("    input_char DB ?");
+
+        // Variable auxiliar para conversión de floats (64 bits)
+        w.println("    _aux_float_print DQ 0");
 
         // --- MENSAJES DE ERROR ---
         w.println("    msg_err_div_zero  DB \"Error Runtime: Division por cero\", 0");
@@ -174,11 +173,9 @@ public class GeneradorAssembler {
             String rawVal = entry.getKey();
             String label = entry.getValue();
 
-            // [FIX] Normalización para MASM
-            // 1. Reemplazar 'f' o 'F' por 'E' (Notación científica MASM)
+            // Normalización para MASM
             String valMasm = rawVal.replace('f', 'E').replace('F', 'E');
 
-            // 2. Si termina en punto (ej: "2."), agregar "0" -> "2.0"
             if (valMasm.endsWith(".")) {
                 valMasm += "0";
             }
@@ -303,14 +300,31 @@ public class GeneradorAssembler {
 
     private void generarPrint(PrintWriter w, Terceto t) {
         String token = t.op1;
+
+        // Caso 1: Imprimir Cadena
         if (token.startsWith("\"")) {
             String nombreEtiqueta = constantesString.get(token);
             w.println("    invoke StdOut, addr " + nombreEtiqueta);
-        } else {
-            String valorPrint = resolverOperando(token);
+            w.println("    invoke StdOut, addr newline");
+            return;
+        }
+
+        String valorPrint = resolverOperando(token);
+
+        // Caso 2: Imprimir Float
+        if (t.tipo != null && t.tipo.equalsIgnoreCase("FLOAT")) {
+            w.println("    ; Imprimir Float (usando FPU para convertir a QWORD)");
+            w.println("    FLD " + valorPrint);           // Carga float 32-bits
+            w.println("    FSTP _aux_float_print");       // Guarda como double 64-bits
+            w.println("    invoke FloatToStr, _aux_float_print, addr buffer_print");
+            w.println("    invoke StdOut, addr buffer_print");
+        }
+        // Caso 3: Imprimir Entero
+        else {
             w.println("    invoke dwtoa, " + valorPrint + ", addr buffer_print");
             w.println("    invoke StdOut, addr buffer_print");
         }
+
         w.println("    invoke StdOut, addr newline");
     }
 
@@ -320,6 +334,9 @@ public class GeneradorAssembler {
         boolean esFloat = t.tipo != null && t.tipo.equalsIgnoreCase("FLOAT");
 
         if (esFloat) {
+            // Variable para saber si debemos chequear overflow al final
+            boolean checkOverflow = false;
+
             if (t.operador.equals("/")) {
                 w.println("    ; Chequeo Div Cero (Float)");
                 w.println("    FLD " + val2);
@@ -337,16 +354,28 @@ public class GeneradorAssembler {
                 case "-": w.println("    FSUB " + val2); break;
                 case "/": w.println("    FDIV " + val2); break;
                 case "*":
+                    // Limpiamos flags ANTES de operar
+                    w.println("    FCLEX");
                     w.println("    FMUL " + val2);
-                    w.println("    ; Chequeo Overflow (Float Product)");
-                    w.println("    FSTSW AX");
-                    w.println("    TEST AL, 8");
-                    w.println("    JNZ Label_Error_Overflow");
+                    // Marcamos que queremos chequear overflow DESPUES de guardar
+                    checkOverflow = true;
                     break;
             }
+
+            // 1. Guardamos el resultado en memoria (Aquí ocurre el truncamiento a 32 bits)
+            // Si el número es muy grande, FSTP activará la bandera de Overflow
             w.println("    FSTP @temp_terceto_" + t.id);
 
+            // 2. AHORA chequeamos si hubo overflow al guardar
+            if (checkOverflow) {
+                w.println("    ; Chequeo Overflow (Float Product) post-store");
+                w.println("    FSTSW AX");
+                w.println("    TEST AL, 8");                 // Testeamos Bit 3 (Overflow)
+                w.println("    JNZ Label_Error_Overflow");
+            }
+
         } else {
+            // Lógica Entera (INT)
             w.println("    MOV EAX, " + val1);
             switch (t.operador) {
                 case "+": w.println("    ADD EAX, " + val2); break;
@@ -416,7 +445,6 @@ public class GeneradorAssembler {
         return raw;
     }
 
-    // --- [FIX] Método actualizado para evitar truncar floats ---
     private String resolverOperando(String raw) {
         if (raw == null) return "0";
         if (esReferencia(raw)) {
@@ -427,7 +455,7 @@ public class GeneradorAssembler {
             return constantesFloat.get(raw);
         }
 
-        // Si es un número literal que no se registró (raro, pero posible)
+        // Si es un número literal que no se registró
         if (esNumero(raw)) {
             // Si es entero puro, devolver raw
             if (!raw.contains(".") && !raw.toLowerCase().contains("e")) {
@@ -454,13 +482,8 @@ public class GeneradorAssembler {
         return s != null && s.startsWith("(") && s.endsWith(")");
     }
 
-    // --- [FIX] Regex actualizado para floats (2. y 1.4F+30) ---
     private boolean esNumero(String s) {
         if (s == null || s.isEmpty()) return false;
-        // -?           Signo opcional
-        // \d+          Dígitos enteros
-        // (\.\d*)?     Punto y opcionalmente decimales (acepta "2.")
-        // ([eEfF]...)? Exponente opcional
         return s.matches("-?\\d+(\\.\\d*)?([eEfF][-+]?\\d+)?");
     }
 
