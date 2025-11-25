@@ -16,10 +16,7 @@ public class GeneradorAssembler {
 
         public Terceto(int id, String operador, String op1, String op2, String tipo) {
             this.id = id;
-            if (operador != null)
-                this.operador = operador.trim();
-            else
-                this.operador = "";
+            this.operador = (operador != null) ? operador.trim() : "";
             this.op1 = (op1 == null || op1.trim().equals("null")) ? null : op1.trim();
             this.op2 = (op2 == null || op2.trim().equals("null")) ? null : op2.trim();
             this.tipo = (tipo != null) ? tipo.trim() : null;
@@ -103,7 +100,6 @@ public class GeneradorAssembler {
                     constantesFloat.put(token, "const_float_" + (contadorFloats++));
                 }
             }
-            // Importante: Si es número (int o float), hacemos return para NO agregarlo a variablesDeclaradas.
             return;
         }
 
@@ -130,7 +126,6 @@ public class GeneradorAssembler {
 
         w.println("    ; Variables de usuario");
         for (String var : variablesDeclaradas) {
-            // Protección: Si por error llega una variable que empieza con dígito, le ponemos prefijo
             if (!var.isEmpty() && Character.isDigit(var.charAt(0))) {
                 w.println("    var_" + var + " DD 0");
             } else {
@@ -144,7 +139,7 @@ public class GeneradorAssembler {
         w.println("    pause_msg DB 13, 10, \"Presione Enter para salir...\", 0");
         w.println("    input_char DB ?");
 
-        // Variable auxiliar para conversión de floats (64 bits)
+        // Variable auxiliar para FloatToStr
         w.println("    _aux_float_print DQ 0");
 
         // Mensajes de error
@@ -173,10 +168,16 @@ public class GeneradorAssembler {
             // Normalización para MASM
             String valMasm = rawVal.replace('f', 'E').replace('F', 'E');
 
+            if (valMasm.startsWith(".")) {
+                valMasm = "0" + valMasm;
+            } else if (valMasm.startsWith("-.")) {
+                valMasm = "-0" + valMasm.substring(1);
+            }
+
+            // Arreglo para 2. -> 2.0
             if (valMasm.endsWith(".")) {
                 valMasm += "0";
             }
-
             w.println("    " + label + " DD " + valMasm);
         }
         w.println();
@@ -240,11 +241,13 @@ public class GeneradorAssembler {
                 case "print":
                     generarPrint(w, t);
                     break;
+
                 case "toi":
                     String origenFloat = resolverOperando(t.op1);
                     String destinoInt = "@temp_terceto_" + t.id;
 
-                    w.println("    ; Conversion TOI con chequeo de perdida de datos");
+                    w.println("    ; --- Conversion TOI con verificacion g) ---");
+
                     w.println("    FLD " + origenFloat);
                     w.println("    FISTP " + destinoInt);
 
@@ -306,18 +309,16 @@ public class GeneradorAssembler {
 
         // Imprimir Float
         if (t.tipo != null && t.tipo.equalsIgnoreCase("FLOAT")) {
-            w.println("    ; Imprimir Float (usando FPU para convertir a QWORD)");
-            w.println("    FLD " + valorPrint);           // Carga float 32-bits
-            w.println("    FSTP _aux_float_print");       // Guarda como double 64-bits
+            w.println("    FLD " + valorPrint);
+            w.println("    FSTP _aux_float_print");
             w.println("    invoke FloatToStr, _aux_float_print, addr buffer_print");
             w.println("    invoke StdOut, addr buffer_print");
         }
-        // Imprimir Entero
+        //Imprimir Entero
         else {
             w.println("    invoke dwtoa, " + valorPrint + ", addr buffer_print");
             w.println("    invoke StdOut, addr buffer_print");
         }
-
         w.println("    invoke StdOut, addr newline");
     }
 
@@ -331,7 +332,6 @@ public class GeneradorAssembler {
             boolean checkOverflow = false;
 
             if (t.operador.equals("/")) {
-                w.println("    ; Chequeo Div Cero (Float)");
                 w.println("    FLD " + val2);
                 w.println("    FTST");
                 w.println("    FSTSW AX");
@@ -347,10 +347,8 @@ public class GeneradorAssembler {
                 case "-": w.println("    FSUB " + val2); break;
                 case "/": w.println("    FDIV " + val2); break;
                 case "*":
-                    // Limpiamos flags ANTES de operar
                     w.println("    FCLEX");
                     w.println("    FMUL " + val2);
-                    // Marcamos que queremos chequear overflow DESPUES de guardar
                     checkOverflow = true;
                     break;
             }
@@ -361,9 +359,8 @@ public class GeneradorAssembler {
 
             // Chequeamos si hubo overflow al guardar
             if (checkOverflow) {
-                w.println("    ; Chequeo Overflow (Float Product) post-store");
                 w.println("    FSTSW AX");
-                w.println("    TEST AL, 8");                 // Testeamos Bit 3 (Overflow)
+                w.println("    TEST AL, 8");
                 w.println("    JNZ Label_Error_Overflow");
             }
 
@@ -375,7 +372,6 @@ public class GeneradorAssembler {
                 case "-": w.println("    SUB EAX, " + val2); break;
                 case "*": w.println("    IMUL EAX, " + val2); break;
                 case "/":
-                    w.println("    ; Chequeo Div Cero (Int)");
                     w.println("    MOV ECX, " + val2);
                     w.println("    CMP ECX, 0");
                     w.println("    JE Label_Error_DivZero");
@@ -439,21 +435,15 @@ public class GeneradorAssembler {
         if (esReferencia(raw)) {
             return "@temp_terceto_" + obtenerIdDesdeReferencia(raw);
         }
-        // Buscar en constantes registradas
         if (constantesFloat.containsKey(raw)) {
             return constantesFloat.get(raw);
         }
-
-        // Si es un número literal que no se registró
         if (esNumero(raw)) {
-            // Si es entero puro, devolver raw
             if (!raw.contains(".") && !raw.toLowerCase().contains("e")) {
                 return raw;
             }
-            // Si es float literal, devolver raw para evitar errores de truncado
             return raw;
         }
-
         return limpiarNombre(raw);
     }
 
