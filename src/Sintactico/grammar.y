@@ -411,17 +411,14 @@ sentencia_lambda
                 ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
                 ((Terceto)$$.obj).addTipo(TablaSimbolos.TABLA_SIMBOLOS.get($1.sval).getTipo());
             }
-        }   cuerpo_lambda {reducirAmbito();} argumento_lambda {
-                if ($5.sval != null && $1.sval != null) {
+        }   cuerpo_lambda argumento_lambda {
+                if ($4.sval != null && $1.sval != null) {
                     Info infoPar = TablaSimbolos.TABLA_SIMBOLOS.get($1.sval);
-                    Info infoArg = TablaSimbolos.TABLA_SIMBOLOS.get($5.sval);
+                    Info infoArg = TablaSimbolos.TABLA_SIMBOLOS.get($4.sval);
                     int numTercetoBackpatch = pila.pop();
                     if (infoPar != null && infoArg != null){
-                        if(infoArg.getUso().contains("SE")){
-                            Logger.logError(cursor.getCurrentLine(), "El Argumento '" +infoArg.getNombre()+ "' es SE, no puede ser leido");
-                        }
                         if(infoPar.getTipo().equals(infoArg.getTipo())) {
-                            listaTercetos.get(numTercetoBackpatch -1).addThird(getReferencia($5));
+                            listaTercetos.get(numTercetoBackpatch -1).addThird(getReferencia($4));
                         } else {
                             listaTercetos.remove(numTercetoBackpatch -1);
                             Logger.logError(cursor.getCurrentLine(), "Incompatibilidad de tipos en parametro y argumento de sentencia Lambda");
@@ -811,15 +808,17 @@ cuerpo_lambda_error
 
 argumento_lambda
     :   '(' variable ')'  {
-
+            reducirAmbito();
             $$.sval = $2.sval;
         }
     |   '(' CTE_INT ')' {
-
+            reducirAmbito();
+            controlarEntero($2.sval);
             $$.sval = $2.sval;
         }
     |   '(' CTE_FLOAT ')' {
-
+            reducirAmbito();
+            controlarFlotante($2.sval);
             $$.sval = $2.sval;
         }
     | argumento_lambda_error
@@ -952,6 +951,8 @@ sentencia_ejecutable
 
 encabezado_iteracion
     :   ID FROM CTE_INT TO CTE_INT {
+            controlarEntero($3.sval);
+            controlarEntero($5.sval);
             int aux1;
     	    aux1 = Integer.parseInt($3.sval);
     	    int aux2;
