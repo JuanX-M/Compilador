@@ -950,6 +950,8 @@ sentencia_ejecutable
 
 encabezado_iteracion
     :   ID FROM CTE_INT TO CTE_INT {
+            controlarEntero($3.sval);
+            controlarEntero($5.sval);
             int aux1;
     	    aux1 = Integer.parseInt($3.sval);
     	    int aux2;
@@ -980,7 +982,7 @@ encabezado_iteracion
                 }
                 else{
                     $$=crearTerceto(new ParserVal(">"), $1, $5); //Creamos el Terceto de la condicion mayor
-                    }
+                }
                 listaTercetos.add((Terceto)$$.obj);
                 ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
                 ((Terceto)$$.obj).addTipo("INT");
