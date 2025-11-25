@@ -86,9 +86,10 @@
 * TOI
   * Que no sea de tipo entero (Dar warning)
 ### Haciendo:
-
+reducir ambito JUANX
 
 ### Aclaraciones de diseño:
+* No se puede hacer TOI + TOI
 * Seguimos logica de asignaciones multiples por sobre mas retornos que tipos de funcion
   * Si en l lado derecho de una asignacion multiple HAY ALGUNA FUNCION MEZCLADA CON ESPRESIONES ARITMETICAS, DESCARTAMOS TODO LO SOBRANTE
   * Si solo hay expresiones aritmeticas y sobran del lado derecho, tiramos error

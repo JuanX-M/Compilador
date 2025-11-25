@@ -1,0 +1,273 @@
+##
+Casos Validos: Estruturas Sintacticas permitidas
+##
+ESTRUCTURAS{
+    ##
+    Sentencia declaracion de variables
+    ##
+    var A := 4I;
+    var X:= 3I;
+    var Z:=3.0;
+    var M:=2.0;
+    var N:= 1.0;
+
+    ##
+    Sentencia asignacion unaria
+    ##
+    X:= X +1;
+    Z:=3.0;
+
+    ##
+    Sentencia asignacion multiple
+    ##
+    A,X,Z= X,A,Z;
+
+    ##
+    Expresiones aritmeticas
+    ##
+
+    X:= X + A;
+    X:= X + A + A;
+
+    X:= X - A;
+    X:= X - A - A;
+
+    X:= X / A;
+    X:= X / A / A;
+
+    X:= X * A;
+    X:= X * A * A;
+
+
+
+    X:= X / A - X * A;
+    X:= X / A + X * A;
+    X:= X * A - X / A;
+    X:= X * A + X / A;
+
+    X:= X - A + X / A * X + A;
+    X:= -1I;
+    X:= X * -3I + X / -2I;
+
+    X:= X * A + X / A;
+    X:= X - -2I + X / -4I * -1I + -9I;
+
+    X:= toi(Z);
+
+
+
+
+    X:= toi(M + N);
+    X:= toi(M - N);
+    X:= toi(M * N);
+    X:= toi(M / N);
+    X:= toi(M + N / Z);
+    X:= toi(M / N - M * N);
+    X:= toi(M / N + M * N);
+    X:= toi(M * N - M / N);
+    X:= toi(M * N + M / N);
+    X:= toi(M + M + M);
+    X:= toi(M - M - M);
+    X:= toi(M * M * M);
+    X:= toi(M / M / M);
+
+
+
+
+    Z:= M + M + M;
+    Z:= M - M - M;
+    Z:= M * M * M;
+    Z:= M / M / M;
+
+    Z:= M + N;
+    Z:= M - N;
+    Z:= M * N;
+    Z:= M / N;
+
+    Z:= M + N / Z;
+    Z:= M / N - M * N;
+    Z:= M / N + M * N;
+    Z:= M * N - M / N;
+    Z:= M * N + M * N;
+
+
+    Z:= M / N - M * N * M - X / M;
+
+    ##
+    Sentencia seleccion if y if/else
+    ##
+    if (X<A){
+        A:=X+3I;
+    }endif;
+
+    if (X>A){
+        A:=X+3I;
+    }endif;
+
+    if (X==A){
+        A:=X+3I;
+    }endif;
+
+    if (X!=A){
+        A:=X+3I;
+    }endif;
+
+    if (X<A){
+        A:=X+3I;
+    }else{
+        X:=A+3I;
+    }endif;
+
+    ##
+    Sentencia if/else anidada dentro de if
+    ##
+    if (X+1I <= X * A ){
+        if(X-3I > toi(Z) ){
+            X:=3I;
+        }else{
+            X:=4I;
+        }endif;
+
+    }endif;
+
+    ##
+    Sentencia if anidada dentro de if/esle
+    ##
+    if(X-3I > toi(Z) ){
+        if (X+1I <= X * A ){
+            X:=4I;
+        }endif;
+    }else{
+        if (X+1I <= X * A ){
+            X:=4I;
+        }endif;
+    }endif;
+
+
+
+
+    ##
+    Sentencia Control: For
+    ##
+
+    for (K from 1I to 5I){
+        X:= X +K;
+    };
+
+    ##
+    Sentencia Control y Seleccion anidadas
+    ##
+
+    for (K from 1I to 5I){
+        if (X+1I <= X * A ){
+            X:=4I;
+        }endif;
+
+        if (X<A){
+            A:=X+3I;
+        }else{
+            X:=A+3I;
+        }endif;
+    };
+
+    if (X<A){
+        for (K from 1I to 5I){
+            X:= X +K;
+        };
+    }else{
+        for (K from 1I to 5I){
+            X:= X +K;
+        };
+    }endif;
+
+    if (X!=A){
+        for (K from 1I to 5I){
+            X:= X +K;
+        };
+    }endif;
+
+    ##
+    Sentencia Lambda
+    ##
+
+    (int B) { B:= 3I; } (1I);
+    ##Sentencia Lambda con sentencias ejecutables##
+    (int B) {
+
+        if (X!=A){
+            for (K from 1I to 5I){
+                X:= X +K;
+            };
+        }endif;
+        if (X<A){
+            for (K from 1I to 5I){
+                X:= X +K;
+            };
+        }else{
+            for (K from 1I to 5I){
+                X:= X +K;
+            };
+        }endif;
+        for (K from 1I to 5I){
+            X:= X +K;
+        };
+
+
+    } (1I);
+
+    ##
+    Declaracion Funcion
+    ##
+    int,float,int,float F1 (int X,ce se int L, cr le int T){
+
+        ##Sentencia if con return##
+        if (ESTRUCTURAS.A > -3I){
+            ##
+            Sentencia return
+            ##
+            return (1I,2.0,3I,4.0);
+        }endif;
+
+        ##Sentencia if/else con return##
+        if(ESTRUCTURAS.A > -3I){
+            return (1I,2.0,3I,4.0);
+        }else{
+            return (4I,3.0,2I,1.0);
+        }endif;
+        ##
+        Sentencia for con return
+        ##
+        for(P from 7I to 1I){
+            return (4I,3.0,2I,1.0);
+        };
+
+        int F2(int X){
+            X:=2I;
+            return(X);
+        };
+
+        ##
+        Invocacion a funcion  F2 anidada dentro de funcion F1, retorno 1 valor
+        ##
+        L:= fun F2(T->X);
+
+        ##
+        Sentencia return
+        ##
+        return (1I,3.0,toi(T),3.0 - 1. / 3.4);
+
+    };
+
+    ##
+    Sentencia invocacion a funcion con multiples retornos
+    ##
+    A,M,X,N = fun F1(3I->X,5I->L,1I->T);
+
+
+
+
+
+
+
+
+}

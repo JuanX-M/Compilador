@@ -1,0 +1,7 @@
+##
+Caso Valido: Nombre del Programa
+##
+
+PROGRAMA{
+    var X:= 1I;
+}
