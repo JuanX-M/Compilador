@@ -43,15 +43,12 @@ public class GeneradorAssembler {
             escribirSeccionCode(writer);
             escribirFin(writer);
 
-            System.out.println("¡Exito! Archivo generado en: " + rutaSalida);
+            System.out.println("Archivo generado correctamente en: " + rutaSalida);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    // ---------------------------------------------------------
-    // 1. LECTURA Y PARSEO
-    // ---------------------------------------------------------
     private void leerTercetos(String ruta) {
         Pattern pattern = Pattern.compile("\\{(\\d+)}\\[(.*?),(.*?),(.*?)\\](?:\\s+(\\w+))?");
 
@@ -103,7 +100,6 @@ public class GeneradorAssembler {
                     constantesFloat.put(token, "const_float_" + (contadorFloats++));
                 }
             }
-            // Importante: Si es número (int o float), hacemos return para NO agregarlo a variablesDeclaradas.
             return;
         }
 
@@ -111,9 +107,6 @@ public class GeneradorAssembler {
         variablesDeclaradas.add(limpiarNombre(token));
     }
 
-    // ---------------------------------------------------------
-    // 2. ESCRITURA DEL ASSEMBLER
-    // ---------------------------------------------------------
     private void escribirEncabezado(PrintWriter w) {
         w.println(".386");
         w.println(".model flat, stdcall");
@@ -133,7 +126,6 @@ public class GeneradorAssembler {
 
         w.println("    ; Variables de usuario");
         for (String var : variablesDeclaradas) {
-            // Protección: Si por error llega una variable que empieza con dígito, le ponemos prefijo
             if (!var.isEmpty() && Character.isDigit(var.charAt(0))) {
                 w.println("    var_" + var + " DD 0");
             } else {
@@ -147,10 +139,10 @@ public class GeneradorAssembler {
         w.println("    pause_msg DB 13, 10, \"Presione Enter para salir...\", 0");
         w.println("    input_char DB ?");
 
-        // Variable auxiliar para conversión de floats (64 bits)
+        // Variable auxiliar para FloatToStr
         w.println("    _aux_float_print DQ 0");
 
-        // --- MENSAJES DE ERROR ---
+        // Mensajes de error
         w.println("    msg_err_div_zero  DB \"Error Runtime: Division por cero\", 0");
         w.println("    msg_err_overflow  DB \"Error Runtime: Overflow en producto flotante\", 0");
         w.println("    msg_err_conv_loss DB \"Error Runtime: Perdida de informacion en conversion Float->Int\", 0");
@@ -176,10 +168,16 @@ public class GeneradorAssembler {
             // Normalización para MASM
             String valMasm = rawVal.replace('f', 'E').replace('F', 'E');
 
+            if (valMasm.startsWith(".")) {
+                valMasm = "0" + valMasm;
+            } else if (valMasm.startsWith("-.")) {
+                valMasm = "-0" + valMasm.substring(1);
+            }
+
+            // Arreglo para 2. -> 2.0
             if (valMasm.endsWith(".")) {
                 valMasm += "0";
             }
-
             w.println("    " + label + " DD " + valMasm);
         }
         w.println();
@@ -189,7 +187,7 @@ public class GeneradorAssembler {
         w.println(".CODE");
         w.println("start:");
 
-        // --- INICIO DEL BUCLE DE TERCETOS ---
+        // Bucle de tercetos
         for (Terceto t : listaTercetos) {
             w.println("; Terceto " + t.id + " -> " + t.operador);
             w.println("Label_" + t.id + ":");
@@ -243,15 +241,17 @@ public class GeneradorAssembler {
                 case "print":
                     generarPrint(w, t);
                     break;
+
                 case "toi":
                     String origenFloat = resolverOperando(t.op1);
                     String destinoInt = "@temp_terceto_" + t.id;
 
-                    w.println("    ; Conversion TOI con chequeo de perdida de datos");
+                    w.println("    ; --- Conversion TOI con verificacion g) ---");
+
                     w.println("    FLD " + origenFloat);
                     w.println("    FISTP " + destinoInt);
 
-                    // Chequeo g)
+
                     w.println("    FILD " + destinoInt);
                     w.println("    FLD " + origenFloat);
                     w.println("    FCOMP");
@@ -264,7 +264,7 @@ public class GeneradorAssembler {
             }
         }
 
-        // --- ZONA DE SALIDA Y ERRORES ---
+        // Salida y errores
         w.println("    JMP Label_Fin_Programa");
 
         w.println("Label_Error_DivZero:");
@@ -294,14 +294,10 @@ public class GeneradorAssembler {
         w.println("end start");
     }
 
-    // ---------------------------------------------------------
-    // 3. MÉTODOS AUXILIARES
-    // ---------------------------------------------------------
-
     private void generarPrint(PrintWriter w, Terceto t) {
         String token = t.op1;
 
-        // Caso 1: Imprimir Cadena
+        // Imprimir Cadena
         if (token.startsWith("\"")) {
             String nombreEtiqueta = constantesString.get(token);
             w.println("    invoke StdOut, addr " + nombreEtiqueta);
@@ -311,20 +307,18 @@ public class GeneradorAssembler {
 
         String valorPrint = resolverOperando(token);
 
-        // Caso 2: Imprimir Float
+        // Imprimir Float
         if (t.tipo != null && t.tipo.equalsIgnoreCase("FLOAT")) {
-            w.println("    ; Imprimir Float (usando FPU para convertir a QWORD)");
-            w.println("    FLD " + valorPrint);           // Carga float 32-bits
-            w.println("    FSTP _aux_float_print");       // Guarda como double 64-bits
+            w.println("    FLD " + valorPrint);
+            w.println("    FSTP _aux_float_print");
             w.println("    invoke FloatToStr, _aux_float_print, addr buffer_print");
             w.println("    invoke StdOut, addr buffer_print");
         }
-        // Caso 3: Imprimir Entero
+        //Imprimir Entero
         else {
             w.println("    invoke dwtoa, " + valorPrint + ", addr buffer_print");
             w.println("    invoke StdOut, addr buffer_print");
         }
-
         w.println("    invoke StdOut, addr newline");
     }
 
@@ -338,7 +332,6 @@ public class GeneradorAssembler {
             boolean checkOverflow = false;
 
             if (t.operador.equals("/")) {
-                w.println("    ; Chequeo Div Cero (Float)");
                 w.println("    FLD " + val2);
                 w.println("    FTST");
                 w.println("    FSTSW AX");
@@ -354,35 +347,31 @@ public class GeneradorAssembler {
                 case "-": w.println("    FSUB " + val2); break;
                 case "/": w.println("    FDIV " + val2); break;
                 case "*":
-                    // Limpiamos flags ANTES de operar
                     w.println("    FCLEX");
                     w.println("    FMUL " + val2);
-                    // Marcamos que queremos chequear overflow DESPUES de guardar
                     checkOverflow = true;
                     break;
             }
 
-            // 1. Guardamos el resultado en memoria (Aquí ocurre el truncamiento a 32 bits)
+            // Guardamos el resultado en memoria (Aquí ocurre el truncamiento a 32 bits)
             // Si el número es muy grande, FSTP activará la bandera de Overflow
             w.println("    FSTP @temp_terceto_" + t.id);
 
-            // 2. AHORA chequeamos si hubo overflow al guardar
+            // Chequeamos si hubo overflow al guardar
             if (checkOverflow) {
-                w.println("    ; Chequeo Overflow (Float Product) post-store");
                 w.println("    FSTSW AX");
-                w.println("    TEST AL, 8");                 // Testeamos Bit 3 (Overflow)
+                w.println("    TEST AL, 8");
                 w.println("    JNZ Label_Error_Overflow");
             }
 
         } else {
-            // Lógica Entera (INT)
+            // INT
             w.println("    MOV EAX, " + val1);
             switch (t.operador) {
                 case "+": w.println("    ADD EAX, " + val2); break;
                 case "-": w.println("    SUB EAX, " + val2); break;
                 case "*": w.println("    IMUL EAX, " + val2); break;
                 case "/":
-                    w.println("    ; Chequeo Div Cero (Int)");
                     w.println("    MOV ECX, " + val2);
                     w.println("    CMP ECX, 0");
                     w.println("    JE Label_Error_DivZero");
@@ -433,10 +422,6 @@ public class GeneradorAssembler {
         w.println("    " + instruccionSalto + " " + destino);
     }
 
-    // ---------------------------------------------------------
-    // 4. UTILIDADES
-    // ---------------------------------------------------------
-
     private String resolverLabel(String raw) {
         if (raw == null) return "Label_Error";
         if (esReferencia(raw)) {
@@ -450,21 +435,15 @@ public class GeneradorAssembler {
         if (esReferencia(raw)) {
             return "@temp_terceto_" + obtenerIdDesdeReferencia(raw);
         }
-        // Buscar en constantes registradas
         if (constantesFloat.containsKey(raw)) {
             return constantesFloat.get(raw);
         }
-
-        // Si es un número literal que no se registró
         if (esNumero(raw)) {
-            // Si es entero puro, devolver raw
             if (!raw.contains(".") && !raw.toLowerCase().contains("e")) {
                 return raw;
             }
-            // Si es float literal, devolver raw para evitar errores de truncado
             return raw;
         }
-
         return limpiarNombre(raw);
     }
 
@@ -473,7 +452,8 @@ public class GeneradorAssembler {
     }
 
     private String limpiarNombre(String s) {
-        if (s == null) return "";
+        if (s == null)
+            return "";
         String resultado = s.replace(".", "_");
         return resultado.replaceAll("[^a-zA-Z0-9_]", "_");
     }
@@ -483,7 +463,8 @@ public class GeneradorAssembler {
     }
 
     private boolean esNumero(String s) {
-        if (s == null || s.isEmpty()) return false;
+        if (s == null || s.isEmpty())
+            return false;
         return s.matches("-?\\d+(\\.\\d*)?([eEfF][-+]?\\d+)?");
     }
 

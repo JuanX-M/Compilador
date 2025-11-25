@@ -8,7 +8,6 @@ import java.util.ArrayList;
  */
 public class Info {
 
-
     private final String nombre;
     private final String token;
     private final String tipo;
@@ -28,17 +27,15 @@ public class Info {
         this.uso = null;
         this.ambito = null;
         this.nroTercetoEtiqueta=null;
-
     }
 
     public Info(String nombre, String token, String tipo, String ambito) {
         this.nombre = nombre;
-        this.token = token; // creo que se calcula por lexico, cambiar esto
+        this.token = token;
         this.tipo = tipo;
         this.uso = null;
         this.ambito = ambito;
         this.nroTercetoEtiqueta=null;
-
     }
 
     public Info(String nombre, String token, String tipo, String uso, String ambito) {
@@ -48,7 +45,6 @@ public class Info {
         this.uso = uso;
         this.ambito = ambito;
         this.nroTercetoEtiqueta=null;
-
     }
 
     public Info(String nombre, String token, String tipo, String uso, String ambito,String nroTercetoEtiqueta) {
@@ -58,7 +54,6 @@ public class Info {
         this.uso = uso;
         this.ambito = ambito;
         this.nroTercetoEtiqueta=nroTercetoEtiqueta;
-
     }
 
     @Override
@@ -101,6 +96,7 @@ public class Info {
     public void setVarAux(String varAux){
         this.varAux=varAux;
     }
+
     public String getNroTercetoEtiqueta() {
         return nroTercetoEtiqueta;
     }

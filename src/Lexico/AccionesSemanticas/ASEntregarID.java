@@ -1,11 +1,8 @@
 package Lexico.AccionesSemanticas;
 
 import Tools.Cursor;
-import Tools.Info;
 import Tools.Logger;
 import Tools.Pair;
-
-import static Tools.TablaSimbolos.TABLA_SIMBOLOS;
 import static Tools.TablaPalabrasReservadas.TABLA_PALABRAS_RESERVADAS;
 
 public class ASEntregarID extends AccionSemantica {
@@ -24,7 +21,5 @@ public class ASEntregarID extends AccionSemantica {
         cursor.gobackCharacter();
         BUFFER.setLength(0);
         return new Pair<>(aux, TABLA_PALABRAS_RESERVADAS.get("id"));
-
     }
-
 }

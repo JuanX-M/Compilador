@@ -10,9 +10,6 @@ import java.util.stream.Collectors;
 
 public class AnalizadorLexico {
 
-    //private final int ESTADOS = 17; //filas
-    //private final int SIMBOLOS = 28; //columnas
-
     public static int ESTADO_ANTERIOR = 0;
     private MatrizTransicion matrizTransicion;
     private final Cursor cursor; //es final?
@@ -43,7 +40,7 @@ public class AnalizadorLexico {
                 acc = Integer.parseInt(linea[3].trim());
 
             } catch (NumberFormatException e) {
-                System.out.println("Error en cargar matriz" + e.getMessage()); //TODO:Salida por error de formato
+                System.out.println("Error en cargar matriz" + e.getMessage());
             }
             this.matrizTransicion.addTransicion(e0, e1, e2, toAccionSemantica(acc));
         }
@@ -74,7 +71,6 @@ public class AnalizadorLexico {
             as = matrizTransicion.getAccionSemantica(estado, caracter);
             ESTADO_ANTERIOR = estado;
             estado = matrizTransicion.getEstado(estado, caracter);
-            //System.out.println(" siguiente estado: " + estado);
             boolean reiniciar = false;
             if (estado == -1) {
                 new ASError().run(caracter, cursor);
@@ -99,9 +95,8 @@ public class AnalizadorLexico {
                             estado = 0;
                             reiniciar = true;
                         }
-                        else {
+                        else
                             token = posibleToken;
-                        }
                     }
             if (reiniciar) {
                 new ASVaciarBuffer().run(caracter, cursor);
@@ -114,23 +109,22 @@ public class AnalizadorLexico {
                     return token;
                 }
                 cursor.next();
-                }
             }
-            if (cursor.hasFinished()) {
-                new ASVaciarBuffer().run(' ', cursor);
-                return new Pair<>("EOF", 0);
-            }
-            new ASVaciarBuffer().run(' ', cursor);
-            return generarToken();
         }
+        if (cursor.hasFinished()) {
+            new ASVaciarBuffer().run(' ', cursor);
+            return new Pair<>("EOF", 0);
+        }
+        new ASVaciarBuffer().run(' ', cursor);
+        return generarToken();
+    }
 
     public ArrayList<Pair<String,Integer>> getTodosLosTokens() {
         ArrayList<Pair<String,Integer>> salida = new ArrayList<>();
         while (!cursor.hasFinished()) {
             Pair<String,Integer> token = generarToken();
-            if (token != null) {
+            if (token != null)
                 salida.add(token);
-            }
         }
         return salida;
     }

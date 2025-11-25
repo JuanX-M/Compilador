@@ -6,9 +6,11 @@ import Tools.Pair;
 import static Tools.TablaPalabrasReservadas.TABLA_PALABRAS_RESERVADAS;
 
 public class ASEntregarComparadores extends AccionSemantica{
+
     public ASEntregarComparadores(){
         super(8);
     }
+
     @Override
     public Pair<String, Integer> run(Character simbolo, Cursor cursor) {
         if ((simbolo == '=') || (simbolo == '!')) {

@@ -1,6 +1,5 @@
 package Tools;
 
-// Clase genérica para representar un par de valores
 public class Pair<T, U> {
     private  T first;
     private  U second;

@@ -411,17 +411,17 @@ sentencia_lambda
                 ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
                 ((Terceto)$$.obj).addTipo(TablaSimbolos.TABLA_SIMBOLOS.get($1.sval).getTipo());
             }
-        }   cuerpo_lambda {reducirAmbito();} argumento_lambda {
-                if ($5.sval != null && $1.sval != null) {
+        }   cuerpo_lambda argumento_lambda {
+                if ($4.sval != null && $1.sval != null) {
                     Info infoPar = TablaSimbolos.TABLA_SIMBOLOS.get($1.sval);
-                    Info infoArg = TablaSimbolos.TABLA_SIMBOLOS.get($5.sval);
+                    Info infoArg = TablaSimbolos.TABLA_SIMBOLOS.get($4.sval);
                     int numTercetoBackpatch = pila.pop();
                     if (infoPar != null && infoArg != null){
                         if(infoArg.getUso().contains("SE")){
                             Logger.logError(cursor.getCurrentLine(), "El Argumento '" +infoArg.getNombre()+ "' es SE, no puede ser leido");
                         }
                         if(infoPar.getTipo().equals(infoArg.getTipo())) {
-                            listaTercetos.get(numTercetoBackpatch -1).addThird(getReferencia($5));
+                            listaTercetos.get(numTercetoBackpatch -1).addThird(getReferencia($4));
                         } else {
                             listaTercetos.remove(numTercetoBackpatch -1);
                             Logger.logError(cursor.getCurrentLine(), "Incompatibilidad de tipos en parametro y argumento de sentencia Lambda");
@@ -801,13 +801,25 @@ cuerpo_lambda
 
 cuerpo_lambda_error
     :   cuerpo_ejecutable '}'   {Logger.logError(cursor.getCurrentLine(), "Falta delimitador izquierdo '{' del cuerpo lambda");}
+    //|   '{' cuerpo error      {Logger.logError(cursor.getCurrentLine(), "Falta delimitador derecho '}' del cuerpo lambda");}
     |   '{' '}'                 {Logger.logError(cursor.getCurrentLine(), "Falta de cuerpo en sentencia lambda");}
     ;
 
 argumento_lambda
-    :   '(' variable ')'  {$$.sval = $2.sval;}
-    |   '(' CTE_INT ')' {$$.sval = $2.sval;}
-    |   '(' CTE_FLOAT ')' {$$.sval = $2.sval;}
+    :   '(' variable ')'  {
+            reducirAmbito();
+            $$.sval = $2.sval;
+        }
+    |   '(' CTE_INT ')' {
+            reducirAmbito();
+            controlarEntero($2.sval);
+            $$.sval = $2.sval;
+        }
+    |   '(' CTE_FLOAT ')' {
+            reducirAmbito();
+            controlarFlotante($2.sval);
+            $$.sval = $2.sval;
+        }
     | argumento_lambda_error
     ;
 
@@ -881,11 +893,6 @@ expresion_aritmetica
             ((Terceto)$$.obj).addTipo($$.sval);
             Logger.logRule(cursor.getCurrentLine(), "Sentencia EXPRESION ARITMETICA");
         }
-    |   expresion_aritmetica_toi {
-            $$ = $1;
-            //devolvemos el terceto
-            Logger.logRule(cursor.getCurrentLine(), "Sentencia TOI");
-        }
     |   termino { $$=$1;}
     |   expresion_aritmetica_error
     ;
@@ -938,6 +945,8 @@ sentencia_ejecutable
 
 encabezado_iteracion
     :   ID FROM CTE_INT TO CTE_INT {
+            controlarEntero($3.sval);
+            controlarEntero($5.sval);
             int aux1;
     	    aux1 = Integer.parseInt($3.sval);
     	    int aux2;
@@ -968,7 +977,7 @@ encabezado_iteracion
                 }
                 else{
                     $$=crearTerceto(new ParserVal(">"), $1, $5); //Creamos el Terceto de la condicion mayor
-                    }
+                }
                 listaTercetos.add((Terceto)$$.obj);
                 ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
                 ((Terceto)$$.obj).addTipo("INT");
@@ -1195,24 +1204,25 @@ termino_error
 
 expresion_aritmetica_toi
     :   TOI '(' expresion_aritmetica ')' {
+            String auxtoi = "auxtoi" + contadorToi;
+            contadorToi++;
             int indice = ambito.indexOf('.');
             String ambitotoi = (indice != -1) ? ambito.substring(0, indice) : ambito;
-            System.out.println("Ambito TOI: " + ambitotoi);
             if (getTipoParserVal($3).equals("INT")){
             	Logger.logWarning(cursor.getCurrentLine(), "Variable en sentencia TOI ya es de tipo entero");
             } else {
-	    	    if (!TablaSimbolos.TABLA_SIMBOLOS.containsKey("auxtoi")){
-		            TablaSimbolos.TABLA_SIMBOLOS.put("auxtoi", new Info("auxtoi", "ID", "INT", "Variable", ambitotoi));
+	    	    if (!TablaSimbolos.TABLA_SIMBOLOS.containsKey(auxtoi)){
+		            TablaSimbolos.TABLA_SIMBOLOS.put(auxtoi, new Info(auxtoi, "ID", "INT", "Variable", ambitotoi));
 	            }
 	            $$=crearTerceto($1,$3,null);
 	            listaTercetos.add((Terceto)$$.obj);
 	            ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
 	            ((Terceto)$$.obj).addTipo("FLOAT");
-	            $$ = crearTerceto(new ParserVal(":="),new ParserVal("auxtoi"),$$);
+	            $$ = crearTerceto(new ParserVal(":="),new ParserVal(auxtoi),$$);
                 listaTercetos.add((Terceto)$$.obj);
                 ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
                 ((Terceto)$$.obj).addTipo("INT");
-                $$ = new ParserVal("auxtoi");
+                $$ = new ParserVal(auxtoi);
             }
         }
     |   expresion_aritmetica_toi_error
@@ -1364,6 +1374,11 @@ factor
                     }
                 }
             }
+        }
+    |   expresion_aritmetica_toi {
+            $$ = $1;
+            //devolvemos el terceto
+            Logger.logRule(cursor.getCurrentLine(), "Sentencia TOI");
         }
     ;
 
@@ -1593,6 +1608,7 @@ static Stack<Integer> pila = new Stack<>();
 static ArrayList<Terceto> listaTercetos = new ArrayList<>();
 static int contadorVariablesAuxTercetos = 0;
 static int contadorParaBF = 0;
+static int contadorToi = 1;
 static final Double MAX_VALUE_POS = 3.40282347E38;
 static final Double MIN_VALUE_POS = 1.17549435E-38;
 static final Double MAX_VALUE_NEG = -1.17549435E-38;

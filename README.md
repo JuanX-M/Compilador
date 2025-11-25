@@ -8,14 +8,13 @@
 * Realizar chequeo de constantes negativas
 * chequear que el compilador no se rompa al tener errores de sintaxis
 
-* Hacer chequeos en tiempo en ejecucion 
-* Chequeos en tiempo de ejecucion
-  * Division por cero para Int y Float
-  * Overflow en productos de datos de Float
-  * Perdida de informacion en conversion de Float a Int
 
 
 ### Cosas que andan:
+* Chequeos en tiempo de ejecucion
+    * Division por cero para Int y Float
+    * Overflow en productos de datos de Float
+    * Perdida de informacion en conversion de Float a Int
 * chequeo de tipo/alcance en argumento lambda con ID, hay que agregar a la gramatica ID'.'ID en argumento lambda y que su Uso no sea CR SE
 * agregar sentencias lambdas a casos de pruebas con error
 * Descartar generacion de codigo assembler cuando hay syntax error
