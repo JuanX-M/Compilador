@@ -1,4 +1,5 @@
 MAIN{
+    var Y := 2.;
     float fun F1 (float X1){
         for (X from 1I to 5I){
             if(X <= 2I){
@@ -9,7 +10,6 @@ MAIN{
         };
         return(X1);
     };
-    var Y := 2.;
     var Z := fun F1(Y->X1);
     print(Z); ## tiene que imprimir 13.0 ##
 }
