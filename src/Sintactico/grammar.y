@@ -122,8 +122,6 @@ funcion
             // 3. Completamos el BI. Como el BI se creó con (BI, null, null),
             // el destino suele ir en el segundo operando.
             listaTercetos.get(numTercetoBI - 1).addSecond(destino);
-
-
         }
     |   sentencia_lambda    {Logger.logRule(cursor.getCurrentLine(), "Sentencia LAMBDA");}
     ;
@@ -160,7 +158,7 @@ sentencia_print_error
 
 sentencia_seleccion
     :   IF parametros_seleccion cuerpo_seleccion  ENDIF  {
-            $$=$3;
+            $$=$4;
         }
     |   sentencia_seleccion_sin_endif  {Logger.logError(cursor.getCurrentLine(), "Falta de endif");}
     ;
@@ -524,6 +522,7 @@ lista_exp_aritmeticas_error
 
 parametros_seleccion
     :   '(' condicion ')'  {
+            Logger.logRule(cursor.getCurrentLine(), "Sentencia IF");
             //Creamos terceto BF incompleto, pusheamos a la pila su nro de terceto y agregamos arraylist
             $$= crearTerceto(new ParserVal("BF"), $2, null);
             int numTercetoActual = ((Terceto)$$.obj).getSoloNumTerceto();
@@ -1098,6 +1097,7 @@ sentencia_ejecucion_retorno
 
 sentencia_retorno
     : RETURN '(' lista_exp_aritmeticas ')' ';' {
+    	if (ambito.contains(".")) {
             int ultimoPunto = ambito.lastIndexOf('.');
             String nombreFuncion = ambito.substring(ultimoPunto + 1);
             String ambitoPadre = ambito.substring(0, ultimoPunto);
@@ -1108,35 +1108,31 @@ sentencia_retorno
                 ArrayList<String> listaVariablesRetorno = infoFuncion.getListaVariablesRetorno();
                 ArrayList<String> listaParametrosFormales = infoFuncion.getListaParametrosFormales();
                 ArrayList<ParserVal> listaExpAritmeticas = (ArrayList<ParserVal>)$3.obj;
-                if (listaVariablesRetorno.size() > listaExpAritmeticas.size()) {
+                if (listaVariablesRetorno.size() > listaExpAritmeticas.size())
                     Logger.logError(cursor.getCurrentLine(),
                         "La función declara " + listaVariablesRetorno.size() +
                         " tipos de retorno, pero retorna solo " + listaExpAritmeticas.size() + " valores.");
-                } else if (listaExpAritmeticas.size() > listaVariablesRetorno.size()) {
+                else if (listaExpAritmeticas.size() > listaVariablesRetorno.size())
                     Logger.logError(cursor.getCurrentLine(),
                         "La función retorna " + listaExpAritmeticas.size() +
                         " valores, pero solo se declararon " + listaVariablesRetorno.size() + " tipos de retorno.");
-                }
                 // Generación de tercetos de asignación de retorno
                 for (int i = 0; i < listaVariablesRetorno.size() && i < listaExpAritmeticas.size(); i++){
                     ParserVal variableEsperada = new ParserVal(listaVariablesRetorno.get(i));
                     ParserVal expresionRetornada = listaExpAritmeticas.get(i);
-
-                    if (!checkTipo(variableEsperada, expresionRetornada)) {
+                    if (!checkTipo(variableEsperada, expresionRetornada))
                         Logger.logError(cursor.getCurrentLine(),
                             "Error de tipo en retorno (posición " + (i+1) + "): Se esperaba " +
                             getTipoParserVal(variableEsperada) + " pero se encontró " + getTipoParserVal(expresionRetornada));
-                    }
                     ParserVal t = crearTerceto(new ParserVal(":="), variableEsperada, expresionRetornada);
                     listaTercetos.add((Terceto)t.obj);
                     ((Terceto)t.obj).addLine(cursor.getCurrentLine());
                     Info infoVar = TablaSimbolos.TABLA_SIMBOLOS.get(variableEsperada.sval);
-                    if (infoVar != null) {
+                    if (infoVar != null)
                         ((Terceto)t.obj).addTipo(infoVar.getTipo());
-                    }
                 }
                 // Asignación de parámetros formales CR (Copia Resultado) a auxiliares
-                if (listaParametrosFormales != null) {
+                if (listaParametrosFormales != null)
                     for (int i = 0; i < listaParametrosFormales.size(); i++){
                         Info paramInfo = TablaSimbolos.TABLA_SIMBOLOS.get(listaParametrosFormales.get(i));
                         if (paramInfo != null && paramInfo.getUso().contains("CR")){
@@ -1144,21 +1140,20 @@ sentencia_retorno
                             ParserVal asig = crearTerceto(new ParserVal(":="), new ParserVal(auxString), new ParserVal(listaParametrosFormales.get(i)));
                             listaTercetos.add((Terceto)asig.obj);
                             ((Terceto)asig.obj).addLine(cursor.getCurrentLine());
-
                             Info infoAux = TablaSimbolos.TABLA_SIMBOLOS.get(auxString);
-                            if (infoAux != null) {
+                            if (infoAux != null)
                                 ((Terceto)asig.obj).addTipo(infoAux.getTipo());
-                            }
                         }
                     }
             }
-        }
             ParserVal tRet = crearTerceto(new ParserVal("RET"), null, null);
             listaTercetos.add((Terceto)tRet.obj);
             ((Terceto)tRet.obj).addLine(cursor.getCurrentLine());
             $$ = tRet;
        }
-
+       else
+            Logger.logError(cursor.getCurrentLine(), "Se intento retornar desde el ambito global");
+    }
     | sentencia_retorno_sin_coma
     ;
 
@@ -1342,7 +1337,6 @@ semantica_pasaje_error
 
 sentencia_seleccion_retorno
     :   IF parametros_seleccion cuerpo_seleccion_retorno ENDIF {
-
             $$=$3;
         }
     |   sentencia_seleccion_sin_endif_retorno  {Logger.logError(cursor.getCurrentLine(), "Falta de endif");}
