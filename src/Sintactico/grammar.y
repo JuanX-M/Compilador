@@ -568,7 +568,6 @@ cuerpo_iteracion
             //Saco el nro de terceto del BF incompleto de la pila
             if (!pila.isEmpty()){
 		    int numTercetoBackpatch = pila.pop();
-		    System.out.println("Pasa");
 		    Integer aux= Integer.parseInt(getReferencia($2).replaceAll("\\D","")) + 4 ;
 		    String auxString = "(" + String.valueOf(aux) + ")";
 		    listaTercetos.get(numTercetoBackpatch -1).addThird(auxString); /* completo el tercer operando del BF*/
