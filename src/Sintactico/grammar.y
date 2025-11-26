@@ -240,6 +240,7 @@ sentencia_seleccion_sin_endif
 
 sentencia_iteracion
    :   FOR parametros_iteracion cuerpo_iteracion {
+
            if ($2.obj != null){
                //Creo el terceto de incremento/decremento de la variable de control del for
 
@@ -554,25 +555,25 @@ parametros_iteracion
     ;
 
 parametros_iteracion_error
-    :   encabezado_iteracion ')'    {Logger.logError(cursor.getCurrentLine(), "Falta de '(' en condicion de iteracion");}
-    |   '(' encabezado_iteracion    {Logger.logError(cursor.getCurrentLine(), "Falta de ')' en condicion de iteracion");}
-    |   encabezado_iteracion        {Logger.logError(cursor.getCurrentLine(), "Falta de '()' en condicion de iteracion");}
+    :   encabezado_iteracion ')'    {$$.sval = null; Logger.logError(cursor.getCurrentLine(), "Falta de '(' en condicion de iteracion");}
+    |   '(' encabezado_iteracion    {$$.sval = null; Logger.logError(cursor.getCurrentLine(), "Falta de ')' en condicion de iteracion");}
+    |   encabezado_iteracion        {$$.sval = null; Logger.logError(cursor.getCurrentLine(), "Falta de '()' en condicion de iteracion");}
     ;
 
 cuerpo_iteracion
     :   '{' cuerpo_ejecutable '}'{
             //obtengo referencia terceto de cuerpo_ejecutable, parseo a integer  y hago + 4
             // porque tengo terceto BI y terceto de incremeto de variable de control del for0
-            System.out.println("obj : "+$2.obj);
-            System.out.println("sval: "+$2.sval);
 
             //Saco el nro de terceto del BF incompleto de la pila
-            int numTercetoBackpatch = pila.pop();
-            Integer aux= Integer.parseInt(getReferencia($2).replaceAll("\\D","")) + 4 ;
-	    	String auxString = "(" + String.valueOf(aux) + ")";
-
-	    	listaTercetos.get(numTercetoBackpatch -1).addThird(auxString); /* completo el tercer operando del BF*/
-	        $$=$2;
+            if (!pila.isEmpty()){
+		    int numTercetoBackpatch = pila.pop();
+		    System.out.println("Pasa");
+		    Integer aux= Integer.parseInt(getReferencia($2).replaceAll("\\D","")) + 4 ;
+		    String auxString = "(" + String.valueOf(aux) + ")";
+		    listaTercetos.get(numTercetoBackpatch -1).addThird(auxString); /* completo el tercer operando del BF*/
+ 		    $$=$2;
+ 	    }
     	}
     |   cuerpo_iteracion_error
     ;
@@ -1012,11 +1013,11 @@ encabezado_iteracion
     ;
 
 encabezado_iteracion_error
-    :   FROM CTE_INT TO CTE_INT {Logger.logError(cursor.getCurrentLine(), "Falta de encabezado ID del for");}
-    |   ID CTE_INT TO CTE_INT   {Logger.logError(cursor.getCurrentLine(), "Falta de encabezado FROM del for");}
-    |   ID FROM TO CTE_INT      {Logger.logError(cursor.getCurrentLine(), "Falta de encabezado CTE_INT_1 del for");}
-    |   ID FROM CTE_INT CTE_INT {Logger.logError(cursor.getCurrentLine(), "Falta de encabezado TO del for");}
-    |   ID FROM CTE_INT TO      {Logger.logError(cursor.getCurrentLine(), "Falta de encabezado CTE_INT_2 del for");}
+    :   FROM CTE_INT TO CTE_INT {$$.sval = null; Logger.logError(cursor.getCurrentLine(), "Falta de encabezado ID del for");}
+    |   ID CTE_INT TO CTE_INT   {$$.sval = null; Logger.logError(cursor.getCurrentLine(), "Falta de encabezado FROM del for");}
+    |   ID FROM TO CTE_INT      {$$.sval = null; Logger.logError(cursor.getCurrentLine(), "Falta de encabezado CTE_INT_1 del for");}
+    |   ID FROM CTE_INT CTE_INT {$$.sval = null; Logger.logError(cursor.getCurrentLine(), "Falta de encabezado TO del for");}
+    |   ID FROM CTE_INT TO      {$$.sval = null; Logger.logError(cursor.getCurrentLine(), "Falta de encabezado CTE_INT_2 del for");}
     ;
 
 lista_variables
