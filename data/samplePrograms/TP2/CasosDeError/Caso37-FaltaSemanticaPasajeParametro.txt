@@ -1,7 +1,7 @@
 ##Prueba error cuando falta pasaje de parametro en uno de los lados##
 
 FALTACOMAS{
-    int,float,string fun A(le int X, le float Y, cr string Z){
+    int,float, int fun A(le int X, le float Y, cr int Z){
          return(X,Y,Z);
-    }
+    };
 }

@@ -8,6 +8,6 @@ FALTA%NOMBRE%FUNCION%{
 ##Declaracion Funcion sin nombre##
     int fun (int X){
         return(X);
-    }
+    };
 
 }

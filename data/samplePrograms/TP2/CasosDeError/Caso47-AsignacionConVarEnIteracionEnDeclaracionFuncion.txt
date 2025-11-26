@@ -6,11 +6,11 @@ ASIGVARFUNCITER{
         for (J from 2I to 4I){
             var X:=2I;
         };
-        if (A <= 2I){
-            for (J from 2I to 4I){
-            var X:=2I;
-        };
+        if (X <= 2I){
+            for (K from 2I to 4I){
+                var X:=2I;
+            };
         } endif;
-    return(X);
-    }
+        return(X);
+    };
 }

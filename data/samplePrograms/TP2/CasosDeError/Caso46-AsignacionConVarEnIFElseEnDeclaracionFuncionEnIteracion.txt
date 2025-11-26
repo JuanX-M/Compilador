@@ -4,8 +4,8 @@
 ASIGVARITERIFELSE{
     for (J from 2I to 4I){
         int fun F1(int X) {
-            (int A)  {var RESULTADO := VALOR * 2I;} (R)
-        return (X);
-        }
+            (int A)  {A := X * 2I;} (X);
+            return (X);
+        };
     };
 }

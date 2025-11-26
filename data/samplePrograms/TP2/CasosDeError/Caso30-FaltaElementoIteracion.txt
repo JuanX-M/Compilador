@@ -15,11 +15,9 @@ FALTA%CUERPO{
         print("prueba");
     };
 
-##Para caso cuando falta to tira error##
-##  for ( ID from  0I  5I) {
-    print("prueba");
-    };##
-
+    for ( ID from  0I  5I) {
+        print("prueba");
+    };
 
     for ( ID from 0I to ) {
         print("prueba");

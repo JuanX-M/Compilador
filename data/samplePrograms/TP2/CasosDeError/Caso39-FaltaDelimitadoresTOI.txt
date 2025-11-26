@@ -2,7 +2,8 @@
 TOI##
 
 FALTADELIMITADORESTOI{
+    var A := 2I;
     var X:= toi A+1I;
-    var X:= toi (A+1I;
-    var X:= toi A+1I);
+    var Y:= toi (A+1I;
+    var Z:= toi A+1I);
 }

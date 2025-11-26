@@ -215,11 +215,13 @@ cuerpo_seleccion
     ;
 
 cuerpo_seleccion_error
-    :   '{' '}' {Logger.logError(cursor.getCurrentLine(), "Falta de cuerpo en seleccion");}
+    :   '{' '}' {$$.sval = null; Logger.logError(cursor.getCurrentLine(), "Falta de cuerpo en seleccion");}
     ;
 
 parte_if
     :   cuerpo_ejecutable {
+    		System.out.println("ENTRA");
+    		System.out.println($1.obj);
             //aca se completa BF con nro de terceto del cuerpo_ejecutable + 1
             int numTercetoBackpatch = pila.peek();
             //obtengo referencia terceto de cuerpo_ejecutable, parseo a integer  y hago + 1
@@ -568,7 +570,6 @@ cuerpo_iteracion
             //Saco el nro de terceto del BF incompleto de la pila
             if (!pila.isEmpty()){
 		    int numTercetoBackpatch = pila.pop();
-		    System.out.println("Pasa");
 		    Integer aux= Integer.parseInt(getReferencia($2).replaceAll("\\D","")) + 4 ;
 		    String auxString = "(" + String.valueOf(aux) + ")";
 		    listaTercetos.get(numTercetoBackpatch -1).addThird(auxString); /* completo el tercer operando del BF*/

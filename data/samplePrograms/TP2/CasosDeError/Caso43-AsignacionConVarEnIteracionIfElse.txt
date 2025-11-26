@@ -1,12 +1,13 @@
 ##Prueba error cuando se realiza una asignacion de una variable con
 "var" dentro de un if-else de un cuerpo iteracion ##
 
-ASIGVARITERIFELSE{
+MAIN{
+    var A := 1I;
     for (J from 2I to 4I){
-        if (A <= 2I){
+        if (MAIN.A <= 2I){
             var B:=3I;
     } endif;
-    if (A <= 2I){
+    if (MAIN.A <= 2I){
         C:=3I;
     } else {
         var D:=3I;

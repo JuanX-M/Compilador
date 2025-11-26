@@ -1,6 +1,12 @@
 ##Caso de error cuando falta , en ambos lados de una asignacion##
 
 FALTACOMAS{
+    var A := 1I;
+    var B := 2I;
+    var C := 3I;
+    var X := 4I;
+    var Y := 5I;
+    var Z := 6.;
     A,B = X Y+1I toi(Z);
     A B = X,Y+1I,toi(Z);
     A B C = X Y Z;
