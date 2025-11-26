@@ -189,7 +189,6 @@ cuerpo_seleccion
             int numTercetoBackpatch = pila.pop(); // hago pop() del nro de terceto del BI incompleto
             Integer aux= Integer.parseInt(getReferencia($7).replaceAll("\\D","")) + 1 ;
             String auxString = "(" + String.valueOf(aux) + ")";
-            System.out.println(listaTercetos.get(numTercetoBackpatch -1));
             listaTercetos.get(numTercetoBackpatch -1).addSecond(auxString);// completo el tercer operando del BI
             // Creacion etiqueta
             int numTercetoActual = listaTercetos.get(listaTercetos.size()-1).getSoloNumTerceto() + 1;
@@ -220,8 +219,6 @@ cuerpo_seleccion_error
 
 parte_if
     :   cuerpo_ejecutable {
-    		System.out.println("ENTRA");
-    		System.out.println($1.obj);
             //aca se completa BF con nro de terceto del cuerpo_ejecutable + 1
             int numTercetoBackpatch = pila.peek();
             //obtengo referencia terceto de cuerpo_ejecutable, parseo a integer  y hago + 1
@@ -303,7 +300,6 @@ encabezado_funcion
              } else {
                  TablaSimbolos.TABLA_SIMBOLOS.put(aux ,new Info($3.sval, $2.sval, "INT", "Funcion", ambito));
                  TablaSimbolos.TABLA_SIMBOLOS.get(aux).setListaVariablesRetorno(new ArrayList<>((ArrayList<String>)$1.obj));
-                 System.out.println("auxInfo:"+TablaSimbolos.TABLA_SIMBOLOS.get(aux));
              }
              ambito += '.' + $3.sval;
     }   '(' lista_param_formales ')' {
@@ -932,16 +928,14 @@ expresion_aritmetica_error
 
 condicion
     :   expresion_aritmetica simbolo_comparador expresion_aritmetica    {
-            //TODO: HAY QUE CHEQUEAR SI ES UNA FUNCION CON MULTIPLES RETORNOS, SI HAY EN ALGUNO DE AMBOS LADOS TIRAR ERROR SEMANTICO
-            //Y AGARRAR EL DEL POSICION 0
-            if (!checkTipo($1, $3)) {
-                 Logger.logError(cursor.getCurrentLine(), "Tipos incompatibles en condicion entre " + getTipoParserVal($1) + " y " + getTipoParserVal($3));
-            }
-            //Crea el terceto de la condicion
-            $$ = crearTerceto($2, $1, $3);
-            listaTercetos.add((Terceto)$$.obj);
-            ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
-            ((Terceto)$$.obj).addTipo(getTipoParserVal($3));
+	    if (!checkTipo($1, $3)) {
+		 Logger.logError(cursor.getCurrentLine(), "Tipos incompatibles en condicion entre " + getTipoParserVal($1) + " y " + getTipoParserVal($3));
+	    }
+	    //Crea el terceto de la condicion
+	    $$ = crearTerceto($2, $1, $3);
+	    listaTercetos.add((Terceto)$$.obj);
+	    ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+	    ((Terceto)$$.obj).addTipo(getTipoParserVal($3));
         }
     |   condicion_error
     ;
@@ -1500,12 +1494,11 @@ cuerpo_iteracion_retorno
             int numTercetoBackpatch = pila.pop();
             //obtengo referencia terceto de cuerpo_ejecutable, parseo a integer  y hago + 3
             // porque tengo terceto BI y terceto de incremeto de variable de control del for
-            System.out.println("Raaa: " + $2.obj + "Juan que carajo es esto? 19/11/25");
+            //System.out.println("Raaa: " + $2.obj + "Juan?????? 19/11/25");
             Integer aux= Integer.parseInt(getReferencia($2).replaceAll("\\D","")) + 3 ;
             String auxString = "(" + String.valueOf(aux) + ")";
             listaTercetos.get(numTercetoBackpatch -1).addThird(auxString); /* completo el tercer operando del BF*/
         }
-//    |   cuerpo_iteracion_error
     ;
 
 cuerpo_ejecutable_retorno
@@ -1681,13 +1674,13 @@ static boolean haySentenciasRetorno = false;
 
 public static void main (String [] args) {
 	System.out.println("Iniciando compilación..."); System.out.println(""); System.out.println(""); System.out.println("");
-	/*Scanner lector = new Scanner(System.in);
+
+	Scanner lector = new Scanner(System.in);
 	System.out.println("Usted se encuentra en: " + System.getProperty("user.dir"));
 	System.out.println("Ingrese el archivo deseado, este debe estar dentro de data");
 	String programa = lector.nextLine();
 	lector.close();
-	*/
-	String programa = "testing.txt"; //TODO:Despues lo cambiamos
+
 	TablaPalabrasReservadas tablaPalabrasReservadas = new TablaPalabrasReservadas();
 	tablaPalabrasReservadas.cargarTabla();
 	lex = new AnalizadorLexico (programa) ;
@@ -1695,13 +1688,26 @@ public static void main (String [] args) {
 	par = new Parser (false);
 	par.run () ;
 	listaTercetos.sort(Comparator.comparingInt(Terceto::getSoloNumTerceto));
-	System.out.println("\nLista de Tercetos: "+ listaTercetos);
 	for(Terceto t : listaTercetos){
 		Logger.logTerceto(t.getLinea(), t);
 	}
 	String rutaTercetos = "data/tercetos.txt";
 	String rutaASM = "data/programa.asm";
 	Logger.exportarTercetos(rutaTercetos);
+
+	System.out.println("TablaSimbolos: " + TablaSimbolos.TABLA_SIMBOLOS);
+
+	System.out.println(); System.out.println();
+
+	System.out.println(Logger.generateLog());
+
+	System.out.println(); System.out.println();
+
+	System.out.println("\nLista de Tercetos: "+ listaTercetos);
+
+	System.out.println(); System.out.println();
+
+
 	if (Logger.hayErrores()){
 		System.out.println("Se descarta generacion de codigo assembler debido a errores");
 	}
@@ -1710,8 +1716,6 @@ public static void main (String [] args) {
 		GeneradorAssembler generador = new GeneradorAssembler();
 		generador.generarArchivoASM(rutaTercetos, rutaASM);
 	}
-	System.out.println("TablaSimbolos: " + TablaSimbolos.TABLA_SIMBOLOS);
-	System.out.println(Logger.generateLog());
 	System.out.println("\nFin compilación");
 }
 
