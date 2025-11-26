@@ -1,0 +1,24 @@
+##
+Anidamiento entre sentencias if-else en funcion con retornos
+##
+MAIN{
+    var A:=1I;
+    var B:=2I;
+    var C:=3I;
+    var X:= 5I;
+    int fun F1(int X1){
+        var J:= 1I;
+        X1 := 0I;
+        if (MAIN.X < MAIN.A){
+            J := X1;
+            return (J);
+        } else {
+            return (MAIN.X);
+        }endif;
+        return(0I);
+    };
+
+
+
+
+}
