@@ -790,12 +790,12 @@ lista_param_formales
 sentencia_funcion
     :   sentencia
     |   sentencia_ejecucion_retorno ';'
-    |   sentencia_ejecucion_retorno_sin_coma
+//    |   sentencia_ejecucion_retorno_sin_coma
     ;
 
-sentencia_ejecucion_retorno_sin_coma
-    :   sentencia_ejecucion_retorno  {Logger.logError(cursor.getCurrentLine(), "Falta de ';' al final de las sentencias.");}
-    ;
+//sentencia_ejecucion_retorno_sin_coma
+//    :   sentencia_ejecucion_retorno  {Logger.logError(cursor.getCurrentLine(), "Falta de ';' al final de las sentencias.");}
+//    ;
 
 parametro_lambda
     :   '(' tipo ID ')' {
@@ -1091,7 +1091,9 @@ parametro_formal_error
     ;
 
 sentencia_ejecucion_retorno
-    :   sentencia_seleccion_retorno
+    :   sentencia_seleccion_retorno sentencia_ejecucion_retorno
+    |   sentencia_seleccion_retorno
+    |   sentencia_iteracion_retorno sentencia_ejecucion_retorno
     |   sentencia_iteracion_retorno
     ;
 

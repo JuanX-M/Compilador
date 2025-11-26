@@ -1,7 +1,7 @@
-TESTING%LAMBDA%DENTROFUNCION{
+TESTING%LAMBDA{
     int fun F1(int R) {
         var A := 10I;
-        (int A) { var RESULTADO := VALOR * 2I;} (R)
+        (int A) { F1.R := A * 2I;} (R)
         return(0);
-    }
+    };
 }

@@ -1,8 +1,10 @@
-RETORNO%IF{
+MAIN{
     int fun F1(int Y){
         var J:= 1I;
-        if (X < A){
-            var X2 := X1;
-            return (X1);
-    }endif:
+        var A := Y;
+        if (J < A){
+            return (Y);
+        } endif;
+        return(A);
+    };
 }
