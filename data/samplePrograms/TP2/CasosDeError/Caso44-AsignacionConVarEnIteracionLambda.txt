@@ -3,6 +3,6 @@
 
 ASIGVARITERLAMBDA{
     for (J from 2I to 4I){
-        (int A)  {var RESULTADO := VALOR * 2I;} (R)
+        (int A)  {var RESULTADO := A * 2I;} (R)
     };
 }

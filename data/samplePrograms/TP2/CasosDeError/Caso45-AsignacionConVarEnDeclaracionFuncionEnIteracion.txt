@@ -5,7 +5,7 @@ ASIGVARITERIFELSE{
     for (J from 2I to 4I){
         int fun F1(int X) {
             var A:=2I;
-        return (X);
-        }
+            return (X);
+        };
     };
 }

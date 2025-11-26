@@ -4,5 +4,5 @@ en declaracion de funcion##
 FALTACOMAS{
     int float string fun A(int X, float Y, string Z){
         return(X Y Z);
-     }
+     };
 }
