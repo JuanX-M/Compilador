@@ -1,0 +1,95 @@
+##
+Casos Validos: Estruturas Sintacticas permitidas
+##
+ESTRUCTURAS{
+    ##
+    Sentencia declaracion de variables
+    ##
+    var A := 4I;
+    var X:= 3I;
+    var Z:=3.0;
+    var M:=2.0;
+    var N:= 1.0;
+
+    ##
+    Sentencia asignacion unaria
+    ##
+    X:= X +1I;
+    Z:=3.0;
+
+    ##
+    Sentencia asignacion multiple
+    ##
+    A,X,Z= X,A,Z;
+
+    ##
+    Expresiones aritmeticas
+    ##
+
+    X:= X + A;
+    X:= X + A + A;
+
+    X:= X - A;
+    X:= X - A - A;
+
+    X:= X / A;
+    X:= X / A / A;
+
+    X:= X * A;
+    X:= X * A * A;
+
+
+
+    X:= X / A - X * A;
+    X:= X / A + X * A;
+    X:= X * A - X / A;
+    X:= X * A + X / A;
+
+    X:= X - A + X / A * X + A;
+    X:= -1I;
+    X:= X * -3I + X / -2I;
+
+    X:= X * A + X / A;
+    X:= X - -2I + X / -4I * -1I + -9I;
+
+    X:= toi(Z);
+
+
+
+
+    X:= toi(M + N);
+    X:= toi(M - N);
+    X:= toi(M * N);
+    X:= toi(M / N);
+    X:= toi(M + N / Z);
+    X:= toi(M / N - M * N);
+    X:= toi(M / N + M * N);
+    X:= toi(M * N - M / N);
+    X:= toi(M * N + M / N);
+    X:= toi(M + M + M);
+    X:= toi(M - M - M);
+    X:= toi(M * M * M);
+    X:= toi(M / M / M);
+
+
+
+
+    Z:= M + M + M;
+    Z:= M - M - M;
+    Z:= M * M * M;
+    Z:= M / M / M;
+
+    Z:= M + N;
+    Z:= M - N;
+    Z:= M * N;
+    Z:= M / N;
+
+    Z:= M + N / Z;
+    Z:= M / N - M * N;
+    Z:= M / N + M * N;
+    Z:= M * N - M / N;
+    Z:= M * N + M * N;
+
+
+    Z:= M / N - M * N * M - Z / M;
+}

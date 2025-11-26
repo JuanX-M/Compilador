@@ -1,0 +1,41 @@
+##
+Casos Validos: Estruturas Sintacticas permitidas
+##
+ESTRUCTURAS{
+    var A := 4I;
+    var B:= 5I;
+    var C:=6I;
+    var D:=9I;
+    var X:= 3.;
+    var Y:= .3;
+    var Z:=3.0;
+
+    A,B,C= C,A,B;
+
+
+    X,Y,Z= Z,X,Y;
+
+    A,X,Z= toi(X),Y,X;
+
+    int,float,int fun F1(int P1, float P2, int P3){
+
+        float,float fun F2(float Q1, float Q2){
+            return (Q1 + Q2, Q1 - Q2);
+        };
+
+        var A:= 0I;
+        var B:= 0.1;
+        var C:= 4.3;
+         C,B= fun F2(B / 4.0->Q1, P2->Q2);
+
+        return (7I,8.0,9I);
+
+
+    };
+
+    A,X,B= fun F1(1I->P1,2.0->P2,3I->P3);
+
+    A,X,B,C,Y,D= fun F1(1I->P1,2.0->P2,3I->P3), fun F1(4I->P1,5.0->P2,6I->P3);
+
+
+}
