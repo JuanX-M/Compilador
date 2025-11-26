@@ -1,0 +1,43 @@
+##
+Anidamiento entre sentencias if-else
+##
+MAIN{
+    var A:=1I;
+    var B:=2I;
+    var C:=3I;
+
+    if (A < B) {
+        C := C + 1I;
+    } else {
+        C := C - 1I;
+    } endif;
+
+
+
+    if (B < A) {
+        C := C + 1I;
+    }endif;
+
+
+    if (A < B) {
+        if (C < A) {
+            C := C + 1I;
+        }endif;
+    } else {
+        C := C - 1I;
+    } endif;
+
+
+
+    if (A < B) {
+        C := C + 1I;
+    } else {
+        if (C < A) {
+            C := C + 1I;
+        }endif;
+    } endif;
+
+
+
+
+}
