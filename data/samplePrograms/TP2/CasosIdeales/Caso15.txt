@@ -1,7 +1,9 @@
 TESTING%LAMBDA{
-    int fun F1(int R) {
-        var A := 10I;
-        (int A) { F1.R := A * 2I;} (R)
-        return(0);
-    };
+      var R := 0I;
+      int fun F1(int R) {
+          var A := 10I;
+          (int A) { F1.A := A * 2I;} (R);
+          return(0I);
+      };
+      (int A) { A := A * 2I;} (R);
 }

@@ -433,17 +433,16 @@ sentencia_lambda
                     Info infoArg = TablaSimbolos.TABLA_SIMBOLOS.get($4.sval);
                     int numTercetoBackpatch = pila.pop();
                     if (infoPar != null && infoArg != null){
-                        if(infoPar.getTipo().equals(infoArg.getTipo())) {
+                        if(infoPar.getTipo().equals(infoArg.getTipo()))
                             listaTercetos.get(numTercetoBackpatch -1).addThird(getReferencia($4));
-                        } else {
+                        else {
                             listaTercetos.remove(numTercetoBackpatch -1);
                             Logger.logError(cursor.getCurrentLine(), "Incompatibilidad de tipos en parametro y argumento de sentencia Lambda");
                         }
-                    } else {
+                    } else
                         Logger.logError(cursor.getCurrentLine(), "Incompatibilidad de tipos en parametro y argumento de sentencia Lambda");
-                    }
                 }
-            }
+        }
     ;
 
 declaracion_unaria
@@ -823,7 +822,7 @@ parametro_lambda_error
     ;
 
 cuerpo_lambda
-    :   '{' cuerpo_ejecutable '}'
+    :   '{' cuerpo_ejecutable '}' {reducirAmbito();}
     |   cuerpo_lambda_error
     ;
 
@@ -835,16 +834,13 @@ cuerpo_lambda_error
 
 argumento_lambda
     :   '(' variable ')'  {
-            reducirAmbito();
             $$.sval = $2.sval;
         }
     |   '(' CTE_INT ')' {
-            reducirAmbito();
             controlarEntero($2.sval);
             $$.sval = $2.sval;
         }
     |   '(' CTE_FLOAT ')' {
-            reducirAmbito();
             controlarFlotante($2.sval);
             $$.sval = $2.sval;
         }
