@@ -215,11 +215,13 @@ cuerpo_seleccion
     ;
 
 cuerpo_seleccion_error
-    :   '{' '}' {Logger.logError(cursor.getCurrentLine(), "Falta de cuerpo en seleccion");}
+    :   '{' '}' {$$.sval = null; Logger.logError(cursor.getCurrentLine(), "Falta de cuerpo en seleccion");}
     ;
 
 parte_if
     :   cuerpo_ejecutable {
+    		System.out.println("ENTRA");
+    		System.out.println($1.obj);
             //aca se completa BF con nro de terceto del cuerpo_ejecutable + 1
             int numTercetoBackpatch = pila.peek();
             //obtengo referencia terceto de cuerpo_ejecutable, parseo a integer  y hago + 1
