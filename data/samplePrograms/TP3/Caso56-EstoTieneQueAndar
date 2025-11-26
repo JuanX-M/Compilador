@@ -1,0 +1,15 @@
+MAIN{
+    float fun F1 (float X1){
+        for (X from 1I to 5I){
+            if(X <= 2I){
+                X1 := X1 * X1;
+            } else {
+                X1 := X1 - 1.;
+            }endif;
+        };
+        return(X1);
+    };
+    var Y := 2.;
+    var Z := fun F1(Y->X1);
+    print(Z); ## tiene que imprimir 5.0 ##
+}
