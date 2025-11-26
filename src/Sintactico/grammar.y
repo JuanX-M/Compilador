@@ -122,6 +122,8 @@ funcion
             // 3. Completamos el BI. Como el BI se creó con (BI, null, null),
             // el destino suele ir en el segundo operando.
             listaTercetos.get(numTercetoBI - 1).addSecond(destino);
+
+
         }
     |   sentencia_lambda    {Logger.logRule(cursor.getCurrentLine(), "Sentencia LAMBDA");}
     ;
@@ -396,10 +398,14 @@ lista_sentencias_funcion_error
             $$ = $2;
             Logger.logError(cursor.getCurrentLine(), "Sentencias ejecutables luego de un return obligatorio");
         }
-    | lista_sentencias_funcion{
-                  $$ = $1;
-                  Logger.logError(cursor.getCurrentLine(), "Falta sentencia return al final de la funcion");
-              }
+    |   lista_sentencias_funcion{
+            $$ = $1;
+            if (haySentenciasRetorno){
+                Logger.logError(cursor.getCurrentLine(), "Falta return  obligatorio  por fuera de if/else ");
+            } else{
+                Logger.logError(cursor.getCurrentLine(), "Falta sentencia return al final de la funcion");
+            }
+        }
     ;
 
 lista_sentencias_funcion
@@ -760,6 +766,7 @@ lista_tipos
             ((Terceto)$$.obj).addTipo(tipoReal);
             listaVariablesAux.add(auxString+"."+ambito);
             $$ = new ParserVal(listaVariablesAux);//paso lista de tipos, no la variable
+            haySentenciasRetorno = false;
         }
     |   lista_tipos_error
     ;
@@ -1151,6 +1158,7 @@ sentencia_retorno
             ((Terceto)tRet.obj).addLine(cursor.getCurrentLine());
             $$ = tRet;
        }
+
     | sentencia_retorno_sin_coma
     ;
 
@@ -1334,6 +1342,7 @@ semantica_pasaje_error
 
 sentencia_seleccion_retorno
     :   IF parametros_seleccion cuerpo_seleccion_retorno ENDIF {
+
             $$=$3;
         }
     |   sentencia_seleccion_sin_endif_retorno  {Logger.logError(cursor.getCurrentLine(), "Falta de endif");}
@@ -1458,7 +1467,7 @@ cuerpo_seleccion_retorno
             listaTercetos.add((Terceto)$$.obj);
             ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
 
-
+            haySentenciasRetorno = true;
         }
     |  '{' parte_if_retorno '}' {
             //Saco el nro de terceto del BF incompleto de la pila ya que no hay ELSE
@@ -1508,6 +1517,9 @@ cuerpo_iteracion_retorno
 cuerpo_ejecutable_retorno
     :   cuerpo_ejecutable sentencia_retorno {
             $$=$2;
+        }
+    |   cuerpo_ejecutable_retorno cuerpo_ejecutable sentencia_retorno {
+            $$=$3;
         }
     |   sentencia_retorno
     ;
@@ -1670,6 +1682,7 @@ static final Double MAX_VALUE_POS = 3.40282347E38;
 static final Double MIN_VALUE_POS = 1.17549435E-38;
 static final Double MAX_VALUE_NEG = -1.17549435E-38;
 static final Double MIN_VALUE_NEG = -3.404282347E38;
+static boolean haySentenciasRetorno = false;
 
 public static void main (String [] args) {
 	System.out.println("Iniciando compilación..."); System.out.println(""); System.out.println(""); System.out.println("");
