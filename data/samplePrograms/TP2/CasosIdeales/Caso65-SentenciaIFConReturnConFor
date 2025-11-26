@@ -1,0 +1,24 @@
+##
+Anidamiento entre sentencias if en funcion con return y dentro un for
+##
+MAIN{
+    var A:=1I;
+    var B:=2I;
+    var C:=3I;
+    var X:= 5I;
+    int fun F1(int X1){
+        var J:= 1I;
+        X1 := 0I;
+        if(MAIN.X < MAIN.A){
+            for (K from 1I to 5I){
+                J := J + X1 + K;
+            };
+
+            return (J);
+        }endif;
+        return(0I);
+    };
+
+    C := fun F1(10I-> X1);
+
+}
