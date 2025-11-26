@@ -1,0 +1,5 @@
+MAIN{
+    var X := 1.;
+    var Y := 1. - X;
+    var Z := 5./Y;
+}

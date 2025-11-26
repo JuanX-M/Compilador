@@ -1,0 +1,4 @@
+MAIN{
+    print(toi(3.0));
+    print(toi(3.5));
+}

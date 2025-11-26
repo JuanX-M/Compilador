@@ -1,0 +1,12 @@
+MAIN{
+    var A := 1.4F+38;
+    print(A);
+    var B := 2.;
+    print(B);
+    var C := A * B;
+    print(C);
+    var D := 5.;
+    print(D);
+    var E := A * E;
+    print(E);
+}
