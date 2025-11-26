@@ -1655,7 +1655,8 @@ parametro_real
     ;
 
 parametro_real_error
-    :   expresion_aritmetica ARROW  {Logger.logError(cursor.getCurrentLine(), "Falta especificacion del parametro formal");}
+    :   expresion_aritmetica ARROW  {$$.obj = new Pair<ParserVal,ParserVal> ($1,new ParserVal(""));
+    Logger.logError(cursor.getCurrentLine(), "Falta especificacion del parametro formal");}
     ;
 
 %%

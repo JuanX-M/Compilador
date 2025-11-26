@@ -1,5 +1,10 @@
-##Caso error cuando  en invocacion de funcion no se le asocia un parametro formal a un parametro real##
+##Caso error cuando en invocacion de funcion no se le asocia un parametro formal a un parametro real##
 
-FALTA%ESPECIFICACION%PARAMETRO%FORMAL%{
-    var X:= fun F1(A->);
+MAIN{
+    var X:= 1I;
+    int fun F1(int T){
+        print(MAIN.X);
+        return(1I);
+    };
+    X:= fun F1(X->);
 }
