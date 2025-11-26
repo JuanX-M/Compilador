@@ -158,7 +158,7 @@ sentencia_print_error
 
 sentencia_seleccion
     :   IF parametros_seleccion cuerpo_seleccion  ENDIF  {
-            $$=$4;
+            $$=$3;
         }
     |   sentencia_seleccion_sin_endif  {Logger.logError(cursor.getCurrentLine(), "Falta de endif");}
     ;
