@@ -110,14 +110,13 @@ sentencia_ejecucion_sin_coma
 funcion
     :   encabezado_funcion '{' cuerpo_funcion '}'   {
             //cuerpo_funcion me devuelve el terceto RET
-            int pos = ambito.lastIndexOf('.');
-            if (pos != -1) {
-                ambito = ambito.substring(0, pos);
-            }
+            reducirAmbito();
+
             // 1. Sacamos de la pila el número de terceto del BI que se creó en 'lista_tipos'
             int numTercetoBI = pila.pop();
             // 2. Calculamos a dónde debe saltar (al siguiente terceto disponible después de la función)
             // Obtenemos el último terceto generado (que es el RET) y sumamos 1
+
             int numTercetoDestino = listaTercetos.get(listaTercetos.size()-1).getSoloNumTerceto() + 1;
             String destino = "(" + String.valueOf(numTercetoDestino) + ")";
             // 3. Completamos el BI. Como el BI se creó con (BI, null, null),
@@ -240,37 +239,50 @@ sentencia_seleccion_sin_endif
     ;
 
 sentencia_iteracion
-    :   FOR parametros_iteracion cuerpo_iteracion {
-	        if ($2.obj != null){
-                //Creo el terceto de incremento/decremento de la variable de control del for
-                if (((Terceto)$2.obj).getFirst() == "<"){
-                // terceto de incremento
-                    $$= crearTerceto(new ParserVal("+"), new ParserVal(((Terceto)$2.obj).getSecond()), new ParserVal("1"));
-                }
-                else{
-                    //terceto de decremento
-                    $$= crearTerceto(new ParserVal("-"), new ParserVal(((Terceto)$2.obj).getSecond()), new ParserVal("1"));
-                }
-                //agrego terceto de incremento/decremento al arraylist
-                listaTercetos.add((Terceto)$$.obj);
-                ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
-                ((Terceto)$$.obj).addTipo("INT");
-                int aux = ((Terceto)$2.obj).getSoloNumTerceto()-1; //Necesito la posicion de la etiqueta
-                String aux2 = "(" + String.valueOf(aux) + ")";
-                //Creo terceto BI para volver al inicio de la iteracion y lo agrego
-                $$= crearTerceto(new ParserVal("BI"), new ParserVal(aux2), null);
-                listaTercetos.add((Terceto)$$.obj);
-                ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
-                // Creacion etiqueta
-                int numTercetoActual = listaTercetos.get(listaTercetos.size()-1).getSoloNumTerceto() + 1;
-                String etiqueta = "ETIQUETA" + numTercetoActual;
-                $$= crearTerceto(new ParserVal(etiqueta),null,null);
-                listaTercetos.add((Terceto)$$.obj);
-                ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+   :   FOR parametros_iteracion cuerpo_iteracion {
+           if ($2.obj != null){
+               //Creo el terceto de incremento/decremento de la variable de control del for
 
-	        }
-	    }
-    ;
+               if (((Terceto)$2.obj).getFirst() == "<"){
+               // terceto de incremento
+                   $$= crearTerceto(new ParserVal("+"), new ParserVal(((Terceto)$2.obj).getSecond()), new ParserVal("1"));
+               }
+               else{
+                   //terceto de decremento
+                   $$= crearTerceto(new ParserVal("-"), new ParserVal(((Terceto)$2.obj).getSecond()), new ParserVal("1"));
+               }
+
+               String nombreVarControl = ((Terceto)$2.obj).getSecond();
+               //agrego terceto de incremento/decremento al arraylist
+               listaTercetos.add((Terceto)$$.obj);
+               ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+               ((Terceto)$$.obj).addTipo("INT");
+
+               //agrego el +1 o -1 que se hace a la variable de control del for en su respectivo terceto
+               $$ = crearTerceto(new ParserVal(":="), new ParserVal(nombreVarControl), $$);
+               listaTercetos.add((Terceto)$$.obj);
+               ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+               ((Terceto)$$.obj).addTipo("INT");
+
+
+               int aux = ((Terceto)$2.obj).getSoloNumTerceto()-1; //Necesito la posicion de la etiqueta
+               String aux2 = "(" + String.valueOf(aux) + ")";
+               //Creo terceto BI para volver al inicio de la iteracion y lo agrego
+               $$= crearTerceto(new ParserVal("BI"), new ParserVal(aux2), null);
+               listaTercetos.add((Terceto)$$.obj);
+               ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+
+
+               // Creacion etiqueta
+               int numTercetoActual = listaTercetos.get(listaTercetos.size()-1).getSoloNumTerceto() + 1;
+               String etiqueta = "ETIQUETA" + numTercetoActual;
+               $$= crearTerceto(new ParserVal(etiqueta),null,null);
+               listaTercetos.add((Terceto)$$.obj);
+               ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+
+           }
+       }
+   ;
 
 sentencia_asignacion
     :   sentencia_asignacion_unaria     {Logger.logRule(cursor.getCurrentLine(), "Sentencia ASIGNACION UNARIA");}
@@ -527,6 +539,7 @@ parametros_iteracion
             //creacion de terceto BF incompleto, pusheamos a la pila su nro de terceto y agregamos arraylist
             $$= crearTerceto(new ParserVal("BF"), $2, null);
             int numTercetoActual = ((Terceto)$$.obj).getSoloNumTerceto();
+
             pila.push(numTercetoActual);
             listaTercetos.add((Terceto)$$.obj);
             ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
@@ -544,15 +557,18 @@ parametros_iteracion_error
 
 cuerpo_iteracion
     :   '{' cuerpo_ejecutable '}'{
-            //obtengo referencia terceto de cuerpo_ejecutable, parseo a integer  y hago + 3
-            // porque tengo terceto BI y terceto de incremeto de variable de control del for
-            if ($2.sval != null){
-                //Saco el nro de terceto del BF incompleto de la pila
-                int numTercetoBackpatch = pila.pop();
-                Integer aux= Integer.parseInt(getReferencia($2).replaceAll("\\D","")) + 3 ;
+            //obtengo referencia terceto de cuerpo_ejecutable, parseo a integer  y hago + 4
+            // porque tengo terceto BI y terceto de incremeto de variable de control del for0
+            System.out.println("obj : "+$2.obj);
+            System.out.println("sval: "+$2.sval);
+
+            //Saco el nro de terceto del BF incompleto de la pila
+            int numTercetoBackpatch = pila.pop();
+            Integer aux= Integer.parseInt(getReferencia($2).replaceAll("\\D","")) + 4 ;
 	    	String auxString = "(" + String.valueOf(aux) + ")";
+
 	    	listaTercetos.get(numTercetoBackpatch -1).addThird(auxString); /* completo el tercer operando del BF*/
-	    }
+	        $$=$2;
     	}
     |   cuerpo_iteracion_error
     ;
@@ -979,10 +995,10 @@ encabezado_iteracion
                 Logger.logWarning(cursor.getCurrentLine(), "Cuerpo de for no ejecutado debido a constantes iguales");
             else{
                 if (aux1 < aux2){
-                    $$=crearTerceto(new ParserVal("<"), $1, $5); //Creamos el Terceto de la condicion menor
+                    $$=crearTerceto(new ParserVal("<"), new ParserVal(aux), $5); //Creamos el Terceto de la condicion menor
                 }
                 else{
-                    $$=crearTerceto(new ParserVal(">"), $1, $5); //Creamos el Terceto de la condicion mayor
+                    $$=crearTerceto(new ParserVal(">"), new ParserVal(aux), $5); //Creamos el Terceto de la condicion mayor
                 }
                 listaTercetos.add((Terceto)$$.obj);
                 ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
@@ -1441,6 +1457,8 @@ cuerpo_seleccion_retorno
             $$= crearTerceto(new ParserVal(etiqueta),null,null);
             listaTercetos.add((Terceto)$$.obj);
             ((Terceto)$$.obj).addLine(cursor.getCurrentLine());
+
+
         }
     |  '{' parte_if_retorno '}' {
             //Saco el nro de terceto del BF incompleto de la pila ya que no hay ELSE
