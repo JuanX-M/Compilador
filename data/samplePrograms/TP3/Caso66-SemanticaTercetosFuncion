@@ -1,0 +1,23 @@
+##
+Funcion con semantica de pasaje de parametros
+##
+
+MAIN{
+int , int , int fun F1 (int X , cr se int Y , cr le int Z ){
+    Z := 9I;
+    var G := X;
+    var H := 6I;
+    var J := Z;
+    Y := 10I;
+
+    return (G,H,J+11I);
+};
+var D := 2I;
+var E := 3I;
+var F := 4I;
+var A := 5I;
+var B := 6I;
+var C := 7I;
+
+A,B,C = fun F1 (D+1I->X,F->Z,E->Y);
+}
