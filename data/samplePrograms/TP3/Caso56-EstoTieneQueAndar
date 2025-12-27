@@ -11,5 +11,5 @@ MAIN{
         return(X1);
     };
     var Z := fun F1(Y->X1);
-    print(Z); ## tiene que imprimir 13.0 ##
+    print(Z); ## tiene que imprimir 14.0 ##
 }

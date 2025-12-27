@@ -22,7 +22,7 @@ public class TablaSimbolos {
     public static void printTabla() {
         System.out.println("------ Contenido de la Tabla de Símbolos ------");
         for (Map.Entry<String, Info> entry : TABLA_SIMBOLOS.entrySet()) {
-            System.out.println("Lexema: '" + entry.getKey() + "' -> " + entry.getValue().toString());
+            System.out.println("Clave acceso: '" + entry.getKey() + "' -> " + entry.getValue().toString());
         }
         System.out.println("---------------------------------------------");
     }

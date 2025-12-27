@@ -7,6 +7,6 @@ MAIN{
     print(C);
     var D := 5.;
     print(D);
-    var E := A * E;
+    var E := A * D;
     print(E);
 }

@@ -16,7 +16,7 @@
 
 
 
-//#line 2 "grammar.y"
+//#line 2 ".\grammar.y"
     import java.io.*;
     import java.util.Scanner;
     import java.util.Stack;
@@ -964,7 +964,7 @@ final static String yyrule[] = {
 "parametro_real_error : expresion_aritmetica ARROW",
 };
 
-//#line 1658 "grammar.y"
+//#line 1659 ".\grammar.y"
 private static int yylval_recognition = 0;
 static AnalizadorLexico lex = null;
 static Parser par = null;
@@ -1005,15 +1005,18 @@ public static void main (String [] args) {
 	String rutaASM = "data/programa.asm";
 	Logger.exportarTercetos(rutaTercetos);
 
-	System.out.println("TablaSimbolos: " + TablaSimbolos.TABLA_SIMBOLOS);
 
+    TablaSimbolos.printTabla();
 	System.out.println(); System.out.println();
 
 	System.out.println(Logger.generateLog());
 
 	System.out.println(); System.out.println();
 
-	System.out.println("\nLista de Tercetos: "+ listaTercetos);
+	System.out.println("\nLista de Tercetos: ");
+    for (Terceto t : listaTercetos) {
+        System.out.println(t);
+    }
 
 	System.out.println(); System.out.println();
 
@@ -1177,7 +1180,7 @@ private void controlarFlotante(String aux){
 		    Logger.logError(cursor.getCurrentLine(), "Excede cantidad de bits");
     }
 }
-//#line 1109 "Parser.java"
+//#line 1112 "Parser.java"
 //###############################################################
 // method: yylexdebug : check lexer state
 //###############################################################
@@ -1332,31 +1335,31 @@ boolean doaction;
       {
 //########## USER-SUPPLIED ACTIONS ##########
 case 3:
-//#line 39 "grammar.y"
+//#line 39 ".\grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta el nombre del programa");}
 break;
 case 4:
-//#line 40 "grammar.y"
+//#line 40 ".\grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Debe indicar el programa entre {}");}
 break;
 case 5:
-//#line 41 "grammar.y"
+//#line 41 ".\grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Faltan los delimitadores de programa");}
 break;
 case 6:
-//#line 42 "grammar.y"
+//#line 42 ".\grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta el delimitador de programa '}'");}
 break;
 case 7:
-//#line 43 "grammar.y"
+//#line 43 ".\grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta el delimitador de programa '{'");}
 break;
 case 8:
-//#line 44 "grammar.y"
+//#line 44 ".\grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Hay errores lexicos o sintaticos no identificados");}
 break;
 case 9:
-//#line 48 "grammar.y"
+//#line 48 ".\grammar.y"
 {
             if (TablaSimbolos.TABLA_SIMBOLOS.containsKey(val_peek(0).sval)) {
                 Logger.logError(cursor.getCurrentLine(), "Nombre de programa ya existe");
@@ -1387,28 +1390,28 @@ case 9:
         }
 break;
 case 10:
-//#line 79 "grammar.y"
+//#line 79 ".\grammar.y"
 {yyval=val_peek(0);}
 break;
 case 15:
-//#line 90 "grammar.y"
+//#line 90 ".\grammar.y"
 {
         Logger.logRule(cursor.getCurrentLine(), "Sentencia DECLARACION FUNCION");}
 break;
 case 17:
-//#line 96 "grammar.y"
+//#line 96 ".\grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de ';' al final de las sentencias.");}
 break;
 case 18:
-//#line 100 "grammar.y"
+//#line 100 ".\grammar.y"
 {Logger.logRule(cursor.getCurrentLine(), "Sentencia PRINT");}
 break;
 case 22:
-//#line 107 "grammar.y"
+//#line 107 ".\grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de ';' al final de las sentencias.");}
 break;
 case 23:
-//#line 111 "grammar.y"
+//#line 111 ".\grammar.y"
 {
             /*cuerpo_funcion me devuelve el terceto RET*/
             reducirAmbito();
@@ -1426,11 +1429,11 @@ case 23:
         }
 break;
 case 24:
-//#line 126 "grammar.y"
+//#line 126 ".\grammar.y"
 {Logger.logRule(cursor.getCurrentLine(), "Sentencia LAMBDA");}
 break;
 case 26:
-//#line 134 "grammar.y"
+//#line 134 ".\grammar.y"
 {
             yyval = crearTerceto(val_peek(3),val_peek(1),null);
             listaTercetos.add((Terceto)yyval.obj);
@@ -1439,7 +1442,7 @@ case 26:
         }
 break;
 case 27:
-//#line 140 "grammar.y"
+//#line 140 ".\grammar.y"
 {
             /* $3.obj es el ArrayList<ParserVal> de las expresiones */
             ArrayList<ParserVal> expresiones = (ArrayList<ParserVal>)val_peek(1).obj;
@@ -1454,21 +1457,21 @@ case 27:
         }
 break;
 case 29:
-//#line 156 "grammar.y"
+//#line 156 ".\grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta argumento en sentencia PRINT");}
 break;
 case 30:
-//#line 160 "grammar.y"
+//#line 160 ".\grammar.y"
 {
             yyval=val_peek(1);
         }
 break;
 case 31:
-//#line 163 "grammar.y"
+//#line 163 ".\grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de endif");}
 break;
 case 32:
-//#line 167 "grammar.y"
+//#line 167 ".\grammar.y"
 {
             /*Saco el nro de terceto del BF incompleto de la pila*/
             int numTercetoBackpatch = pila.pop(); /* hago pop() del nro de terceto del BF incompleto*/
@@ -1492,7 +1495,7 @@ case 32:
         }
 break;
 case 33:
-//#line 187 "grammar.y"
+//#line 187 ".\grammar.y"
 {
             /*Saco el nro de terceto del BI incompleto de la pila para completarlo haciendo +1*/
             int numTercetoBackpatch = pila.pop(); /* hago pop() del nro de terceto del BI incompleto*/
@@ -1509,7 +1512,7 @@ case 33:
         }
 break;
 case 34:
-//#line 201 "grammar.y"
+//#line 201 ".\grammar.y"
 {
             /*Saco el nro de terceto del BF incompleto de la pila ya que no hay ELSE*/
             /*Aca no creo BI y no hago +1*/
@@ -1524,11 +1527,11 @@ case 34:
         }
 break;
 case 36:
-//#line 217 "grammar.y"
+//#line 217 ".\grammar.y"
 {yyval.sval = null; Logger.logError(cursor.getCurrentLine(), "Falta de cuerpo en seleccion");}
 break;
 case 37:
-//#line 221 "grammar.y"
+//#line 221 ".\grammar.y"
 {
             /*aca se completa BF con nro de terceto del cuerpo_ejecutable + 1*/
             int numTercetoBackpatch = pila.peek();
@@ -1540,11 +1543,11 @@ case 37:
         }
 break;
 case 39:
-//#line 237 "grammar.y"
+//#line 237 ".\grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de endif");}
 break;
 case 40:
-//#line 241 "grammar.y"
+//#line 241 ".\grammar.y"
 {
 
            if (val_peek(1).obj != null){
@@ -1591,15 +1594,15 @@ case 40:
        }
 break;
 case 41:
-//#line 288 "grammar.y"
+//#line 288 ".\grammar.y"
 {Logger.logRule(cursor.getCurrentLine(), "Sentencia ASIGNACION UNARIA");}
 break;
 case 42:
-//#line 289 "grammar.y"
+//#line 289 ".\grammar.y"
 {Logger.logRule(cursor.getCurrentLine(), "Sentencia ASIGNACION MULTIPLE");}
 break;
 case 43:
-//#line 293 "grammar.y"
+//#line 293 ".\grammar.y"
 {
              String aux = val_peek(0).sval + '.' + ambito;
              if (TablaSimbolos.TABLA_SIMBOLOS.containsKey(aux)) {
@@ -1615,7 +1618,7 @@ case 43:
     }
 break;
 case 44:
-//#line 305 "grammar.y"
+//#line 305 ".\grammar.y"
 {
             /* $1.obj trae la lista de variables auxiliares de retorno (ej: [aux0.main, aux1.main])*/
             int indiceCorte = ((ArrayList<String>)val_peek(6).obj).size();
@@ -1641,10 +1644,10 @@ case 44:
                 /*hago put en la tabla de simbolos de la nueva variable auxiliar*/
                 if (pfInfo.getTipo().equalsIgnoreCase("FLOAT")){
                     TablaSimbolos.TABLA_SIMBOLOS.put(auxString + "."+ auxambito, new Info(auxString, "ID", "FLOAT", "Variable", auxambito));
-                    valorDefecto = "-1.0";
+                    valorDefecto = "0.0";
                 } else {
                     TablaSimbolos.TABLA_SIMBOLOS.put(auxString + "."+ auxambito, new Info(auxString, "ID", "INT", "Variable", auxambito));
-                    valorDefecto = "-1";
+                    valorDefecto = "0";
                 }
                 /*asociacion de aux con parametro formal, para usar en asgincaciones de return*/
                 TablaSimbolos.TABLA_SIMBOLOS.get(parametro).setVarAux(auxString + "."+ auxambito);
@@ -1674,9 +1677,9 @@ case 44:
 				    new ParserVal(TablaSimbolos.TABLA_SIMBOLOS.get(parametro).getVarAux()));
 			    } else {
 			        if (TablaSimbolos.TABLA_SIMBOLOS.get(parametro).getTipo().equalsIgnoreCase("FLOAT")){
-				        valorDefecto = "-1.0";
+				        valorDefecto = "0.0";
 			        } else {
-				        valorDefecto = "-1";
+				        valorDefecto = "0";
 			        }
 			        yyval= crearTerceto(new ParserVal(":="),
 			        new ParserVal(parametro),
@@ -1691,24 +1694,24 @@ case 44:
         }
 break;
 case 46:
-//#line 382 "grammar.y"
+//#line 382 ".\grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de nombre en declaracion de funcion");}
 break;
 case 47:
-//#line 386 "grammar.y"
+//#line 386 ".\grammar.y"
 {
             yyval = val_peek(0);
         }
 break;
 case 50:
-//#line 394 "grammar.y"
+//#line 394 ".\grammar.y"
 {
             yyval = val_peek(1);
             Logger.logError(cursor.getCurrentLine(), "Sentencias ejecutables luego de un return obligatorio");
         }
 break;
 case 51:
-//#line 398 "grammar.y"
+//#line 398 ".\grammar.y"
 {
             yyval = val_peek(0);
             if (haySentenciasRetorno){
@@ -1719,14 +1722,14 @@ case 51:
         }
 break;
 case 54:
-//#line 414 "grammar.y"
+//#line 414 ".\grammar.y"
 {
             if (val_peek(0).sval != null){
                 /* asignamos el argumento al paramtero*/
                 if (TablaSimbolos.TABLA_SIMBOLOS.get(val_peek(0).sval).getTipo().contains("INT")){
-                    yyval = crearTerceto(new ParserVal(":="),val_peek(0),new ParserVal("-1"));
+                    yyval = crearTerceto(new ParserVal(":="),val_peek(0),new ParserVal("0"));
                 } else {
-                    yyval = crearTerceto(new ParserVal(":="),val_peek(0),new ParserVal("-1.0"));
+                    yyval = crearTerceto(new ParserVal(":="),val_peek(0),new ParserVal("0.0"));
                 }
 
                 int numTercetoActual = ((Terceto)yyval.obj).getSoloNumTerceto();
@@ -1738,7 +1741,7 @@ case 54:
         }
 break;
 case 55:
-//#line 429 "grammar.y"
+//#line 429 ".\grammar.y"
 {
                 if (val_peek(0).sval != null && val_peek(3).sval != null) {
                     Info infoPar = TablaSimbolos.TABLA_SIMBOLOS.get(val_peek(3).sval);
@@ -1757,7 +1760,7 @@ case 55:
         }
 break;
 case 56:
-//#line 448 "grammar.y"
+//#line 448 ".\grammar.y"
 {
             String aux = val_peek(2).sval + '.' + ambito;
             ParserVal auxParserVal= val_peek(0);
@@ -1788,15 +1791,15 @@ case 56:
         }
 break;
 case 58:
-//#line 480 "grammar.y"
+//#line 480 ".\grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de asignacion en declaracion de variable");}
 break;
 case 59:
-//#line 481 "grammar.y"
+//#line 481 ".\grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Declaracion de una variable con ambito");}
 break;
 case 60:
-//#line 485 "grammar.y"
+//#line 485 ".\grammar.y"
 {
             ArrayList<ParserVal> listaPrincipal = (ArrayList<ParserVal>)val_peek(2).obj;
             ParserVal nuevaExpresion = val_peek(0);
@@ -1815,7 +1818,7 @@ case 60:
         }
 break;
 case 61:
-//#line 501 "grammar.y"
+//#line 501 ".\grammar.y"
 {
             /* $1 es el ParserVal de 'expresion_aritmetica'*/
             if (val_peek(0).obj != null && val_peek(0).obj.getClass().equals(java.util.ArrayList.class)) {
@@ -1831,11 +1834,11 @@ case 61:
         }
 break;
 case 63:
-//#line 518 "grammar.y"
+//#line 518 ".\grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de ',' en declaracion de expresiones aritmeticas (lado derecho)");}
 break;
 case 64:
-//#line 522 "grammar.y"
+//#line 522 ".\grammar.y"
 {
             Logger.logRule(cursor.getCurrentLine(), "Sentencia IF");
             /*Creamos terceto BF incompleto, pusheamos a la pila su nro de terceto y agregamos arraylist*/
@@ -1847,19 +1850,19 @@ case 64:
         }
 break;
 case 66:
-//#line 535 "grammar.y"
+//#line 535 ".\grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de '(' en condicion de seleccion");}
 break;
 case 67:
-//#line 536 "grammar.y"
+//#line 536 ".\grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de ')' en condicion de seleccion");}
 break;
 case 68:
-//#line 537 "grammar.y"
+//#line 537 ".\grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de '()' en condicion de seleccion");}
 break;
 case 69:
-//#line 541 "grammar.y"
+//#line 541 ".\grammar.y"
 {
             /*creacion de terceto BF incompleto, pusheamos a la pila su nro de terceto y agregamos arraylist*/
             yyval= crearTerceto(new ParserVal("BF"), val_peek(1), null);
@@ -1873,19 +1876,19 @@ case 69:
     	}
 break;
 case 71:
-//#line 556 "grammar.y"
+//#line 556 ".\grammar.y"
 {yyval.sval = null; Logger.logError(cursor.getCurrentLine(), "Falta de '(' en condicion de iteracion");}
 break;
 case 72:
-//#line 557 "grammar.y"
+//#line 557 ".\grammar.y"
 {yyval.sval = null; Logger.logError(cursor.getCurrentLine(), "Falta de ')' en condicion de iteracion");}
 break;
 case 73:
-//#line 558 "grammar.y"
+//#line 558 ".\grammar.y"
 {yyval.sval = null; Logger.logError(cursor.getCurrentLine(), "Falta de '()' en condicion de iteracion");}
 break;
 case 74:
-//#line 562 "grammar.y"
+//#line 562 ".\grammar.y"
 {
             /*obtengo referencia terceto de cuerpo_ejecutable, parseo a integer  y hago + 4*/
             /* porque tengo terceto BI y terceto de incremeto de variable de control del for0*/
@@ -1901,11 +1904,11 @@ case 74:
     	}
 break;
 case 76:
-//#line 579 "grammar.y"
+//#line 579 ".\grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de cuerpo en iteracion");}
 break;
 case 77:
-//#line 583 "grammar.y"
+//#line 583 ".\grammar.y"
 {
             /*Chequeo ambito*/
             if (!TablaSimbolos.TABLA_SIMBOLOS.containsKey(val_peek(2).sval + '.' + ambito)) {
@@ -1929,7 +1932,7 @@ case 77:
         }
 break;
 case 78:
-//#line 604 "grammar.y"
+//#line 604 ".\grammar.y"
 {
             /*Chequeo ambito*/
             String nombreAmbitoActual = "";
@@ -1971,15 +1974,15 @@ case 78:
         }
 break;
 case 80:
-//#line 647 "grammar.y"
+//#line 647 ".\grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de asignacion");}
 break;
 case 81:
-//#line 648 "grammar.y"
+//#line 648 ".\grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de asignacion");}
 break;
 case 82:
-//#line 652 "grammar.y"
+//#line 652 ".\grammar.y"
 {
             ArrayList<ParserVal> listaVariables = (ArrayList<ParserVal>)val_peek(2).obj;
             ArrayList<ParserVal> listaExpresiones = (ArrayList<ParserVal>)val_peek(0).obj;
@@ -2034,20 +2037,20 @@ case 82:
         }
 break;
 case 83:
-//#line 707 "grammar.y"
+//#line 707 ".\grammar.y"
 {
             /*creacion variable auxiliar para poner en la tabla*/
             String auxString = "aux" + String.valueOf(contadorVariablesAuxTercetos);
             /*defino con que tipo de valor debo inicializar terceto auxiliar*/
             String tipoReal = "INT";
-            String valorInicio = "-1";
+            String valorInicio = "0";
             if (val_peek(0).sval.contains("float")){
                 tipoReal = "FLOAT";
-                valorInicio = "-1.0";
+                valorInicio = "0.0";
                 TablaSimbolos.TABLA_SIMBOLOS.put(auxString + "."+ ambito, new Info(auxString, "ID", "FLOAT", "Variable", ambito));
             } else {
                 tipoReal = "INT";
-                valorInicio = "-1";
+                valorInicio = "0";
                 TablaSimbolos.TABLA_SIMBOLOS.put(auxString + "."+ ambito, new Info(auxString, "ID", "INT", "Variable", ambito));
             };
             /*creacion de terceto con variable auxiliar*/
@@ -2062,7 +2065,7 @@ case 83:
         }
 break;
 case 84:
-//#line 732 "grammar.y"
+//#line 732 ".\grammar.y"
 {
             /*Aca se genera Terceto BI incompleto para saltar al siguiente nro terceto para no ejecutar la funcion*/
             yyval=crearTerceto(new ParserVal ("BI"), null,null);
@@ -2076,14 +2079,14 @@ case 84:
             String auxString = "aux" + String.valueOf(contadorVariablesAuxTercetos);
             /*defino con que tipo de valor debo inicializar terceto auxiliar*/
             String tipoReal = "INT"; /* Valor por defecto o detectado*/
-            String valorInicio = "-1";
+            String valorInicio = "0";
             if (val_peek(0).sval.contains("float")){
                 tipoReal = "FLOAT";
-                valorInicio = "-1.0";
+                valorInicio = "0.0";
                 TablaSimbolos.TABLA_SIMBOLOS.put(auxString + "."+ ambito, new Info(auxString, "ID", "FLOAT", "Variable", ambito));
             } else {
                 tipoReal = "INT";
-                valorInicio = "-1";
+                valorInicio = "0";
                 TablaSimbolos.TABLA_SIMBOLOS.put(auxString + "."+ ambito, new Info(auxString, "ID", "INT", "Variable", ambito));
 
             };
@@ -2100,18 +2103,18 @@ case 84:
         }
 break;
 case 86:
-//#line 771 "grammar.y"
+//#line 771 ".\grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de ',' en declaracion de tipos");}
 break;
 case 87:
-//#line 775 "grammar.y"
+//#line 775 ".\grammar.y"
 {
             ((ArrayList<String>)val_peek(2).obj).add(val_peek(0).sval); /* Agrega el nuevo parametro formal*/
             yyval = val_peek(2); /* Pasa la lista modificada hacia arriba*/
         }
 break;
 case 88:
-//#line 779 "grammar.y"
+//#line 779 ".\grammar.y"
 {
             ArrayList<String> listaParametros = new ArrayList<>();
             /*lista con parametros formales con ambito*/
@@ -2120,7 +2123,7 @@ case 88:
         }
 break;
 case 91:
-//#line 798 "grammar.y"
+//#line 798 ".\grammar.y"
 {
             ambito += ".lambda" + cursor.getCurrentLine();
             String aux = val_peek(1).sval + "." + ambito;
@@ -2129,67 +2132,67 @@ case 91:
         }
 break;
 case 93:
-//#line 808 "grammar.y"
+//#line 808 ".\grammar.y"
 {
             yyval.sval = null;
             Logger.logError(cursor.getCurrentLine(), "Falta del tipo en parametro_lambda");
         }
 break;
 case 94:
-//#line 812 "grammar.y"
+//#line 812 ".\grammar.y"
 {
             yyval.sval = null;
             Logger.logError(cursor.getCurrentLine(), "Falta del ID en parametro_lambda");
         }
 break;
 case 95:
-//#line 816 "grammar.y"
+//#line 816 ".\grammar.y"
 {
             yyval.sval = null;
             Logger.logError(cursor.getCurrentLine(), "Falta del tipo e ID en parametro_lambda");
         }
 break;
 case 96:
-//#line 823 "grammar.y"
+//#line 823 ".\grammar.y"
 {reducirAmbito();}
 break;
 case 98:
-//#line 828 "grammar.y"
+//#line 828 ".\grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta delimitador izquierdo '{' del cuerpo lambda");}
 break;
 case 99:
-//#line 830 "grammar.y"
+//#line 830 ".\grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de cuerpo en sentencia lambda");}
 break;
 case 100:
-//#line 834 "grammar.y"
+//#line 834 ".\grammar.y"
 {
             yyval.sval = val_peek(1).sval;
         }
 break;
 case 101:
-//#line 837 "grammar.y"
+//#line 837 ".\grammar.y"
 {
             controlarEntero(val_peek(1).sval);
             yyval.sval = val_peek(1).sval;
         }
 break;
 case 102:
-//#line 841 "grammar.y"
+//#line 841 ".\grammar.y"
 {
             controlarFlotante(val_peek(1).sval);
             yyval.sval = val_peek(1).sval;
         }
 break;
 case 104:
-//#line 849 "grammar.y"
+//#line 849 ".\grammar.y"
 {
             yyval.sval = null;
             Logger.logError(cursor.getCurrentLine(), "Argumento de lambda invalido");
         }
 break;
 case 105:
-//#line 856 "grammar.y"
+//#line 856 ".\grammar.y"
 {
             ParserVal opIzq = val_peek(2);
             ParserVal opDer = val_peek(0);
@@ -2223,7 +2226,7 @@ case 105:
         }
 break;
 case 106:
-//#line 887 "grammar.y"
+//#line 887 ".\grammar.y"
 {
             ParserVal opIzq = val_peek(2);
             ParserVal opDer = val_peek(0);
@@ -2257,27 +2260,27 @@ case 106:
         }
 break;
 case 107:
-//#line 918 "grammar.y"
+//#line 918 ".\grammar.y"
 { yyval=val_peek(0);}
 break;
 case 109:
-//#line 923 "grammar.y"
+//#line 923 ".\grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de operando izquierdo en expresion_aritmetica con '+''");}
 break;
 case 110:
-//#line 924 "grammar.y"
+//#line 924 ".\grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de operando izquierdo en expresion_aritmetica con '-'");}
 break;
 case 111:
-//#line 925 "grammar.y"
+//#line 925 ".\grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de operando derecho en expresion_aritmetica con '+'");}
 break;
 case 112:
-//#line 926 "grammar.y"
+//#line 926 ".\grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de operando derecho en expresion_aritmetica con '-'");}
 break;
 case 113:
-//#line 930 "grammar.y"
+//#line 930 ".\grammar.y"
 {
 	    if (!checkTipo(val_peek(2), val_peek(0))) {
 		 Logger.logError(cursor.getCurrentLine(), "Tipos incompatibles en condicion entre " + getTipoParserVal(val_peek(2)) + " y " + getTipoParserVal(val_peek(0)));
@@ -2290,29 +2293,29 @@ case 113:
         }
 break;
 case 115:
-//#line 944 "grammar.y"
+//#line 944 ".\grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de simbolo comparador en condicion");}
 break;
 case 116:
-//#line 945 "grammar.y"
+//#line 945 ".\grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de argumento derecho en condicion");}
 break;
 case 117:
-//#line 946 "grammar.y"
+//#line 946 ".\grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de argumento izquierdo en condicion");}
 break;
 case 118:
-//#line 950 "grammar.y"
+//#line 950 ".\grammar.y"
 {
             yyval=val_peek(0);
         }
 break;
 case 121:
-//#line 958 "grammar.y"
+//#line 958 ".\grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "No se permiten declaraciones dentro de cuerpos ejecutables");}
 break;
 case 124:
-//#line 967 "grammar.y"
+//#line 967 ".\grammar.y"
 {
             controlarEntero(val_peek(2).sval);
             controlarEntero(val_peek(0).sval);
@@ -2355,34 +2358,34 @@ case 124:
         }
 break;
 case 126:
-//#line 1011 "grammar.y"
+//#line 1011 ".\grammar.y"
 {yyval.sval = null; Logger.logError(cursor.getCurrentLine(), "Falta de encabezado ID del for");}
 break;
 case 127:
-//#line 1012 "grammar.y"
+//#line 1012 ".\grammar.y"
 {yyval.sval = null; Logger.logError(cursor.getCurrentLine(), "Falta de encabezado FROM del for");}
 break;
 case 128:
-//#line 1013 "grammar.y"
+//#line 1013 ".\grammar.y"
 {yyval.sval = null; Logger.logError(cursor.getCurrentLine(), "Falta de encabezado CTE_INT_1 del for");}
 break;
 case 129:
-//#line 1014 "grammar.y"
+//#line 1014 ".\grammar.y"
 {yyval.sval = null; Logger.logError(cursor.getCurrentLine(), "Falta de encabezado TO del for");}
 break;
 case 130:
-//#line 1015 "grammar.y"
+//#line 1015 ".\grammar.y"
 {yyval.sval = null; Logger.logError(cursor.getCurrentLine(), "Falta de encabezado CTE_INT_2 del for");}
 break;
 case 131:
-//#line 1019 "grammar.y"
+//#line 1019 ".\grammar.y"
 {
             ((ArrayList<ParserVal>)val_peek(2).obj).add(val_peek(0)); /* Agrega la nueva variable*/
             yyval = val_peek(2); /* Pasa la lista modificada hacia arriba*/
         }
 break;
 case 132:
-//#line 1023 "grammar.y"
+//#line 1023 ".\grammar.y"
 {
             ArrayList<ParserVal> vars = new ArrayList<>();
             vars.add(val_peek(0)); /* $1 es el ParserVal de la regla 'variable'*/
@@ -2390,19 +2393,19 @@ case 132:
         }
 break;
 case 134:
-//#line 1032 "grammar.y"
+//#line 1032 ".\grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de ',' en declaracion de variables (lado izquierdo)");}
 break;
 case 135:
-//#line 1036 "grammar.y"
+//#line 1036 ".\grammar.y"
 {yyval = val_peek(0);}
 break;
 case 136:
-//#line 1037 "grammar.y"
+//#line 1037 ".\grammar.y"
 {yyval = val_peek(0);}
 break;
 case 138:
-//#line 1042 "grammar.y"
+//#line 1042 ".\grammar.y"
 {
             /*hago put del parametro formal en tabla de simbolos*/
             String auxString= val_peek(0).sval + "."+ ambito;
@@ -2411,7 +2414,7 @@ case 138:
         }
 break;
 case 139:
-//#line 1048 "grammar.y"
+//#line 1048 ".\grammar.y"
 {
             /*hago put del parametro formal en tabla de simbolos*/
             String auxString= val_peek(0).sval + "."+ ambito;
@@ -2420,7 +2423,7 @@ case 139:
         }
 break;
 case 141:
-//#line 1058 "grammar.y"
+//#line 1058 ".\grammar.y"
 {
             Logger.logError(cursor.getCurrentLine(), "Falta el nombre de parametro formal en declaracion de funcion");
             String aux = "PARAM_ERROR_" + cursor.getCurrentLine() + "." + ambito;
@@ -2429,7 +2432,7 @@ case 141:
         }
 break;
 case 142:
-//#line 1064 "grammar.y"
+//#line 1064 ".\grammar.y"
 {
             Logger.logError(cursor.getCurrentLine(), "Falta el nombre de parametro formal en declaracion de funcion");
             String dummyName = "PARAM_ERROR_" + cursor.getCurrentLine() + "." + ambito;
@@ -2438,7 +2441,7 @@ case 142:
         }
 break;
 case 143:
-//#line 1070 "grammar.y"
+//#line 1070 ".\grammar.y"
 {
             Logger.logError(cursor.getCurrentLine(), "Falta de tipo en parametro formal en declaracion de funcion");
             String aux = val_peek(0).sval + "." + ambito;
@@ -2448,7 +2451,7 @@ case 143:
         }
 break;
 case 144:
-//#line 1077 "grammar.y"
+//#line 1077 ".\grammar.y"
 {
             Logger.logError(cursor.getCurrentLine(), "Falta de tipo en parametro formal en declaracion de funcion");
             String aux = val_peek(0).sval + "." + ambito;
@@ -2457,7 +2460,7 @@ case 144:
         }
 break;
 case 149:
-//#line 1093 "grammar.y"
+//#line 1093 ".\grammar.y"
 {
     	if (ambito.contains(".")) {
             int ultimoPunto = ambito.lastIndexOf('.');
@@ -2518,11 +2521,11 @@ case 149:
     }
 break;
 case 151:
-//#line 1155 "grammar.y"
+//#line 1155 ".\grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de ';' al final de la sentencia return.");}
 break;
 case 152:
-//#line 1159 "grammar.y"
+//#line 1159 ".\grammar.y"
 {
             ParserVal opIzq = val_peek(2);
             ParserVal opDer = val_peek(0);
@@ -2556,7 +2559,7 @@ case 152:
         }
 break;
 case 153:
-//#line 1190 "grammar.y"
+//#line 1190 ".\grammar.y"
 {
             ParserVal opIzq = val_peek(2);
             ParserVal opDer = val_peek(0);
@@ -2591,27 +2594,27 @@ case 153:
         }
 break;
 case 154:
-//#line 1222 "grammar.y"
+//#line 1222 ".\grammar.y"
 {yyval = val_peek(0);}
 break;
 case 156:
-//#line 1227 "grammar.y"
+//#line 1227 ".\grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de operando izquierdo en factmetica con '*'");}
 break;
 case 157:
-//#line 1228 "grammar.y"
+//#line 1228 ".\grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de operando izquierdo en expresion_aritmetica con '/'");}
 break;
 case 158:
-//#line 1229 "grammar.y"
+//#line 1229 ".\grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de operando derecho en expresion_aritmetica con '*'");}
 break;
 case 159:
-//#line 1230 "grammar.y"
+//#line 1230 ".\grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de operando derecho en expresion_aritmetica con '-'");}
 break;
 case 160:
-//#line 1234 "grammar.y"
+//#line 1234 ".\grammar.y"
 {
             String auxtoi = "auxtoi" + contadorToi;
             contadorToi++;
@@ -2636,43 +2639,43 @@ case 160:
         }
 break;
 case 162:
-//#line 1260 "grammar.y"
+//#line 1260 ".\grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de '(' en expresion_aritmetica TOI");}
 break;
 case 163:
-//#line 1261 "grammar.y"
+//#line 1261 ".\grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de ')' en expresion_aritmetica TOI");}
 break;
 case 164:
-//#line 1262 "grammar.y"
+//#line 1262 ".\grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de '()' en expresion_aritmetica TOI");}
 break;
 case 165:
-//#line 1266 "grammar.y"
+//#line 1266 ".\grammar.y"
 {yyval=val_peek(0);}
 break;
 case 166:
-//#line 1267 "grammar.y"
+//#line 1267 ".\grammar.y"
 {yyval=val_peek(0);}
 break;
 case 167:
-//#line 1268 "grammar.y"
+//#line 1268 ".\grammar.y"
 {yyval=val_peek(0);}
 break;
 case 168:
-//#line 1269 "grammar.y"
+//#line 1269 ".\grammar.y"
 {yyval=val_peek(0);}
 break;
 case 169:
-//#line 1270 "grammar.y"
+//#line 1270 ".\grammar.y"
 {yyval=val_peek(0);}
 break;
 case 170:
-//#line 1271 "grammar.y"
+//#line 1271 ".\grammar.y"
 {yyval=val_peek(0);}
 break;
 case 171:
-//#line 1275 "grammar.y"
+//#line 1275 ".\grammar.y"
 {
             /*Chequeo ambito*/
             if (!TablaSimbolos.TABLA_SIMBOLOS.containsKey(val_peek(0).sval + '.' + ambito)) {
@@ -2685,7 +2688,7 @@ case 171:
         }
 break;
 case 172:
-//#line 1285 "grammar.y"
+//#line 1285 ".\grammar.y"
 {
             /*Chequeo ambito*/
             String nombreAmbitoActual = "";
@@ -2717,45 +2720,45 @@ case 172:
         }
 break;
 case 173:
-//#line 1317 "grammar.y"
+//#line 1317 ".\grammar.y"
 {
             yyval.sval = val_peek(1).sval + " " + val_peek(0).sval;
         }
 break;
 case 174:
-//#line 1320 "grammar.y"
+//#line 1320 ".\grammar.y"
 {
             yyval.sval = val_peek(1).sval + " " + val_peek(0).sval;
         }
 break;
 case 176:
-//#line 1327 "grammar.y"
+//#line 1327 ".\grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de LE o SE despues de CR");}
 break;
 case 177:
-//#line 1328 "grammar.y"
+//#line 1328 ".\grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de CR antes de SE");}
 break;
 case 178:
-//#line 1329 "grammar.y"
+//#line 1329 ".\grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de CR antes de LE");}
 break;
 case 179:
-//#line 1333 "grammar.y"
+//#line 1333 ".\grammar.y"
 {
             yyval=val_peek(1);
         }
 break;
 case 180:
-//#line 1336 "grammar.y"
+//#line 1336 ".\grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de endif");}
 break;
 case 181:
-//#line 1340 "grammar.y"
+//#line 1340 ".\grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de endif");}
 break;
 case 182:
-//#line 1344 "grammar.y"
+//#line 1344 ".\grammar.y"
 {
             /*Creo el terceto de incremento/decremento de la variable de control del for*/
             if (((Terceto)val_peek(1).obj).getFirst() == "<"){
@@ -2784,7 +2787,7 @@ case 182:
         }
 break;
 case 183:
-//#line 1373 "grammar.y"
+//#line 1373 ".\grammar.y"
 {
             String resString = val_peek(1).sval + val_peek(0).sval;
             controlarEntero(resString);
@@ -2794,7 +2797,7 @@ case 183:
         }
 break;
 case 184:
-//#line 1380 "grammar.y"
+//#line 1380 ".\grammar.y"
 {
             String resString = val_peek(0).sval;
             controlarEntero(resString);
@@ -2802,7 +2805,7 @@ case 184:
         }
 break;
 case 185:
-//#line 1385 "grammar.y"
+//#line 1385 ".\grammar.y"
 {
             String resString = val_peek(1).sval + val_peek(0).sval;
             controlarFlotante(resString);
@@ -2812,7 +2815,7 @@ case 185:
         }
 break;
 case 186:
-//#line 1392 "grammar.y"
+//#line 1392 ".\grammar.y"
 {
             String resString = val_peek(0).sval;
             controlarFlotante(resString);
@@ -2820,14 +2823,14 @@ case 186:
         }
 break;
 case 187:
-//#line 1397 "grammar.y"
+//#line 1397 ".\grammar.y"
 {
             /*Crear BI a con dest al primer terceto de la funcion*/
             Logger.logRule(cursor.getCurrentLine(), "Sentencia INVOCACION FUNCION");
         }
 break;
 case 188:
-//#line 1401 "grammar.y"
+//#line 1401 ".\grammar.y"
 {
             if (val_peek(0).sval != null) {
                 Info info = TablaSimbolos.TABLA_SIMBOLOS.get(val_peek(0).sval);
@@ -2841,7 +2844,7 @@ case 188:
         }
 break;
 case 189:
-//#line 1412 "grammar.y"
+//#line 1412 ".\grammar.y"
 {
             yyval = val_peek(0);
             /*devolvemos el terceto*/
@@ -2849,7 +2852,7 @@ case 189:
         }
 break;
 case 190:
-//#line 1420 "grammar.y"
+//#line 1420 ".\grammar.y"
 {
             /*Saco el nro de terceto del BF incompleto de la pila*/
             int numTercetoBackpatch = pila.pop(); /* hago pop() del nro de terceto del BF incompleto*/
@@ -2874,7 +2877,7 @@ case 190:
         }
 break;
 case 191:
-//#line 1441 "grammar.y"
+//#line 1441 ".\grammar.y"
 {
             /*Saco el nro de terceto del BI incompleto de la pila para completarlo*/
             int numTercetoBackpatch = pila.pop(); /* pop() del BI*/
@@ -2896,7 +2899,7 @@ case 191:
         }
 break;
 case 192:
-//#line 1460 "grammar.y"
+//#line 1460 ".\grammar.y"
 {
             /*Saco el nro de terceto del BF incompleto de la pila ya que no hay ELSE*/
             /*Aca no creo BI y no hago +1*/
@@ -2910,7 +2913,7 @@ case 192:
         }
 break;
 case 193:
-//#line 1474 "grammar.y"
+//#line 1474 ".\grammar.y"
 {
             /* $1 (cuerpo_ejecutable_retorno) ya añadió sus tercetos a 'listaTercetos'.*/
             int numTercetoBackpatch = pila.peek();
@@ -2924,7 +2927,7 @@ case 193:
         }
 break;
 case 195:
-//#line 1492 "grammar.y"
+//#line 1492 ".\grammar.y"
 {
             /*Saco el nro de terceto del BF incompleto de la pila*/
             int numTercetoBackpatch = pila.pop();
@@ -2937,19 +2940,19 @@ case 195:
         }
 break;
 case 196:
-//#line 1505 "grammar.y"
+//#line 1505 ".\grammar.y"
 {
             yyval=val_peek(0);
         }
 break;
 case 197:
-//#line 1508 "grammar.y"
+//#line 1508 ".\grammar.y"
 {
             yyval=val_peek(0);
         }
 break;
 case 199:
-//#line 1515 "grammar.y"
+//#line 1515 ".\grammar.y"
 {
             ArrayList<ParserVal> listaParametros = (ArrayList<ParserVal>) val_peek(1).obj;
             String claveAcceso =val_peek(3).sval;
@@ -3033,6 +3036,7 @@ case 199:
 
                     listaTercetos.add((Terceto)yyval.obj);
                     ((Terceto)yyval.obj).addLine(cursor.getCurrentLine());
+                    ((Terceto)yyval.obj).addTipo(paramInfo.getTipo());
                 }
             }
             if (listaParametros.size() < listaParametrosFormales.size() ){
@@ -3059,11 +3063,11 @@ case 199:
         }
 break;
 case 201:
-//#line 1626 "grammar.y"
+//#line 1627 ".\grammar.y"
 {Logger.logError(cursor.getCurrentLine(), "Falta de nombre en funcion en invocacion de funcion");}
 break;
 case 202:
-//#line 1630 "grammar.y"
+//#line 1631 ".\grammar.y"
 {
             /* $1.obj ya es el ArrayList<ParserVal>*/
             /* $3 es el ParserVal que viene de parametro_real*/
@@ -3072,7 +3076,7 @@ case 202:
         }
 break;
 case 203:
-//#line 1636 "grammar.y"
+//#line 1637 ".\grammar.y"
 {
             /* $1 es el ParserVal que viene de parametro_real*/
             ArrayList<ParserVal> lista = new ArrayList<>();
@@ -3081,18 +3085,18 @@ case 203:
         }
 break;
 case 204:
-//#line 1645 "grammar.y"
+//#line 1646 ".\grammar.y"
 {
             yyval.obj = new Pair<ParserVal,ParserVal> (val_peek(2),val_peek(0));
             /*Hago esto para realizar de forma correcta la generacion de tercenos de invocacion, pasaje cv y cr*/
         }
 break;
 case 206:
-//#line 1653 "grammar.y"
+//#line 1654 ".\grammar.y"
 {yyval.obj = new Pair<ParserVal,ParserVal> (val_peek(1),new ParserVal(""));
     Logger.logError(cursor.getCurrentLine(), "Falta especificacion del parametro formal");}
 break;
-//#line 3019 "Parser.java"
+//#line 3023 "Parser.java"
 //########## END OF USER-SUPPLIED ACTIONS ##########
     }//switch
     //#### Now let's reduce... ####

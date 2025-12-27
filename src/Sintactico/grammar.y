@@ -327,10 +327,10 @@ encabezado_funcion
                 //hago put en la tabla de simbolos de la nueva variable auxiliar
                 if (pfInfo.getTipo().equalsIgnoreCase("FLOAT")){
                     TablaSimbolos.TABLA_SIMBOLOS.put(auxString + "."+ auxambito, new Info(auxString, "ID", "FLOAT", "Variable", auxambito));
-                    valorDefecto = "-1.0";
+                    valorDefecto = "0.0";
                 } else {
                     TablaSimbolos.TABLA_SIMBOLOS.put(auxString + "."+ auxambito, new Info(auxString, "ID", "INT", "Variable", auxambito));
-                    valorDefecto = "-1";
+                    valorDefecto = "0";
                 }
                 //asociacion de aux con parametro formal, para usar en asgincaciones de return
                 TablaSimbolos.TABLA_SIMBOLOS.get(parametro).setVarAux(auxString + "."+ auxambito);
@@ -360,9 +360,9 @@ encabezado_funcion
 				    new ParserVal(TablaSimbolos.TABLA_SIMBOLOS.get(parametro).getVarAux()));
 			    } else {
 			        if (TablaSimbolos.TABLA_SIMBOLOS.get(parametro).getTipo().equalsIgnoreCase("FLOAT")){
-				        valorDefecto = "-1.0";
+				        valorDefecto = "0.0";
 			        } else {
-				        valorDefecto = "-1";
+				        valorDefecto = "0";
 			        }
 			        $$= crearTerceto(new ParserVal(":="),
 			        new ParserVal(parametro),
@@ -415,9 +415,9 @@ sentencia_lambda
             if ($1.sval != null){
                 // asignamos el argumento al paramtero
                 if (TablaSimbolos.TABLA_SIMBOLOS.get($1.sval).getTipo().contains("INT")){
-                    $$ = crearTerceto(new ParserVal(":="),$1,new ParserVal("-1"));
+                    $$ = crearTerceto(new ParserVal(":="),$1,new ParserVal("0"));
                 } else {
-                    $$ = crearTerceto(new ParserVal(":="),$1,new ParserVal("-1.0"));
+                    $$ = crearTerceto(new ParserVal(":="),$1,new ParserVal("0.0"));
                 }
 
                 int numTercetoActual = ((Terceto)$$.obj).getSoloNumTerceto();
@@ -709,14 +709,14 @@ lista_tipos
             String auxString = "aux" + String.valueOf(contadorVariablesAuxTercetos);
             //defino con que tipo de valor debo inicializar terceto auxiliar
             String tipoReal = "INT";
-            String valorInicio = "-1";
+            String valorInicio = "0";
             if ($3.sval.contains("float")){
                 tipoReal = "FLOAT";
-                valorInicio = "-1.0";
+                valorInicio = "0.0";
                 TablaSimbolos.TABLA_SIMBOLOS.put(auxString + "."+ ambito, new Info(auxString, "ID", "FLOAT", "Variable", ambito));
             } else {
                 tipoReal = "INT";
-                valorInicio = "-1";
+                valorInicio = "0";
                 TablaSimbolos.TABLA_SIMBOLOS.put(auxString + "."+ ambito, new Info(auxString, "ID", "INT", "Variable", ambito));
             };
             //creacion de terceto con variable auxiliar
@@ -742,14 +742,14 @@ lista_tipos
             String auxString = "aux" + String.valueOf(contadorVariablesAuxTercetos);
             //defino con que tipo de valor debo inicializar terceto auxiliar
             String tipoReal = "INT"; // Valor por defecto o detectado
-            String valorInicio = "-1";
+            String valorInicio = "0";
             if ($1.sval.contains("float")){
                 tipoReal = "FLOAT";
-                valorInicio = "-1.0";
+                valorInicio = "0.0";
                 TablaSimbolos.TABLA_SIMBOLOS.put(auxString + "."+ ambito, new Info(auxString, "ID", "FLOAT", "Variable", ambito));
             } else {
                 tipoReal = "INT";
-                valorInicio = "-1";
+                valorInicio = "0";
                 TablaSimbolos.TABLA_SIMBOLOS.put(auxString + "."+ ambito, new Info(auxString, "ID", "INT", "Variable", ambito));
 
             };
@@ -1595,6 +1595,7 @@ invocacion_funcion
 
                     listaTercetos.add((Terceto)yyval.obj);
                     ((Terceto)yyval.obj).addLine(cursor.getCurrentLine());
+                    ((Terceto)$$.obj).addTipo(paramInfo.getTipo());
                 }
             }
             if (listaParametros.size() < listaParametrosFormales.size() ){
@@ -1695,15 +1696,18 @@ public static void main (String [] args) {
 	String rutaASM = "data/programa.asm";
 	Logger.exportarTercetos(rutaTercetos);
 
-	System.out.println("TablaSimbolos: " + TablaSimbolos.TABLA_SIMBOLOS);
 
+    TablaSimbolos.printTabla();
 	System.out.println(); System.out.println();
 
 	System.out.println(Logger.generateLog());
 
 	System.out.println(); System.out.println();
 
-	System.out.println("\nLista de Tercetos: "+ listaTercetos);
+	System.out.println("\nLista de Tercetos: ");
+    for (Terceto t : listaTercetos) {
+        System.out.println(t);
+    }
 
 	System.out.println(); System.out.println();
 

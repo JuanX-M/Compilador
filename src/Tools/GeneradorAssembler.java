@@ -24,9 +24,9 @@ public class GeneradorAssembler {
     }
 
     private List<Terceto> listaTercetos = new ArrayList<>();
-    private Set<String> variablesDeclaradas = new HashSet<>();
+    private Map<String, String> variablesDeclaradas = new HashMap<>();
     private Map<Integer, String> mapaComparaciones = new HashMap<>();
-
+    private Set<Integer> comparacionesFloat = new HashSet<>();
     // Mapas de constantes
     private Map<String, String> constantesString = new HashMap<>();
     private int contadorStrings = 0;
@@ -68,8 +68,8 @@ public class GeneradorAssembler {
                     Terceto t = new Terceto(id, op, arg1, arg2, tipo);
                     listaTercetos.add(t);
 
-                    recolectarVariable(t.op1);
-                    recolectarVariable(t.op2);
+                    recolectarVariable(t.op1, t.tipo);
+                    recolectarVariable(t.op2, t.tipo);
                 }
             }
         } catch (IOException e) {
@@ -77,7 +77,7 @@ public class GeneradorAssembler {
         }
     }
 
-    private void recolectarVariable(String token) {
+    private void recolectarVariable(String token, String tipo) {
         if (token == null) return;
         if (esReferencia(token)) return;
         if (token.startsWith("ETIQUETA")) return;
@@ -104,20 +104,26 @@ public class GeneradorAssembler {
         }
 
         // Si llegó acá, es una variable de usuario
-        variablesDeclaradas.add(limpiarNombre(token));
+        String nombreLimpio = limpiarNombre(token);
+
+        // Ahora 'tipo' viene como parámetro, así que podemos usarlo aquí
+        if (!variablesDeclaradas.containsKey(nombreLimpio) ||
+                (variablesDeclaradas.get(nombreLimpio) == null && tipo != null)) {
+            variablesDeclaradas.put(nombreLimpio, tipo);
+        }
     }
 
     private void escribirEncabezado(PrintWriter w) {
         w.println(".386");
         w.println(".model flat, stdcall");
         w.println("option casemap :none");
-        w.println("include C:\\masm32\\include\\windows.inc");
-        w.println("include C:\\masm32\\include\\kernel32.inc");
-        w.println("include C:\\masm32\\include\\user32.inc");
-        w.println("include C:\\masm32\\include\\masm32.inc");
-        w.println("includelib C:\\masm32\\lib\\kernel32.lib");
-        w.println("includelib C:\\masm32\\lib\\user32.lib");
-        w.println("includelib C:\\masm32\\lib\\masm32.lib");
+        w.println("include \\masm32\\include\\windows.inc");
+        w.println("include \\masm32\\include\\kernel32.inc");
+        w.println("include \\masm32\\include\\user32.inc");
+        w.println("include \\masm32\\include\\masm32.inc");
+        w.println("includelib \\masm32\\lib\\kernel32.lib");
+        w.println("includelib \\masm32\\lib\\user32.lib");
+        w.println("includelib \\masm32\\lib\\masm32.lib");
         w.println();
     }
 
@@ -125,11 +131,17 @@ public class GeneradorAssembler {
         w.println(".DATA");
 
         w.println("    ; Variables de usuario");
-        for (String var : variablesDeclaradas) {
+        for (Map.Entry<String, String> entry : variablesDeclaradas.entrySet()) {
+            String var = entry.getKey();
+            String tipo = entry.getValue();
+
+            // Decidimos la directiva: DW para INT y DD para FLOAT
+            String directiva = (tipo != null && tipo.equalsIgnoreCase("FLOAT")) ? "DD" : "DW";
+
             if (!var.isEmpty() && Character.isDigit(var.charAt(0))) {
-                w.println("    var_" + var + " DD 0");
+                w.println("    var_" + var + " " + directiva + " 0");
             } else {
-                w.println("    " + var + " DD 0");
+                w.println("    " + var + " " + directiva + " 0");
             }
         }
 
@@ -151,7 +163,17 @@ public class GeneradorAssembler {
         // Variables temporales
         for (Terceto t : listaTercetos) {
             if (esOperacionAritmetica(t.operador) || t.operador.equals("toi")) {
-                w.println("    @temp_terceto_" + t.id + " DD 0");
+
+                String directiva;
+                if (t.operador.equals("toi")) {
+                    // Si es TOI, el resultado SIEMPRE es entero (DW)
+                    directiva = "DW";
+                } else {
+                    // Para el resto, respetamos el tipo del terceto
+                    directiva = (t.tipo != null && t.tipo.equalsIgnoreCase("FLOAT")) ? "DD" : "DW";
+                }
+
+                w.println("    @temp_terceto_" + t.id + " " + directiva + " 0");
             }
         }
 
@@ -201,8 +223,14 @@ public class GeneradorAssembler {
                 case ":=":
                     String destino = limpiarNombre(t.op1);
                     String origen = resolverOperando(t.op2);
-                    w.println("    MOV EAX, " + origen);
-                    w.println("    MOV " + destino + ", EAX");
+                    // Verificar si el terceto es de tipo FLOAT
+                    if (t.tipo != null && t.tipo.equalsIgnoreCase("FLOAT")) {
+                        w.println("    FLD " + origen);
+                        w.println("    FSTP " + destino);
+                    } else {
+                        w.println("    MOV AX, " + origen);
+                        w.println("    MOV " + destino + ", AX");
+                    }
                     break;
 
                 case "+":
@@ -314,14 +342,20 @@ public class GeneradorAssembler {
             w.println("    invoke FloatToStr, _aux_float_print, addr buffer_print");
             w.println("    invoke StdOut, addr buffer_print");
         }
-        //Imprimir Entero
+        // Imprimir Entero
         else {
-            w.println("    invoke dwtoa, " + valorPrint + ", addr buffer_print");
+            // --- CORRECCIÓN CRÍTICA ---
+            // 'dwtoa' requiere 32 bits. Nuestras variables son de 16 bits.
+            // 1. Cargamos el valor de 16 bits en AX
+            w.println("    MOV AX, " + valorPrint);
+            // 2. Extendemos el signo de AX a EAX (16 -> 32 bits)
+            w.println("    CWDE");
+            // 3. Llamamos a dwtoa pasando EAX
+            w.println("    invoke dwtoa, EAX, addr buffer_print");
             w.println("    invoke StdOut, addr buffer_print");
         }
         w.println("    invoke StdOut, addr newline");
     }
-
     private void generarAritmetica(PrintWriter w, Terceto t) {
         String val1 = resolverOperando(t.op1);
         String val2 = resolverOperando(t.op2);
@@ -366,20 +400,20 @@ public class GeneradorAssembler {
 
         } else {
             // INT
-            w.println("    MOV EAX, " + val1);
+            w.println("    MOV AX, " + val1);
             switch (t.operador) {
-                case "+": w.println("    ADD EAX, " + val2); break;
-                case "-": w.println("    SUB EAX, " + val2); break;
-                case "*": w.println("    IMUL EAX, " + val2); break;
+                case "+": w.println("    ADD AX, " + val2); break;
+                case "-": w.println("    SUB AX, " + val2); break;
+                case "*": w.println("    IMUL AX, " + val2); break;
                 case "/":
-                    w.println("    MOV ECX, " + val2);
-                    w.println("    CMP ECX, 0");
+                    w.println("    MOV CX, " + val2);
+                    w.println("    CMP CX, 0");
                     w.println("    JE Label_Error_DivZero");
-                    w.println("    CDQ");
-                    w.println("    IDIV ECX");
+                    w.println("    CWD");        // Extiende AX a DX:AX
+                    w.println("    IDIV CX");    // Divide DX:AX por CX
                     break;
             }
-            w.println("    MOV @temp_terceto_" + t.id + ", EAX");
+            w.println("    MOV @temp_terceto_" + t.id + ", AX");
         }
     }
 
@@ -392,9 +426,10 @@ public class GeneradorAssembler {
             w.println("    FCOM " + val2);
             w.println("    FSTSW AX");
             w.println("    SAHF");
+            comparacionesFloat.add(t.id);
         } else {
-            w.println("    MOV EAX, " + val1);
-            w.println("    CMP EAX, " + val2);
+            w.println("    MOV AX, " + val1);
+            w.println("    CMP AX, " + val2);
         }
         mapaComparaciones.put(t.id, t.operador);
     }
@@ -403,22 +438,43 @@ public class GeneradorAssembler {
         String refCondicion = t.op1;
         String destino = resolverLabel(t.op2);
         String operadorPrevio = "";
+        boolean esFloat = false;
 
+        // Recuperamos el operador y verificamos si la comparación original era Float
         if (esReferencia(refCondicion)) {
             int idCond = obtenerIdDesdeReferencia(refCondicion);
             operadorPrevio = mapaComparaciones.getOrDefault(idCond, "");
+            esFloat = comparacionesFloat.contains(idCond); // Consultamos el Set
         }
 
         String instruccionSalto = "JMP";
-        switch (operadorPrevio) {
-            case "<":  instruccionSalto = "JGE"; break;
-            case ">":  instruccionSalto = "JLE"; break;
-            case "<=": instruccionSalto = "JG";  break;
-            case ">=": instruccionSalto = "JL";  break;
-            case "==": instruccionSalto = "JNE"; break;
-            case "!=":
-            case "<>": instruccionSalto = "JE";  break;
+
+        if (esFloat) {
+            // --- Lógica FLOAT (Unsigned) ---
+            // Usamos JA, JB, JAE, JBE porque los flags vienen de SAHF tras un FCOM
+            switch (operadorPrevio) {
+                case "<":  instruccionSalto = "JAE"; break; // Negación de < (JB) es >= (JAE)
+                case ">":  instruccionSalto = "JBE"; break; // Negación de > (JA) es <= (JBE)
+                case "<=": instruccionSalto = "JA";  break; // Negación de <= (JBE) es > (JA)
+                case ">=": instruccionSalto = "JB";  break; // Negación de >= (JAE) es < (JB)
+                case "==": instruccionSalto = "JNE"; break;
+                case "!=":
+                case "<>": instruccionSalto = "JE";  break;
+            }
+        } else {
+            // --- Lógica INT (Signed) ---
+            // Usamos JG, JL, JGE, JLE para enteros con signo
+            switch (operadorPrevio) {
+                case "<":  instruccionSalto = "JGE"; break; // Negación de < es >=
+                case ">":  instruccionSalto = "JLE"; break; // Negación de > es <=
+                case "<=": instruccionSalto = "JG";  break; // Negación de <= es >
+                case ">=": instruccionSalto = "JL";  break; // Negación de >= es <
+                case "==": instruccionSalto = "JNE"; break;
+                case "!=":
+                case "<>": instruccionSalto = "JE";  break;
+            }
         }
+
         w.println("    " + instruccionSalto + " " + destino);
     }
 
